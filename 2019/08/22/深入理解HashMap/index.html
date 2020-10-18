@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>深入理解HashMap | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="java,数学">
+    <meta name="description" content="原理HashMap的底层采用的散列算法是拉链法（另一种散列算法是线性探测法）。并且在JDK1.8中使用红黑树对长链表进行优化。 初始容量、负载因子、阈值初始容量比较好理解，阈值指的是当桶的个数超过了这个值后Hash表会进行扩容。 /** * The next size value at which to resize (capacity * load factor). * * @serial */">
+<meta name="keywords" content="java,数学">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解HashMap">
+<meta property="og:url" content="https://consoles.fun/2019/08/22/深入理解HashMap/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="原理HashMap的底层采用的散列算法是拉链法（另一种散列算法是线性探测法）。并且在JDK1.8中使用红黑树对长链表进行优化。 初始容量、负载因子、阈值初始容量比较好理解，阈值指的是当桶的个数超过了这个值后Hash表会进行扩容。 /** * The next size value at which to resize (capacity * load factor). * * @serial */">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/22/7b896d80-c4cb-11e9-a588-7b887be857df.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.026Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解HashMap">
+<meta name="twitter:description" content="原理HashMap的底层采用的散列算法是拉链法（另一种散列算法是线性探测法）。并且在JDK1.8中使用红黑树对长链表进行优化。 初始容量、负载因子、阈值初始容量比较好理解，阈值指的是当桶的个数超过了这个值后Hash表会进行扩容。 /** * The next size value at which to resize (capacity * load factor). * * @serial */">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/22/7b896d80-c4cb-11e9-a588-7b887be857df.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">深入理解HashMap</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">深入理解HashMap</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-22T05:11:12.000Z" itemprop="datePublished" class="page-time">
+  2019-08-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a><ul class="article-category-list-child"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/算法/">算法</a></li></ul></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#原理"><span class="post-toc-text">原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#初始容量、负载因子、阈值"><span class="post-toc-text">初始容量、负载因子、阈值</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#为什么大部分hashCode都选用素数31"><span class="post-toc-text">为什么大部分hashCode都选用素数31</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#HashMap-的-hash-算法的实现原理"><span class="post-toc-text">HashMap 的 hash 算法的实现原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#HashMap-为什么使用-amp-与运算代替模运算"><span class="post-toc-text">HashMap 为什么使用 &amp; 与运算代替模运算</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#如何手动构造哈希冲突"><span class="post-toc-text">如何手动构造哈希冲突</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#HashMap-的容量为什么建议是-2的幂次方"><span class="post-toc-text">HashMap 的容量为什么建议是 2的幂次方</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#为什么HashMap非线程安全而HashTable线程安全"><span class="post-toc-text">为什么HashMap非线程安全而HashTable线程安全</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考链接"><span class="post-toc-text">参考链接</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-深入理解HashMap"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">深入理解HashMap</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-22 13:11:12" datetime="2019-08-22T05:11:12.000Z"  itemprop="datePublished">2019-08-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a><ul class="article-category-list-child"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/算法/">算法</a></li></ul></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>HashMap的底层采用的散列算法是拉链法（另一种散列算法是线性探测法）。并且在JDK1.8中使用红黑树对长链表进行优化。</p>
+<h2 id="初始容量、负载因子、阈值"><a href="#初始容量、负载因子、阈值" class="headerlink" title="初始容量、负载因子、阈值"></a>初始容量、负载因子、阈值</h2><p>初始容量比较好理解，阈值指的是当桶的个数超过了这个值后Hash表会进行扩容。</p>
+<pre><code class="lang-java">/**
+* The next size value at which to resize (capacity * load factor).
+*
+* @serial
+*/
+// (The javadoc description is true upon serialization.
+// Additionally, if the table array has not been allocated, this
+// field holds the initial array capacity, or zero signifying
+// DEFAULT_INITIAL_CAPACITY.)
+int threshold;
+</code></pre>
+<p>注释中说的是阈值可以通过容量乘以负载因子得到，但是实际上我们通过的是<code>tableSizeFor</code>方法初始化阈值：</p>
+<pre><code class="lang-java">public HashMap(int initialCapacity, float loadFactor) {
+    if (initialCapacity &lt; 0)
+        throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; +
+                                            initialCapacity);
+    if (initialCapacity &gt; MAXIMUM_CAPACITY)
+        initialCapacity = MAXIMUM_CAPACITY;
+    if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))
+        throw new IllegalArgumentException(&quot;Illegal load factor: &quot; +
+                                            loadFactor);
+    this.loadFactor = loadFactor;
+    this.threshold = tableSizeFor(initialCapacity);  // 根据初始容量得到阈值，例如初始容量为10，则阈值为16
+}
+
+/**
+* Returns a power of two size for the given target capacity.
+*/
+static final int tableSizeFor(int cap) {
+    int n = cap - 1;
+    n |= n &gt;&gt;&gt; 1; 
+    n |= n &gt;&gt;&gt; 2;
+    n |= n &gt;&gt;&gt; 4;
+    n |= n &gt;&gt;&gt; 8;
+    n |= n &gt;&gt;&gt; 16;
+    return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+}
+</code></pre>
+<p>下面分析这个算法：<br>首先，为什么要对cap做减1操作。<code>int n = cap - 1;</code> 这是为了防止，cap已经是2的幂。如果cap已经是2的幂，又没有执行这个减1操作，则执行完后面的几条无符号右移操作之后，返回的capacity将是这个cap的2倍。如果不懂，要看完后面的几个无符号右移之后再回来看看。 </p>
+<p>下面看看这几个无符号右移操作：<br>如果n这时为0了（经过了cap-1之后），则经过后面的几次无符号右移依然是0，最后返回的capacity是1（最后有个n+1的操作）。 </p>
+<p>这里只讨论n不等于0的情况。 </p>
+<p><strong>第一次右移</strong></p>
+<p>由于n不等于0，则n的二进制表示中总会有一bit为1，这时考虑最高位的1。通过无符号右移1位，则将最高位的1右移了1位，再做或操作，使得n的二进制表示中与最高位的1紧邻的右边一位也为1，如000011xxxxxx</p>
+<p><strong>第二次右移</strong></p>
+<p>注意，这个n已经经过了<code>n |= n &gt;&gt;&gt; 1;</code>操作。假设此时n为000011xxxxxx ，则n无符号右移两位，会将最高位两个连续的1右移两位，然后再与原来的n做或操作，这样n的二进制表示的高位中会有4个连续的1。如00001111xxxxxx </p>
+<p><strong>第三次右移</strong></p>
+<p>这次把已经有的高位中的连续的4个1，右移4位，再做或操作，这样n的二进制表示的高位中会有8个连续的1。如00001111 1111xxxxxx 。 以此类推。 </p>
+<p>注意，容量最大也就是32bit的正数，因此最后<code>n |= n &gt;&gt;&gt; 16;</code>，最多也就32个1，但是这时已经大于了MAXIMUM_CAPACITY，所以取值到MAXIMUM_CAPACITY。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/22/7b896d80-c4cb-11e9-a588-7b887be857df.png" alt="使用移位运算算数组的阈值" title>
+                </div>
+                <div class="image-caption">使用移位运算算数组的阈值</div>
+            </figure> 
+<h1 id="为什么大部分hashCode都选用素数31"><a href="#为什么大部分hashCode都选用素数31" class="headerlink" title="为什么大部分hashCode都选用素数31"></a>为什么大部分hashCode都选用素数31</h1><p>String类的hashCode实现是这样的：</p>
+<pre><code class="lang-java">public int hashCode() {
+    int h = hash;
+    if (h == 0 &amp;&amp; value.length &gt; 0) {
+        char val[] = value;
+
+        for (int i = 0; i &lt; value.length; i++) {
+            h = 31 * h + val[i];
+        }
+        hash = h;
+    }
+    return h;
+}
+</code></pre>
+<p>idea自动生成的hashCode方法调用的是Object.hash，而Object.hash调用的是Arrays.hash，如下所示：</p>
+<pre><code class="lang-java">public static int hashCode(Object a[]) {
+    if (a == null)
+        return 0;
+
+    int result = 1;
+
+    for (Object element : a)
+        result = 31 * result + (element == null ? 0 : element.hashCode());
+
+    return result;
+}
+</code></pre>
+<blockquote>
+<p>从上面的代码中，我们也可以发现<em>HashMap是允许空键的</em></p>
+</blockquote>
+<p>都不约而同使用了<strong>素数31</strong>。为什么要选择这样一个素数呢？</p>
+<ul>
+<li>第一，31是一个不大不小的质数，是作为 hashCode 乘子的优选质数之一。另外一些相近的质数，比如37、41、43等等，也都是不错的选择。那么为啥偏偏选中了31呢？请看第二个原因。</li>
+<li>第二、31可以被 JVM 优化，<code>31 * i = (i &lt;&lt; 5) - i</code>。</li>
+</ul>
+<h1 id="HashMap-的-hash-算法的实现原理"><a href="#HashMap-的-hash-算法的实现原理" class="headerlink" title="HashMap 的 hash 算法的实现原理"></a>HashMap 的 hash 算法的实现原理</h1><p>为什么右移 16 位，为什么要使用异或。</p>
+<pre><code class="lang-java">static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<p>HashMap在寻找桶的时候不会直接调用对象的hashCode取得下标，而是会使用上面的<strong>抖动函数</strong>对对象的hashCode再进行一次加工，使求得到的哈希值分布尽量平均。但是为什么移动16位，为什么异或？</p>
+<p>在分析这个问题之前，我们需要先看看另一个事情，什么呢？就是 HashMap 如何根据 hash 值找到数组种的对象，我们看看 get 方法的代码：</p>
+<pre><code class="lang-java">final Node&lt;K,V&gt; getNode(int hash, Object key) {
+    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;
+    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+        (first = tab[(n - 1) &amp; hash]) != null) {
+        if (first.hash == hash &amp;&amp; // always check first node
+            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+            if (first instanceof TreeNode)
+                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);
+            do {
+                if (e.hash == hash &amp;&amp;
+                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+</code></pre>
+<p>我们看看代码中注释下方的一行代码：<code>first = tab[(n - 1) &amp; hash]</code>。</p>
+<p>使用数组的最后一个索引和传入的hash值进行<em>与运算</em>。这句代码就是为什么要让前面的抖动函数移位并异或。</p>
+<p>如果不经过抖动函数的处理，假设有一种情况：</p>
+<p>a.hashCode: 01000010001110001000001111000000<br>b.hashCode: 00111011100111000101000010100000</p>
+<p>假设数组长度为16，也就是说上面两个数要和15(转化成二进制是28个0加4个1)进行与操作，因为a和b的后4位都是1，从而结果都是0。换而言之：<strong>如果不经过抖动函数的处理，则丢失了高位的细节，hash不均匀</strong>。但是如果我们将 hashCode 值右移 16 位，也就是取 int 类型的一半，刚好将该二进制数对半切开。并且使用位异或运算（如果两个数对应的位置相反，则结果为1，反之为0），这样的话，就能避免我们上面的情况的发生。</p>
+<p>总的来说，使用位移 16 位和 异或 就是防止这种极端情况。但是，该方法在一些极端情况下还是有问题，比如：10000000000000000000000000 和 1000000000100000000000000 这两个数，如果数组长度是16，那么即使右移16位，在异或，hash 值还是会重复。但是为了性能，对这种极端情况，JDK 的作者选择了性能。毕竟这是少数情况，为了这种情况去增加 hash 时间，性价比不高。</p>
+<h1 id="HashMap-为什么使用-amp-与运算代替模运算"><a href="#HashMap-为什么使用-amp-与运算代替模运算" class="headerlink" title="HashMap 为什么使用 &amp; 与运算代替模运算"></a>HashMap 为什么使用 &amp; 与运算代替模运算</h1><p>计算数组下标的方法中使用了<code>tab[(n - 1) &amp; hash]</code>。这个代码其实和<code>tab[hash % n]</code>是一样的（n是数组长度，等于2的幂）。抽象成一般情况就是：<code>a % b == (b - 1) &amp; a</code>（b是2的幂）。</p>
+<p>我们可以这样思考：当b是2个幂的时候，b-1可以得到末位全是1的数字，例如:</p>
+<p>(11)~2~ = 3<br>(111)~2~ = 7<br>(1111)~2~ = 15</p>
+<p>可以看出b-1其实是掩码，和这个数字进行与运算其实是和求余数是等价的（过滤高位的结果，并且低位保持不变，数据区间[0,掩码]）。</p>
+<h1 id="如何手动构造哈希冲突"><a href="#如何手动构造哈希冲突" class="headerlink" title="如何手动构造哈希冲突"></a>如何手动构造哈希冲突</h1><p>复用上面的概念，传入的hash与掩码进行与运算可以得到哈希桶的索引，我们只需要手动让索引全部相等即可。例如：假设此时hash桶的个数为16 = 2^4，则掩码为(1111)~2~。</p>
+<p>如果我们希望碰撞后的索引位于0号索引，则二进制表示就是0,10000,100000,110000 …. 我们只要保证构造的数据后4位（和掩码的位数相同）都是0即可.</p>
+<pre><code class="lang-js">const max = 0x7fffffff;
+const bit = 14;
+const mask = 1 &lt;&lt; bit - 1;
+const size = 1 &lt;&lt; bit;
+const hashCollisionKeys = [];
+
+// 构造hash冲突的元素
+for (let cur = 0; cur &gt;= 0 &amp;&amp; cur &lt;= max; cur += size) {
+  hashCollisionKeys.push(String(cur));
+}
+
+console.log(&#39;key的长度&#39;, hashCollisionKeys.length);
+
+const _ = require(&#39;lodash&#39;);
+
+const normalKeys = [];
+for (let i = 0; i &lt; hashCollisionKeys.length; i++) {
+  normalKeys.push(String(_.random(0, max)));
+}
+
+const map1 = new Map();
+const map2 = new Map();
+
+console.time(&#39;normal#insert&#39;);
+for (const key of normalKeys) {
+  map1.set(key, 1);
+}
+console.timeEnd(&#39;normal#insert&#39;);
+
+console.time(&#39;collision#insert&#39;);
+for (const key of hashCollisionKeys) {
+  map2.set(key, 1);
+}
+console.timeEnd(&#39;collision#insert&#39;);
+
+console.time(&#39;normal#get&#39;);
+for (let i = 0; i &lt; 1000; i++) {
+  map1.get(_.sample(normalKeys));
+}
+console.timeEnd(&#39;normal#get&#39;);
+
+console.time(&#39;collision#get&#39;);
+for (let i = 0; i &lt; 1000; i++) {
+  map2.get(_.sample(hashCollisionKeys));
+}
+console.timeEnd(&#39;collision#get&#39;);
+</code></pre>
+<p>我们知道Integer类型的hashCode等于其自身，因此以上述结果做成的键作为Hash表的key将会导致Hash冲突，性能急剧下降。</p>
+<pre><code>key的长度 131072
+normal#insert: 31.981ms
+collision#insert: 23341.859ms
+normal#get: 1.100ms
+collision#get: 158.040ms
+</code></pre><p>以这样的整数作为键插入到HashMap中会造成Hash冲突，利用这个原理可以进行<a href="https://blog.it2048.cn/article-java-hash-collision/" target="_blank" rel="noopener">哈希碰撞攻击</a>。</p>
+<h1 id="HashMap-的容量为什么建议是-2的幂次方"><a href="#HashMap-的容量为什么建议是-2的幂次方" class="headerlink" title="HashMap 的容量为什么建议是 2的幂次方"></a>HashMap 的容量为什么建议是 2的幂次方</h1><p>假设数组容量为10，即与运算的对象是10 = (1010)~2~</p>
+<p>任何一个二进制数和以上的结果进行运算只会产生0000,0010,1000,1010，4种结果，而1111，0111 ……根本不会出现，因此<strong>和一个掩码进行与运算可以得到的散列结果最多</strong>。散列结果最多可以理解为数据分布比较均匀，不容易产生哈希碰撞。</p>
+<p>所以，当我们为HashMap指定初始容量的时候应该向上乘以1.33倍(0.75倍扩容)，再向上取一个二进制数。</p>
+<h1 id="为什么HashMap非线程安全而HashTable线程安全"><a href="#为什么HashMap非线程安全而HashTable线程安全" class="headerlink" title="为什么HashMap非线程安全而HashTable线程安全"></a>为什么HashMap非线程安全而HashTable线程安全</h1><p>查看源码可知HashTable大部分方法都被<code>synchronized</code>关键字修饰过。HashTable的Hash算法采用的取余，而HashMap用位运算；HashTable每次扩容的时候是原先的2倍容量加1，HashMap是2的幂。</p>
+<p>其实应对并发场景，推荐使用<code>ConcurrentHashMap</code>，因为HashTable虽然是线程安全的，但是使用的的是<code>synchronized</code>关键字修饰方法，<strong>相当于对对象进行上锁</strong>，所以当Hashtable的大小增加到一定的时候，性能会急剧下降，因为迭代时需要被锁定很长的时间。</p>
+<p>JDK 1.8中ConcurrentHashMap采用的是CAS原理。如果没有Hash冲突则进行CAS插入，否则使用syn关键字较低粒度锁住节点，进行插入。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a href="http://www.tianxiaobo.com/2018/01/18/String-hashCode-%E6%96%B9%E6%B3%95%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9%E6%95%B0%E5%AD%9731%E4%BD%9C%E4%B8%BA%E4%B9%98%E5%AD%90/" target="_blank" rel="noopener">为什么常用的hash算法中用31作为乘子</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.026Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/08/22/深入理解HashMap/" target="_blank" rel="external">https://consoles.fun/2019/08/22/深入理解HashMap/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数学/">数学</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/22/深入理解HashMap/&title=《深入理解HashMap》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/22/深入理解HashMap/&title=《深入理解HashMap》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/22/深入理解HashMap/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《深入理解HashMap》 — 雨碎江南&url=https://consoles.fun/2019/08/22/深入理解HashMap/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/22/深入理解HashMap/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/22/面试常用套路/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">面试常用套路</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/02/20/redpacket-system/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">红包业务系统的构建</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/22/深入理解HashMap/&title=《深入理解HashMap》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/22/深入理解HashMap/&title=《深入理解HashMap》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/22/深入理解HashMap/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《深入理解HashMap》 — 雨碎江南&url=https://consoles.fun/2019/08/22/深入理解HashMap/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/22/深入理解HashMap/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNUlEQVR42u3a246DMAxF0f7/TzOvHVWEfWxaCWfnqWIQZE0l15e8Xngdb+v9yudnfv/ZPZ9Pu23JkCHjsYxjuciLa/+I9dv53mTIkLEP4+zF63DJt7vmkTB9sWcZMmTIKCV/6ztr75UhQ4aMlJEWpQdeMmTIkFErYjmJJILrPXyxFpchQ8YDGbVS8zefvzLfkCFDxqMYR7g6iSAPwfGuZMiQMZrBA1ytvOTDgzTgypAhY08GLxfX1/kRCj4cRcmiDBkytmH0i9jOFX7w4qJrKEOGjEEM0monYZff02nznV6XIUPGBow07JKAmyaXtSHov66hDBkyhjI6LTYeRnmrLk1Y4wGnDBkyBjF4i42PIfvPiQOuDBkyBjH40QqertXCdO3ghQwZMmYzaqPEtNCtBeKg/SdDhozRjNpIMh0Y9AtXdPxChgwZGzNSXpoy8mQ0qLxlyJAxjpHC1gD+V5443jAYkCFDxmMZvO1OEr5a4UqabigplCFDxlBGrQWWhuN0WyQ1vPhOZMiQMZSRlqM8mes37FBoliFDxgaMNPCRl6V38vr04syIDBkyhjLSgrPWvk8TR15yy5AhYyrjCFctINaOZQStPRkyZIxmpEPNWiPsriFoJ1jLkCHj6QwSIu9qyaWDgWDMKUOGjA0YfFudtLJW+iKkDBkyZJTK1PRQRSuHlSFDhgzwuH7LjIfj2343ZMiQ8ShGLaVrHY/A4wF0XEyGDBmjGWneRcaZ6eCzc12GDBmjGX/XBSLglJuygAAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

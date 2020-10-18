@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>MySQL查询优化和数据库监控 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="MySQL,性能优化">
+    <meta name="description" content="如何确定查询处理的各个阶段所消耗的时间使用profilemysql&amp;gt; set profiling=1; -- 启用profile，这是一个session级别的配置 mysql&amp;gt; select count(*) from film; -- 执行任意SQL mysql&amp;gt; show profiles; -- 查看profile，可以看到query id，duration和具体的sql">
+<meta name="keywords" content="MySQL,性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL查询优化和数据库监控">
+<meta property="og:url" content="https://consoles.fun/2016/08/02/mysql-query-optimize/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="如何确定查询处理的各个阶段所消耗的时间使用profilemysql&amp;gt; set profiling=1; -- 启用profile，这是一个session级别的配置 mysql&amp;gt; select count(*) from film; -- 执行任意SQL mysql&amp;gt; show profiles; -- 查看profile，可以看到query id，duration和具体的sql">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-query-optimize-proformance-schema.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-1.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-2.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-3.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-master-slave-monitor.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.988Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL查询优化和数据库监控">
+<meta name="twitter:description" content="如何确定查询处理的各个阶段所消耗的时间使用profilemysql&amp;gt; set profiling=1; -- 启用profile，这是一个session级别的配置 mysql&amp;gt; select count(*) from film; -- 执行任意SQL mysql&amp;gt; show profiles; -- 查看profile，可以看到query id，duration和具体的sql">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-query-optimize-proformance-schema.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL查询优化和数据库监控</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL查询优化和数据库监控</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-08-02T02:18:58.000Z" itemprop="datePublished" class="page-time">
+  2016-08-02
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何确定查询处理的各个阶段所消耗的时间"><span class="post-toc-text">如何确定查询处理的各个阶段所消耗的时间</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用profile"><span class="post-toc-text">使用profile</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用performance-schema"><span class="post-toc-text">使用performance_schema</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#特定SQL的查询优化"><span class="post-toc-text">特定SQL的查询优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关于大表的更新"><span class="post-toc-text">关于大表的更新</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#如何优化NOT-IN和-lt-gt-的查询"><span class="post-toc-text">如何优化NOT IN和&lt;&gt;的查询</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分库分表"><span class="post-toc-text">分库分表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据库监控"><span class="post-toc-text">数据库监控</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DB可用性监控"><span class="post-toc-text">DB可用性监控</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DB性能监控"><span class="post-toc-text">DB性能监控</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#如何计算QPS和TPS"><span class="post-toc-text">如何计算QPS和TPS</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主从复制的监控"><span class="post-toc-text">主从复制的监控</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-mysql-query-optimize"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL查询优化和数据库监控</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-08-02 10:18:58" datetime="2016-08-02T02:18:58.000Z"  itemprop="datePublished">2016-08-02</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="如何确定查询处理的各个阶段所消耗的时间"><a href="#如何确定查询处理的各个阶段所消耗的时间" class="headerlink" title="如何确定查询处理的各个阶段所消耗的时间"></a>如何确定查询处理的各个阶段所消耗的时间</h2><h3 id="使用profile"><a href="#使用profile" class="headerlink" title="使用profile"></a>使用profile</h3><pre><code class="lang-bash">mysql&gt; set profiling=1; -- 启用profile，这是一个session级别的配置
+mysql&gt; select count(*) from film; -- 执行任意SQL
+mysql&gt; show profiles; -- 查看profile，可以看到query id，duration和具体的sql
+mysql&gt; show profile for query 5; -- 查看某个query id的各个阶段的消耗时间
+mysql&gt; show profile cpu for query 5; -- 查看CPU信息
+-- 以上的查询中我们可以看到都有一个警告信息
+mysql&gt; show warnings; -- 查看警告信息,发现警告信息是show profile已经被废弃了，官方建议使用Performance Schema
+</code></pre>
+<h3 id="使用performance-schema"><a href="#使用performance-schema" class="headerlink" title="使用performance_schema"></a>使用performance_schema</h3><p> 和profile不同的是，该配置是全局的。要使用这个配置需要在<code>performance_schema</code>数据库下执行下面的2条update语句：</p>
+<pre><code class="lang-sql">UPDATE `setup_instruments` SET enabled=&#39;yes&#39;,timed=&#39;yes&#39; WHERE name LIKE &#39;stage%&#39;;
+UPDATE `setup_consumers` SET enabled=&#39;yes&#39; WHERE name LIKE &#39;events%&#39;;
+</code></pre>
+<p>执行完上面的2句执行任意的SQL，查看这些SQL在各个阶段的执行时间可以采用如下的查询：</p>
+<pre><code class="lang-sql">SELECT a.THREAD_ID,SQL_TEXT,c.EVENT_NAME,(c.TIMER_END - c.TIMER_START)/1000000000 AS &#39;DURATION(ms)&#39;
+FROM events_statements_history_long a
+JOIN threads b ON a.THREAD_ID = b.THREAD_ID
+JOIN events_stages_history_long c ON c.THREAD_ID = b.THREAD_ID AND c.EVENT_ID BETWEEN a.EVENT_ID AND a.END_EVENT_ID
+ORDER BY a.THREAD_ID,c.EVENT_ID;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-query-optimize-proformance-schema.png" alt="mysql proformance_schema" title>
+                </div>
+                <div class="image-caption">mysql proformance_schema</div>
+            </figure>
+<p>如上图，我们可以看到和profile类似的结果。</p>
+<h2 id="特定SQL的查询优化"><a href="#特定SQL的查询优化" class="headerlink" title="特定SQL的查询优化"></a>特定SQL的查询优化</h2><h3 id="关于大表的更新"><a href="#关于大表的更新" class="headerlink" title="关于大表的更新"></a>关于大表的更新</h3><ul>
+<li>大表的数据最好分批处理，例如1000W条数据中删除或者更新100W行记录，我们一次最好只删除或者更新5000行记录，并且为了减少对主从复制的压力，我们可以在每次修改后暂停若干秒，大表的更新和删除可以采用如下的存储过程：</li>
+<li>对大表结构的修改是一个更为严重的问题——修改表结构将会锁表，且无法解决主从复制数据库延迟的问题。一个比较好的方法是建立一个新表，将老表中的数据导入到新表中，并且在老表中建立一系列的触发器（把老表中数据的修改同步到新表中），当老表和新表的数据同步后对老表加一个<em>排它锁</em>，然后重新命名新表为老表的名字，最后删除重命名的老表。这种操作只会在重命名的时候加一个短暂的锁，通常对应用不会有影响，并且可以有效降低主从延迟。我们可以使用<a href="http://blog.chinaunix.net/uid-16844903-id-4010770.html" target="_blank" rel="noopener">pt-online-schema-shange工具</a>帮助我们完成上述复杂的操作。</li>
+</ul>
+<h3 id="如何优化NOT-IN和-lt-gt-的查询"><a href="#如何优化NOT-IN和-lt-gt-的查询" class="headerlink" title="如何优化NOT IN和&lt;&gt;的查询"></a>如何优化NOT IN和&lt;&gt;的查询</h3><p>NOT IN通常可以转化为LEFT JOIN可以避免对子查询表的多次查询。</p>
+<pre><code class="lang-sql">SELECT customer_id,first_name,last_name,email FROM customer WHERE customer_id NOT IN (SELECT customer_id FROM payment); -- 查询没有支付的用户记录
+-- 我们可以使用LEFT JOIN对以上的查询进行优化,可以避免对payment表进行多次关联查询
+SELECT a.customer_id,a.first_name,a.last_name,a.email FROM customer a LEFT JOIN payment b ON a.customer_id = b.customer_id WHERE b.customer_id IS NULL;
+</code></pre>
+<h2 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h2><p>如果需要分担数据库的读负载，我们可以使用主从复制的方式为数据库增加若然从服务器，通过读写分离的方式就可以将数据库的读负载分担到各个从服务器。但是随着业务的增长可能单一的主服务器就承担不了写的负载了。分库分表主要有以下的几种方式：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-1.png" alt="MySQL分库分表1" title>
+                </div>
+                <div class="image-caption">MySQL分库分表1</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-2.png" alt="MySQL分库分表2" title>
+                </div>
+                <div class="image-caption">MySQL分库分表2</div>
+            </figure>
+<p>注意上图中的一个数据库节点并不是一台数据库物理机器，而是多台机器组成的集群，集群中的数据是一致的。</p>
+<p>如果上面的2种方式还是不能满足要求就可以放终极大招了：表的水平拆分（又称为数据库分片），通常说的分库分表就是这种方式：</p>
+<p>对一个库中的相关表进行水平拆分到不同实例的数据库中。对数据库分片并不容易，并且对数据库分片后还会变得难以维护，不到万不得已不要轻易使用！</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-db-partion-3.png" alt="MySQL分库分表3" title>
+                </div>
+                <div class="image-caption">MySQL分库分表3</div>
+            </figure>
+<h2 id="数据库监控"><a href="#数据库监控" class="headerlink" title="数据库监控"></a>数据库监控</h2><ul>
+<li>对数据库服务的可用性进行监控。这里需要注意一点：数据库进程或者端口存在并不意味着数据库是可用的。我们必须通过网络连接到数据库并且确定数据库对外是可以提供服务的。</li>
+<li>对DB性能进行监控，最常见的2个指标是QPS和TPS。</li>
+<li>主从复制进行监控。主从复制状态的监控以及主从复制延迟的监控，定期确定主从复制的数据是否一致。</li>
+<li>对服务器资源进行监控。</li>
+</ul>
+<h3 id="DB可用性监控"><a href="#DB可用性监控" class="headerlink" title="DB可用性监控"></a>DB可用性监控</h3><pre><code class="lang-bash">$ mysqladmin -umonitor_user -p -h ping
+$ telnet ip db_port
+</code></pre>
+<p>但是<strong>最好</strong>的方式是通过程序通过网络建立数据库连接。除了监控DB服务可用，还需要确认DB是否可读写。</p>
+<ul>
+<li>检查DB的read_only是否为off。</li>
+<li>建立一张专门用于监控的表，通过程序定期对表进行读写操作。</li>
+<li>连接到DB后进行<code>select @@version</code>进行查询。</li>
+</ul>
+<p>最后需要监控DB的连接数，连接数目过大将不会对外提供服务。有很多原因可能导致数据库的连接过大，例如：出现阻塞或者缓存失效。</p>
+<ul>
+<li>首先获得最大连接的数量：<code>show variables like &#39;max_connections&#39;;</code></li>
+<li>获取当前DB连接数量：<code>show global status like &#39;Threads_connected&#39;;</code></li>
+<li>当Threads_connected / max_connections &gt; .8的时候可以发出报警。</li>
+</ul>
+<h3 id="DB性能监控"><a href="#DB性能监控" class="headerlink" title="DB性能监控"></a>DB性能监控</h3><h4 id="如何计算QPS和TPS"><a href="#如何计算QPS和TPS" class="headerlink" title="如何计算QPS和TPS"></a>如何计算QPS和TPS</h4><p>需要注意的是这里的Query并不特制SELECT，它包含DB处理的所有请求。TPS为每秒执行的事务数量，指的是INSERT,UPDATE,DELETE。DBMS的性能会随着并发处理请求的数量的增加而下降。通常情况下DB的并发量是固定的，并且远小于同一时间连接到DB的线程的数量。</p>
+<p>监控InnoDB的阻塞可以周期性执行以下的SQL：</p>
+<pre><code class="lang-sql">SELECT b.trx_mysql_thread_id AS &#39;被阻塞线程&#39;,
+    b.trx_query AS &#39;被阻塞SQL&#39;,
+    c.trx_mysql_thread_id &#39;阻塞线程&#39;,
+    c.trx_query AS &#39;阻塞SQL&#39;,
+    (UNIX_TIMESTAMP() - UNIX_TIMESTAMP(c.trx_started)) AS &#39;阻塞时间&#39;
+    FROM information_schema.innodb_lock_waits a
+    JOIN information_schema.innodb_trx b ON a.requesting_trx_id = b.trx_id
+    JOIN information_schema.innodb_trx c ON a.blocking_trx_id = c.trx_id
+    WHERE (UNIX_TIMESTAMP() - UNIX_TIMESTAMP(c.trx_started)) &gt; 60; -- 查询阻塞时间超过60s
+</code></pre>
+<h3 id="主从复制的监控"><a href="#主从复制的监控" class="headerlink" title="主从复制的监控"></a>主从复制的监控</h3><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-master-slave-monitor.png" alt="主从复制的监控" title>
+                </div>
+                <div class="image-caption">主从复制的监控</div>
+            </figure>
+<p>使用<a href="http://blog.chinaunix.net/uid-16844903-id-3360228.html" target="_blank" rel="noopener">pt-table-checksum</a>工具可以检查主从复制数据一致性</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.988Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/08/02/mysql-query-optimize/" target="_blank" rel="external">https://consoles.fun/2016/08/02/mysql-query-optimize/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能优化/">性能优化</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/08/02/mysql-query-optimize/&title=《MySQL查询优化和数据库监控》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/08/02/mysql-query-optimize/&title=《MySQL查询优化和数据库监控》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/08/02/mysql-query-optimize/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL查询优化和数据库监控》 — 雨碎江南&url=https://consoles.fun/2016/08/02/mysql-query-optimize/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/08/02/mysql-query-optimize/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/08/02/high-availability-mysql/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">高可用MySQL架构</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/07/29/mysql-index-optimize/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL索引优化</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/08/02/mysql-query-optimize/&title=《MySQL查询优化和数据库监控》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/08/02/mysql-query-optimize/&title=《MySQL查询优化和数据库监控》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/08/02/mysql-query-optimize/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL查询优化和数据库监控》 — 雨碎江南&url=https://consoles.fun/2016/08/02/mysql-query-optimize/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/08/02/mysql-query-optimize/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3a0YqEMAxG4Xn/l3ZvhaXu+RN3oM3plZRR+zkQkrSfDx7XbdxnVterGXLXff7lIUOGjG0Z1+P4/cp0uavfP6+Br02GDBlzGKtHP1/z35MwSj7fcl6GDBky8CL4/HMolyFDhowag5eyZKE83ZQhQ4YMXsSm5SUPpl+txWXIkLEhg3fdv3/9L/sbMmTI2IpxhSMN02mQrQ0ZMmSczagleTyJJPh0q2BZysqQIeNQBm9s8eWmTTcSxP9IWGXIkHE0I31BZ6Ox1lDjzTsZMmScyiChrXZUgofL2ntlyJAxh1F7dLq1ye+tteRkyJAxgfHuUvg341uVxX9AhgwZRzB4YO0kgjzI8vll11CGDBnHMdKzVZ1kMQ2jQb9QhgwZRzN4K40fv0hTvdpmgwwZMqYxak2xfvFJEkF0rwwZMgYweNGYlqb83s5RDxkyZMxhkIYXSd1ISfxyuilDhoyjGfyVPFCmC60VsTJkyJjG6Gwu8q3NWnCPw7EMGTIOZXTa+mShZCm1MC1DhoxpDP4ano+lqWdt40GGDBkTGKg45IEPB9OUge6VIUPGcYwrHOm3qR3z4mmlDBkyJjBqwY7P1LZCefkaY2TIkLEto38wgs+QYM1DuQwZMqYxaofG0g1LHnaLpawMGTJk4MWlmwrpobGgXyhDhozBDPLod0OwDBkyZNTSu35zv9b6f6EWlyFDxlaM9ABWfym1lLFT+sqQIWNbxg+QVq1jhbfrTwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

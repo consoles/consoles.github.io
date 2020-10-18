@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>搭建高可用MySQL架构 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="MySQL,性能优化">
+    <meta name="description" content="mysql存储引擎              DBMS的瓶颈在于IO而非CPU。  慎用数据库的一些特性，例如外键（业务量爆炸的时候分库分表将是一个灾难）。虽然不建议使用物理外键，但是相关联的列上一定要建立索引。">
+<meta name="keywords" content="MySQL,性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建高可用MySQL架构">
+<meta property="og:url" content="https://consoles.fun/2016/07/22/mysql-best-practice/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="mysql存储引擎              DBMS的瓶颈在于IO而非CPU。  慎用数据库的一些特性，例如外键（业务量爆炸的时候分库分表将是一个灾难）。虽然不建议使用物理外键，但是相关联的列上一定要建立索引。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-engine.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-isolation-pepeatable-read.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-arch.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-storage-engine.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.986Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="搭建高可用MySQL架构">
+<meta name="twitter:description" content="mysql存储引擎              DBMS的瓶颈在于IO而非CPU。  慎用数据库的一些特性，例如外键（业务量爆炸的时候分库分表将是一个灾难）。虽然不建议使用物理外键，但是相关联的列上一定要建立索引。">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-engine.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">搭建高可用MySQL架构</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">搭建高可用MySQL架构</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-07-22T13:33:27.000Z" itemprop="datePublished" class="page-time">
+  2016-07-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#在大促中什么影响了数据库性能"><span class="post-toc-text">在大促中什么影响了数据库性能</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#超高的QPS和TPS"><span class="post-toc-text">超高的QPS和TPS</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#大量并发和超过的CPU使用率"><span class="post-toc-text">大量并发和超过的CPU使用率</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#磁盘IO"><span class="post-toc-text">磁盘IO</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#网卡流量"><span class="post-toc-text">网卡流量</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#大表带来的问题"><span class="post-toc-text">大表带来的问题</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#大事务带来的问题"><span class="post-toc-text">大事务带来的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#影响MySQL性能的几个因素"><span class="post-toc-text">影响MySQL性能的几个因素</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CPU数量和主频的权衡"><span class="post-toc-text">CPU数量和主频的权衡</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CentOS系统参数优化"><span class="post-toc-text">CentOS系统参数优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件系统对性能的影响"><span class="post-toc-text">文件系统对性能的影响</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL体系结构"><span class="post-toc-text">MySQL体系结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL存储引擎"><span class="post-toc-text">MySQL存储引擎</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#MyISAM"><span class="post-toc-text">MyISAM</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#InnoDB"><span class="post-toc-text">InnoDB</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#系统表空间和独立表空间之间如何选择"><span class="post-toc-text">系统表空间和独立表空间之间如何选择</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#InnoDB是如何做到事务的ACID特性的？"><span class="post-toc-text">InnoDB是如何做到事务的ACID特性的？</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#其他存储引擎"><span class="post-toc-text">其他存储引擎</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL服务器参数"><span class="post-toc-text">MySQL服务器参数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内存参数"><span class="post-toc-text">内存参数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IO配置参数"><span class="post-toc-text">IO配置参数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#InnoDB-1"><span class="post-toc-text">InnoDB</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#MyISAM-1"><span class="post-toc-text">MyISAM</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#安全配置参数"><span class="post-toc-text">安全配置参数</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL基准测试"><span class="post-toc-text">MySQL基准测试</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据库结构优化"><span class="post-toc-text">数据库结构优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据库物理设计"><span class="post-toc-text">数据库物理设计</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主键的选择"><span class="post-toc-text">主键的选择</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#表的拆分"><span class="post-toc-text">表的拆分</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一些小技巧"><span class="post-toc-text">一些小技巧</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-mysql-best-practice"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">搭建高可用MySQL架构</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-07-22 21:33:27" datetime="2016-07-22T13:33:27.000Z"  itemprop="datePublished">2016-07-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-engine.png" alt="mysql存储引擎" title>
+                </div>
+                <div class="image-caption">mysql存储引擎</div>
+            </figure>
+<p>DBMS的瓶颈在于IO而非CPU。</p>
+<blockquote>
+<p>慎用数据库的一些特性，例如外键（业务量爆炸的时候分库分表将是一个灾难）。虽然不建议使用物理外键，但是相关联的列上一定要建立索引。</p>
+</blockquote>
+<ul>
+<li>在双十一的场景中取消掉计划任务（例如定时备份）。</li>
+</ul>
+<h2 id="在大促中什么影响了数据库性能"><a href="#在大促中什么影响了数据库性能" class="headerlink" title="在大促中什么影响了数据库性能"></a>在大促中什么影响了数据库性能</h2><h3 id="超高的QPS和TPS"><a href="#超高的QPS和TPS" class="headerlink" title="超高的QPS和TPS"></a>超高的QPS和TPS</h3><p>QPS(Query Per Second)<br>风险：效率低下的SQL。数据库中的性能问题80%就是由慢查询造成的。也就是大多数的数据库问题可以通过对SQL进行优化来解决。</p>
+<p>TPS（Transition Per Second）</p>
+<h3 id="大量并发和超过的CPU使用率"><a href="#大量并发和超过的CPU使用率" class="headerlink" title="大量并发和超过的CPU使用率"></a>大量并发和超过的CPU使用率</h3><p>高并发可能导致DB连接被占满；超高CPU使用率可能因为CPU资源耗尽而出现宕机。这里并发量指的是同一时刻需要DB服务器处理请求的数量，而连接量往往比并发量大得多，因为现在的系统中每一个前端服务器（例如nginx,tomcat,apache）都会对数据库建立多个连接，而在众多的连接中往往只有几个是在请求数据库处理的，其他的大多数连接都会处于sleep状态。数据库对于允许建立的连接数目是有限的（max_connections默认为100）</p>
+<h3 id="磁盘IO"><a href="#磁盘IO" class="headerlink" title="磁盘IO"></a>磁盘IO</h3><p>磁盘IO性能突然下降（使用更快的磁盘设备，SSD，fashion IO），其他大量消耗磁盘性能的计划任务（调整计划任务，做好磁盘维护）。例如平时在主库上进行备份的，在大促的时候应该切换到从库上备份。</p>
+<h3 id="网卡流量"><a href="#网卡流量" class="headerlink" title="网卡流量"></a>网卡流量</h3><p>大多数网卡是1000mbps (bits) = 1000 / 8 = 100 MB/s(byte)</p>
+<p>如何避免无法连接数据库的情况：</p>
+<ol>
+<li>减少从服务器的数量。（从服务器需要从主服务器上进行复制）</li>
+<li>进行分级缓存</li>
+<li>避免使用<code>SELECT *</code></li>
+<li>分离业务网络和服务器网络</li>
+</ol>
+<h3 id="大表带来的问题"><a href="#大表带来的问题" class="headerlink" title="大表带来的问题"></a>大表带来的问题</h3><p>大表可以从2个维度来进行定义：</p>
+<ul>
+<li>记录数目巨大，单表超过1000W行</li>
+<li><p>表数据文件巨大，超过10G</p>
+</li>
+<li><p>大表往往意味着慢查询（很难在一定时间内过滤出所需要的数据）的产生，大表往往会降低SQL的效率。</p>
+</li>
+<li>大表对DDL也会产生影响。例如建立索引需要很长时间。5.5版本以下建立索引会锁表，而&gt;=5.5的时候虽然不会锁表，但是会引起主从延迟。</li>
+</ul>
+<p>对于大表有2种策略：分库分表和历史数据归档</p>
+<p>分库分表把大表分成多个小表</p>
+<p>难点：</p>
+<ul>
+<li>分表主键的选择</li>
+<li>分表后跨分区数据的查询和统计</li>
+</ul>
+<p>大表的历史数据归档，可以尽量减少业务前后端的影响。难点在于：</p>
+<ul>
+<li>归档时间点的选择</li>
+<li>如何进行归档操作</li>
+</ul>
+<h3 id="大事务带来的问题"><a href="#大事务带来的问题" class="headerlink" title="大事务带来的问题"></a>大事务带来的问题</h3><p>事务的隔离性（ISOLATION），SQL标准中定义了4种隔离级别：</p>
+<pre><code class="lang-sql">SHOW VARIABLES LIKE &#39;%iso%&#39;;
+</code></pre>
+<ul>
+<li>未提交读（READ UNCOMMITED）</li>
+<li>已提交读 (READ COMMITED)</li>
+<li>可重复读 (REPEATABLE READ)，InnoDB默认级别。</li>
+<li>可串行化（SERIALIZABLE）,最高</li>
+</ul>
+<p>验证事务的隔离级别我们可以分别连接到两个mysql shell，在一个shell中进行插入操作</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-isolation-pepeatable-read.png" alt="MySQL默认隔离级别-可重复读" title>
+                </div>
+                <div class="image-caption">MySQL默认隔离级别-可重复读</div>
+            </figure>
+<p>大事务的运行时间比较长，操作的数据比较多的事务。可能造成锁定太多数据，造成大量的阻塞和锁超时。回滚的时间较长，并且在回滚的过程中数据也是被锁定的。执行时间长可能造成主从延迟。</p>
+<p>处理大事务一般有以下的策略：</p>
+<ol>
+<li>避免一次性处理太多数据，可以进行分批处理；</li>
+<li>查询操作（SELECT）可以从事务中移除，事务中只保留必要的写操作。</li>
+</ol>
+<h2 id="影响MySQL性能的几个因素"><a href="#影响MySQL性能的几个因素" class="headerlink" title="影响MySQL性能的几个因素"></a>影响MySQL性能的几个因素</h2><h3 id="CPU数量和主频的权衡"><a href="#CPU数量和主频的权衡" class="headerlink" title="CPU数量和主频的权衡"></a>CPU数量和主频的权衡</h3><p>如果我们的应用是计算密集型的就应该选择更高主频的U，因为现在的MySQL不支持对同一SQL进行并发处理，但是对于高并发的应用，CPU的数量越多越好。</p>
+<p>在MyISAM中会将索引缓存在内存中，而数据通过OS进行缓存；InnoDB会同时在内存中缓存数据和索引。</p>
+<p>缓存系统不但对读操作影响深远，对写操作也是有好处的。例如商品浏览次数，如果我们每次浏览都对数据库进行更新操作，必将导致大量IO，我们可以在每次浏览的时候修改缓存中的计数器，当计数器达到某一个值（例如100）的时候进行写库操作，这样就将100次的更新操作合并成了一次更新。缓存能够延缓DB的更新频次。</p>
+<h2 id="CentOS系统参数优化"><a href="#CentOS系统参数优化" class="headerlink" title="CentOS系统参数优化"></a>CentOS系统参数优化</h2><p>对于一个处于监听状态的端口都会有自己的监听队列</p>
+<p>内核相关参数(<code>/etc/sysctl.conf</code>)</p>
+<pre><code class="lang-bash">kernel.shmmax = 4294967295 # 单个共享内存段的最大值，应足够大，以便能够在一个内存段中容纳下整个InnoDB缓冲池的大小
+</code></pre>
+<p>增加资源限制（<code>/etc/security/limits.conf</code>）</p>
+<p>该文件实际上是Linux PAM也就是插入式认证模块的配置文件。打开文件数目的限制。</p>
+<pre><code class="lang-bash">* soft nofile 65535 # * 表示对所有用户有效，soft，当前系统生效的设置
+* hard nofile 65535  # hard 系统所能设置的最大值，nofile 所限制的资源是打开文件的最大数目 65535 限制数量
+</code></pre>
+<p>磁盘调度策略（<code>/sys/block/devname/queue/scheduler</code>），例如：</p>
+<pre><code class="lang-bash">cat /sys/block/sda/queue/scheduler
+noop anticipatory deadline [cfq]
+</code></pre>
+<p>以上的默认磁盘调度策略是cfq，除此之外还存在noop(电梯式调度策略)，deadline（截止时间调度策略，数据库最好选择），anticipatory（预料IO调度策略）</p>
+<pre><code class="lang-bash">echo deadline &gt; /sys/block/sda/queue/scheduler
+</code></pre>
+<h3 id="文件系统对性能的影响"><a href="#文件系统对性能的影响" class="headerlink" title="文件系统对性能的影响"></a>文件系统对性能的影响</h3><p>ext3/4系统挂载参数<code>/etc/fstab</code></p>
+<h2 id="MySQL体系结构"><a href="#MySQL体系结构" class="headerlink" title="MySQL体系结构"></a>MySQL体系结构</h2><p>MySQL的插入式存储引擎将数据的处理和数据存储相分离。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-arch.png" alt="MySQL体系结构" title>
+                </div>
+                <div class="image-caption">MySQL体系结构</div>
+            </figure>
+<p>SQL语句如何从文件中获得我们所需要查询的数据，这个的具体实现方式则是下一层存储引擎层进行实现。存储是针对于表而不是针对于库的。在一个库中可以使用不同的存储引擎建立不同的表</p>
+<h2 id="MySQL存储引擎"><a href="#MySQL存储引擎" class="headerlink" title="MySQL存储引擎"></a>MySQL存储引擎</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-storage-engine.png" alt="MySQL存储引擎" title>
+                </div>
+                <div class="image-caption">MySQL存储引擎</div>
+            </figure>
+<h3 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h3><p>5.5版本之前的默认存储引擎，也是系统表和临时表（在排序、分组等操作中，当数量超过一定大小之后，由查询优化器建立的临时表）使用的存储引擎。。由MYD和MYI组成。该引擎使用表级锁，对表中的数据进行修改时会锁表，在对表中的数据进行读取时需要加共享锁。表损坏修复可以使用以下命令：</p>
+<pre><code class="lang-bash">mysql&gt; check table t_username; 
+mysql&gt; repair table t_username;
+</code></pre>
+<p>还可以使用<code>myisamchk</code>命令行工具</p>
+<p>测试MyISAM存储引擎</p>
+<pre><code class="lang-bash">mysql&gt; CREATE TABLE t_test(id INT,name VARCHAR(20)) ENGINE=MyISAM;
+</code></pre>
+<p>查看mysql数据文件的位置可以使用<code>show variables where Variable_name =&#39;datadir&#39;;</code>命令，我们进入数据库数据文件所在目录：</p>
+<pre><code class="lang-bash">[root@muke-49-468585-v52l3 db_test]# pwd                                  
+/data/mysqld/data/db_test                                                 
+[root@muke-49-468585-v52l3 db_test]# ll                                   
+total 10                                                                  
+-rw-r----- 1 mysql mysql   65 Jul 23 11:25 db.opt                         
+-rw-r----- 1 mysql mysql 8586 Jul 23 11:25 t_test.frm  # 表结构信息
+-rw-r----- 1 mysql mysql    20 Jul 23 11:25 t_test.MYD # 表数据            
+-rw-r----- 1 mysql mysql 1024 Jul 23 11:25 t_test.MYI  # 索引信息              
+[root@muke-49-468585-v52l3 db_test]# myisampack -b -f t_test.MYI  # 压缩表
+[root@muke-49-468585-v52l3 db_test]# ll                                   
+total 11                                                                  
+-rw-r----- 1 mysql mysql   65 Jul 23 11:25 db.opt                         
+-rw-r----- 1 mysql mysql 8586 Jul 23 11:25 t_test.frm                     
+-rw-rw-rw- 1 mysql mysql   54 Jul 23 11:32 t_test.MYD # 由于数据较小，压缩后的尺寸更大了                    
+-rw-r----- 1 mysql mysql 1024 Jul 23 11:36 t_test.MYI                     
+-rw-rw-rw- 1 mysql mysql   20 Jul 23 11:32 t_test.OLD # 压缩前文件的备份
+</code></pre>
+<p>支持全文索引，支持压缩（<code>myisampack</code>)，压缩之后进行插入操作报错，提示该表是只读的。</p>
+<p><em>限制：</em></p>
+<p>&lt;5.0版本默认表大小为4G，如果需要存储大表需要修改<code>MAX_Rows</code>和<code>AVG_ROW_LENGTH</code>,5.0版本之后默认支持256TB。</p>
+<p><em>使用场景：</em></p>
+<ul>
+<li>非事务型应用</li>
+<li>只读类应用（例如报表类）</li>
+<li>空间类应用</li>
+</ul>
+<h3 id="InnoDB"><a href="#InnoDB" class="headerlink" title="InnoDB"></a>InnoDB</h3><p>MySQL5.5之后的默认存储引擎。使用表空间进行数据存储。具有由<code>innodb_file_per_table</code>这个参数决定，如果该参数为ON,则表示独立的表空间<code>tablename.idb</code>，如果该参数为OFF则表示系统表空间：<code>ibdataX</code>.</p>
+<pre><code class="lang-bash">mysql&gt; show variables like &#39;innodb_file_per_table&#39;;
+mysql&gt; CREATE TABLE t_innodb(id int,name varchar(20)) ENGINE=&#39;innodb&#39;;
+</code></pre>
+<p>接下来我们进入数据文件目录查看下该种存储引擎对应的数据文件：</p>
+<pre><code class="lang-bash">[root@muke-49-468585-v52l3 db_test]# pwd                                  
+/data/mysqld/data/db_test                                                 
+[root@muke-49-468585-v52l3 db_test]# ll t_innodb*                         
+-rw-r----- 1 mysql mysql  8586 Jul 23 12:54 t_innodb.frm                  
+-rw-r----- 1 mysql mysql 98304 Jul 23 12:54 t_innodb.ibd  # 每一个表一个单独的表空间              
+[root@muke-49-468585-v52l3 db_test]#
+</code></pre>
+<p>接下来通过mysql shell修改<code>innodb_file_per_table</code>全局变量为OFF</p>
+<pre><code class="lang-bash">mysql&gt; SET global innodb_file_per_table=off; 
+mysql&gt; CREATE TABLE t_innodb_g(id int,name varchar(20)) ENGINE=&#39;innodb&#39;; # 创建新表
+</code></pre>
+<p>再次查看数据库的数据目录发现只存在frm文件：</p>
+<pre><code class="lang-bash">[root@muke-49-468585-v52l3 db_test]# ll t_innodb*                         
+-rw-r----- 1 mysql mysql  8586 Jul 23 12:54 t_innodb.frm                  
+-rw-r----- 1 mysql mysql  8586 Jul 23 13:01 t_innodb_g.frm # 存储在共享表空间，即上一级目录的ibdata1中                
+-rw-r----- 1 mysql mysql 98304 Jul 23 12:54 t_innodb.ibd
+</code></pre>
+<h4 id="系统表空间和独立表空间之间如何选择"><a href="#系统表空间和独立表空间之间如何选择" class="headerlink" title="系统表空间和独立表空间之间如何选择"></a>系统表空间和独立表空间之间如何选择</h4><ul>
+<li>系统表空间无法简单收缩文件的大小，删除数据后表空间的大小并不会缩小；会产生IO瓶颈</li>
+<li>独立表空间可以通过optimize table命令收缩系统文件；独立表空间可以同时向多个文件刷新数据。</li>
+</ul>
+<p>强烈建议使用独立表空间。</p>
+<h4 id="InnoDB是如何做到事务的ACID特性的？"><a href="#InnoDB是如何做到事务的ACID特性的？" class="headerlink" title="InnoDB是如何做到事务的ACID特性的？"></a>InnoDB是如何做到事务的ACID特性的？</h4><ul>
+<li>Redo Log，重做日志，实现持久性，重做日志缓冲区（<code>show variables like &#39;innodb_log_buffer_size&#39;;</code>），和重做日志文件(数据目录下的<code>ib_logfile0</code>和<code>ib_logfile1</code>，这里有两个log file文件和<code>show variables like &#39;innodb_log_files_in_group&#39;;</code>相对应) </li>
+<li>Undo Log，回滚日志，未提交的事务进行回滚和实现MVC（多版本并发控制）。</li>
+</ul>
+<p>Redo Log是顺序写入的，而Undo Log则是随机读写的。</p>
+<p>InnoDB支持行级锁，可以最大程度支持并发。锁的主要作用是实现并发控制和事务的隔离性。我们可以在一个mysql shell中执行<code>lock table t_innodb write;</code>,然后在另一个shell中对该表进行读或者写操作都被阻塞，因为我们对t_innodb这张表加了表级排它锁。直到我们在第一个shell中执行<code>unlock tables;</code>，第二个shell才会有数据返回。</p>
+<p>锁的粒度和资源的开销是负相关的。锁的粒度越小（行锁），资源占用越多，并发越大。</p>
+<p>InnoDB状态检查可以使用<code>show engine innodb status</code></p>
+<h2 id="其他存储引擎"><a href="#其他存储引擎" class="headerlink" title="其他存储引擎"></a>其他存储引擎</h2><p>查看支持的存储引擎可以使用<code>show engines;</code>命令</p>
+<p>CSV存储引擎直接将表中的数据保存成CSV文件（因此每一列都不允许为空），我们可以使用vim直接查看或者编辑表中的数据（记得<code>flush tables;</code>），不支持索引，每次查询都会进行全表扫描，不适合大表和在线处理。该引擎可以作为数据交换的中间表（可以直接将excel导出为csv复制到mysql数据目录下）。</p>
+<p>Archive存储引擎会使用zlib对表数据进行塔索，节省磁盘IO，数据文件的后缀为arz。只支持insert和select操作，只支持在自增id列上增加索引。使用场景是日志或者数据采集类的应用。</p>
+<blockquote>
+<p>tips:等值查找使用hash索引，而范围查找使用Btree索引。</p>
+</blockquote>
+<p>Memory存储引擎，也称为HEAP存储引擎，将数据保存在内存中。支持hash索引（默认）和Btree索引，索引字段都为固定长度，例如：<code>varchar(20) = char(20)</code>。不支持BLOB和TEXT等大字段。使用表级锁，所以尽管数据保存在内存中，并发性不见得比InnoDB高，表的大小由<code>max_heap_table_size</code>决定（默认16M）。该种存储引擎的应用场景是：用于查找或者映射表，例如邮编和地区的对应表和保存数据分析过程中的临时表。用于周期性聚合数据的结果表。由于Memory存储引擎的数据易丢失，所以要求数据是可以再生的。</p>
+<pre><code class="lang-bash">mysql&gt; create index idx_c1 on t_memory(c1);  # 在c1列上建立hash索引
+mysql&gt; create index idx_c2 using btree on t_memory(c2); # 在c2列上建立BTree索引
+mysql&gt; show index from t_memory; # 查看索引
+</code></pre>
+<p>Federated存储引擎提供了访问远程MySQL服务器上表的方法，本地不存储数据，数据全部放在远程服务器上。本地需要保存表的结构和远程服务器的信息。默认禁止，我们可以在启动时增加federated参数,适合偶尔的统计分析或者手工查询。</p>
+<p>不要在同一个数据库中使用多个存储引擎，这样可能导致潜在的bug,例如：事务失败回滚之后只有InnoDB上进行了回滚而myisam表的中的数据并没有进行回滚，出现的数据不一致的问题。</p>
+<h2 id="MySQL服务器参数"><a href="#MySQL服务器参数" class="headerlink" title="MySQL服务器参数"></a>MySQL服务器参数</h2><p>mysql配置文件的加载顺序可以使用<code>mysqld --help --verbose | grep -A 1 &#39;Default options&#39;</code>命令进行查看</p>
+<p>全局参数：<code>set global 参数名=参数值</code><br>会话参数：<code>set session 参数名=参数值</code></p>
+<h3 id="内存参数"><a href="#内存参数" class="headerlink" title="内存参数"></a>内存参数</h3><p>要配置内存参数首先要弄清楚下面的几个问题：</p>
+<ol>
+<li>确定可以使用的内存上限</li>
+<li>确定每个连接使用的内存（我们很容易犯的错误就是给每个连接分配的内存过大），主要有以下的几个参数：sort_buffer_size,join_buffer_size,read_buffer_size,read_rnd_buffer_size</li>
+</ol>
+<h3 id="IO配置参数"><a href="#IO配置参数" class="headerlink" title="IO配置参数"></a>IO配置参数</h3><h4 id="InnoDB-1"><a href="#InnoDB-1" class="headerlink" title="InnoDB"></a>InnoDB</h4><p>innodb_log_file_size（单个事务日志的大小）和innodb_log_files_in_group（事务日志文件的个数）决定了InnoDB事务日志（Redo log的大小和数量），事务日志的总大小等于前两者的积。为了减少提交事务时产生的IO开销，InnoDB采用了预写日志的方式——也就是说在事务提交的时候会先写入到事务日志中，而不是每次都将修改后的数据文件刷新到磁盘中，因为事务的修改通常会将数据和索引映射到表空间的随机位置，所以刷新数据到文件将产生大量的随机IO，而记录日志所需要的则是顺序IO。所以相比于刷新脏数据到数据文件，记录日志的方式要快得多，一旦事务日志安全写入到磁盘中，事务就算是持久化了，因为即使是变更还没有写入到数据文件，如果这时候发生了服务器宕机，我们还是可以通过事务日志来恢复数据。</p>
+<p>Innodb_flush_log_at_trx_commit:</p>
+<p>0：每秒进行一次log写入到cache，并flush log到磁盘；<br>1：默认，每次事务提交的时候执行log写入cache并flush log到磁盘；<br>2：推荐，每次事务提交执行log写入cache，每秒执行一次flush log到磁盘。</p>
+<p>Innodb_flush_method=O_DIRECT<br>Innodb_file_per_table=1<br>Innodb_doublewrite=1,启用双写缓存，增加安全性</p>
+<h4 id="MyISAM-1"><a href="#MyISAM-1" class="headerlink" title="MyISAM"></a>MyISAM</h4><p>delay_key_write，有3个值：<br>OFF：每次写操作后刷新键缓冲中的脏块到磁盘<br>ON：只对建表时制定了delay_key_write选项的表使用延迟刷新<br>ALL：对所有MyISAM表都使用延迟键写入。</p>
+<h3 id="安全配置参数"><a href="#安全配置参数" class="headerlink" title="安全配置参数"></a>安全配置参数</h3><p>expire_logs_days，自用清理binlog的天数<br>max_allowed_packet，控制MySQL可以接收的包的大小<br>skip_name_resolve,禁用dns查找<br>sysdate_is_now,确保sysdate()返回正确的日期，主从复制相关<br>read_only,禁止非super选线的用户的写权限，建议在从复制中启用，可以保证主从复制的一致性。<br>skip_slave_start,禁用slave自动恢复</p>
+<h2 id="MySQL基准测试"><a href="#MySQL基准测试" class="headerlink" title="MySQL基准测试"></a>MySQL基准测试</h2><p><em>基准测试</em>是一种测量和评估软件性能指标的活动，用于建立某个时刻的性能基准，以便当系统发生软硬件变化时重新基准测试以评估变化对性能的影响。是一种针对系统设置的压力测试，应该尽量直接、简单、易于比较，用于评估服务器的处理能力（压力测试是对真实的业务数据进行测试，获得真实系统所承受的压力，基准测试可能并不关心业务逻辑，所使用的查询和业务的真实性可以和业务环境没关系）</p>
+<p>mysql 5.7自带了基准测试工具mysqlslap，可以模拟服务器负载并输出相关的统计信息。我们可以使用它的—help来查看参数：</p>
+<pre><code class="lang-bash">$ mysqlslap --concurrency=1,50,100,200 --iterations=3 --number-int-cols=5 --number-char-cols=5 --auto-generate-sql --auto-generate-sql-add-autoincrement --engine=myisam,innodb --number-of-queries=10 --create-schema=benchmark_test
+</code></pre>
+<p>我们可以使用<code>--print-only</code>参数来查看生成的sql脚本，如果出现快速滚屏的问题可以用管道：<code>cat bidfile.txt | less</code>。</p>
+<p><a href="https://github.com/akopytov/sysbench" target="_blank" rel="noopener">sysbench</a>是一款非常常用的测试工具。</p>
+<pre><code class="lang-bash">$ sysbench --test=cpu --cpu-max-prime=10000 run # 测试CPU
+$ sysbench --test=fileio --file-total-size=10G prepare # 文件IO测试，生成测试文件
+$ sysbench --test=fileio --number-thread=8 --init-rng=on --file-total-size=1G --file-test-mode=rndrw --report-interval=1 run # 文件IO测试
+$ # 使用该工具对数据库进行基准测试的时候需要建立对应的数据库
+mysql&gt; create database db_benchmark_test;
+mysql&gt; grant all privileges on *.* to benchmark_test@&#39;localhost&#39; identified by &#39;123456&#39;;
+mysql&gt; flush privileges;
+</code></pre>
+<p>以上的准备工作已经做好，接下来进入到sysbench源码的<code>sysbench/tests/db</code>目录下（该目录下有现成的lua脚本）</p>
+<pre><code class="lang-bash">$ sysbench --test=./oltp.lua --mysql-table-engine=innodb --oltp-table-size=10000 --mysql-db=db_benchmark_test --mysql-user=benchmark_test --mysql-password=123456 --oltp-tables-count=10 --mysql-socket=/tmp/mysql.sock prepare # 生成测试数据
+$ sysbench --test=./oltp.lua --mysql-table-engine=innodb --oltp-table-size=10000 --mysql-db=db_benchmark_test --mysql-user=benchmark_test --mysql-password=123456 --oltp-tables-count=10 --mysql-socket=/tmp/mysql.sock run # 测试
+</code></pre>
+<h2 id="数据库结构优化"><a href="#数据库结构优化" class="headerlink" title="数据库结构优化"></a>数据库结构优化</h2><p>点击<a href="http://consoles.github.io/2016/07/22/mysql-best-practice/code/select-course.sql" target="_blank" rel="noopener">这里</a>下载建表语句。数据库结构优化一方面是减少数据冗余，另一方面是尽量减少数据维护中出现的更新、插入和删除异常。</p>
+<pre><code class="lang-bash">+--------------+-------------+------+-----+-------------------+-----------------------------+                                                              
+| Field        | Type        | Null | Key | Default           | Extra                       |                                                              
++--------------+-------------+------+-----+-------------------+-----------------------------+                                                              
+| stu_no       | int(11)     | NO   | PRI | NULL              |                             |                                                              
+| stu_name     | varchar(10) | NO   |     | NULL              |                             |                                                              
+| birthday     | timestamp   | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |                                                              
+| course_name  | varchar(10) | NO   | PRI | NULL              |                             |                                                              
+| score        | int(11)     | YES  |     | NULL              |                             |                                                              
+| course_point | int(11)     | YES  |     | NULL              |                             |                                                              
++--------------+-------------+------+-----+-------------------+-----------------------------+   
++--------+----------+---------------------+-------------+-------+--------------+                                                                           
+| stu_no | stu_name | birthday            | course_name | score | course_point |                                                                           
++--------+----------+---------------------+-------------+-------+--------------+                                                                           
+|      1 | a        | 1993-07-07 00:00:00 | englisg     |  NULL |            9 |                                                                           
+|      1 | a        | 1993-07-07 00:00:00 | math        |  NULL |           10 |                                                                           
+|      2 | b        | 1983-07-17 00:00:00 | englisg     |  NULL |            9 |                                                                           
+|      2 | b        | 1983-07-17 00:00:00 | math        |  NULL |           10 |                                                                           
++--------+----------+---------------------+-------------+-------+--------------+
+</code></pre>
+<p>首先以上的表中多次出现了冗余信息，姓名、课程、生日、学分都是冗余的</p>
+<ul>
+<li>插入异常：表中的某个实体随着另一个实体的存在而存在，如果缺少了某个实体就无法表示另一个实体。如果我们想要新加入一门语文课，学分是10分，但是没有任何学生选择这门课程。我们此时无法插入（因为学号是主键，但是没有默认值）</li>
+<li>更新异常：更改表中某个实体的单独属性，需要对多行进行更新。如果我们将数学学分更新为15个学分，需要更新2行数据。——选课的学生越多，需要更新的数据越多</li>
+<li>删除异常：删除表中的某个实体会导致其他实体消失。如果我们删除了所有选择数学的这门课的选课记录，数学这门课就不存在了。</li>
+</ul>
+<p>解决以上的三个异常的解决之道就是对数据库进行<a href="https://www.zhihu.com/question/24696366" target="_blank" rel="noopener">范式化设计</a>。</p>
+<p>1NF:列不可拆分<br>2NF：其他列完全依赖于主键列<br>3NF：消除传递依赖</p>
+<blockquote>
+<p>第一范式：1NF是对属性的原子性约束，要求属性具有原子性，不可再分解；<br>通俗的理解是，字段还可以再分吗？如过不能，则是符合1NF的设计。</p>
+<p>第二范式：2NF是对记录的惟一性约束，要求记录有惟一标识，即实体的惟一性；<br>简单的解释，比如你和一个女生约会建立一张表，不用每条约会记录都记录她的身高、体重，将身高体重单独的存在一张表中供查询即可。</p>
+<p>第三范式：3NF是对字段冗余性的约束，即任何字段不能由其他字段派生出来，它要求字段没有冗余。<br>打个比方，比如评论表，如果你将用户ID，用户头像都放在这留言表中，就是不合适的了。用户头像是依赖于用户ID，而不依赖该评论。</p>
+</blockquote>
+<p>范式化设计能够有效降低数据冗余，但是有时候一个简单的查询可能需要关联多张表，影响SQL的性能，我们可以通过<em>反范式化</em>设计以空间换时间。</p>
+<p>范式化设计有较少的数据冗余，更行快速，但是缺点也是显而易见的：需要对多张表进行关联，很难进行索引优化。</p>
+<blockquote>
+<p>反范式化设计将所要查询的数据集中存储在一张表中，拥有较高的查询性能，因为在InnoDB存储引擎中，进行全表扫描的效率高于表之间的关联操作，因为全表扫描是顺序IO，而表关联是随机IO。如果我们需要查询的数据都在一张表中就可以使用覆盖索引进行性能优化。</p>
+</blockquote>
+<p>所以在实际的应用中，我们要结合范式化设计和反范式化设计。</p>
+<h3 id="数据库物理设计"><a href="#数据库物理设计" class="headerlink" title="数据库物理设计"></a>数据库物理设计</h3><blockquote>
+<p><em>为表中的字段选择合适的数据类型</em>：当一个列可以有选择多种数据类型的时候，应该优先考虑数字类型，其次是日期或者二进制类型，最后是字符型。对于相同级别的数据类型，应该优先选择占用空间小的数据类型，因为在数据库中数据处理是以页为单位的，每个页能够存储的数据是有限的（InnoDB中为16K）,越小代表每个页中能够容纳的数据越多，加载同样的数据时，使用宽度较小的数据类型比宽度大的数据类型加载的数据页少，减少磁盘IO。</p>
+</blockquote>
+<p><strong>有2点需要纠正<code>int</code>和<code>int(10)</code>之间没有任何区别。和大多数编程语言一样MySQL中的<code>float</code>和<code>double</code>数据类型通常是精确的，如果需要精确表示数字可以使用<code>decimal</code>类型</strong></p>
+<p>decimal类型每4字节存储9个数字，小数点占用1个字节。<code>DECIMAL(18,9)</code>需要9个字节来存储，整数和小数部分各4个字节，小数部分1个字节。</p>
+<p>VARCHAR和CHAR类型的存储与存储引擎有很大关系，其占用的空间是以字符计数，根据编码的不同占用不同的存储空间。前者是变长字符串，只占用必要的存储空间，例如：UTF8编码的字符串长度为10，则定义为<code>VARCHAR(10)</code>即可，列最大长度小于255则只占用一个额外的字节存储字符串长度，否则占用2个字节存储字符串长度。</p>
+<p>VARCHAR的使用场景：字符串列的最大长度比平均长度大得多；字符串列很少被更新（字符串长度发生变化导致存储页的分页从而导致存储碎片）；使用了多字节字符集存储字符串（例如utf8字符串）。</p>
+<p>字符串存储在<code>CHAR</code>类型的列中会删除末尾的空格，最大宽度为255.使用场景为：字符串长度近似（例如MD5,身份账号）；短字符串（例如：性别<code>CHAR(1)</code>和<code>VARCHAR(1)</code>后者将占用额外的1个字节存储字符串长度）；经常被更新的字符串（一次分配足够的内存空间，不会导致分页）</p>
+<p><code>DATETIME</code>类型和时区无关，占用8byte存储空间，时间范围<code>1000-01-01 00:00:00</code>到<code>9999-12-31 23:59:59</code>,多数场景<br><code>TIMESTAMP</code>unix时间戳(格林尼治)，占用4byte，<code>1970-01-01</code>到<code>2038-01-19</code>，在行的数据修改的时候可以自动修改<code>TIMESTAMP</code>列的值</p>
+<pre><code class="lang-bash">mysql&gt; CREATE TABLE t(d1 DATETIME,d2 TIMESTAMP);
+mysql&gt; INSERT t VALUES(NOW(),NOW());
+mysql&gt; SET TIME_ZONE=&#39;+10:00&#39;;
+mysql&gt; SELECT * FROM t;
+</code></pre>
+<h3 id="主键的选择"><a href="#主键的选择" class="headerlink" title="主键的选择"></a>主键的选择</h3><p>主键应该尽量小（索引占用空间），顺序增长（顺序IO），业务主键和数据库主键可以不同。数据库主键可以使用自增id，业务主键在数据库中可以使用唯一索引。</p>
+<h2 id="表的拆分"><a href="#表的拆分" class="headerlink" title="表的拆分"></a>表的拆分</h2><ul>
+<li>垂直拆分是将列拆分到不同的表。有2个原则：1.经常一起查询的列放在一起；2. text、blob等大字段拆分到附加表中。</li>
+<li>水平拆分可以采用主键hash的方式，例如对uid对100进行mod操作。</li>
+</ul>
+<h2 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧"></a>一些小技巧</h2><p>给 MySQL 大表加字段的思路如下：</p>
+<ol>
+<li>创建一个临时的新表，首先复制旧表的结构（包含索引）<code>create table new_table like old_table</code>;</li>
+<li>给新表加上新增的字段</li>
+<li>把旧表的数据复制过来 <code>insert into new_table(filed1,filed2…) select filed1,filed2,… from old_table</code></li>
+<li>删除旧表，重命名新表的名字为旧表的名字</li>
+</ol>
+<p>需要注意下，执行第三步的时候，可能这个过程也需要时间，这个时候有新的数据进来，所以原来的表如果有字段记录了数据的写入时间就最好了，可以找到执行这一步操作之后的数据，并重复导入到新表，直到数据差异很小。不过还是会可能损失极少量的数据。所以，如果表的数据特别大，同时又要保证数据完整，最好停机操作。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.986Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/07/22/mysql-best-practice/" target="_blank" rel="external">https://consoles.fun/2016/07/22/mysql-best-practice/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能优化/">性能优化</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/07/22/mysql-best-practice/&title=《搭建高可用MySQL架构》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/07/22/mysql-best-practice/&title=《搭建高可用MySQL架构》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/07/22/mysql-best-practice/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《搭建高可用MySQL架构》 — 雨碎江南&url=https://consoles.fun/2016/07/22/mysql-best-practice/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/07/22/mysql-best-practice/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/07/29/mysql-index-optimize/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL索引优化</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/07/14/programming-pearls/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">编程珠玑</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/07/22/mysql-best-practice/&title=《搭建高可用MySQL架构》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/07/22/mysql-best-practice/&title=《搭建高可用MySQL架构》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/07/22/mysql-best-practice/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《搭建高可用MySQL架构》 — 雨碎江南&url=https://consoles.fun/2016/07/22/mysql-best-practice/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/07/22/mysql-best-practice/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMUlEQVR42u3azW7CQAxFYd7/pem2lUhyrj1UGs/JClFI5uvC+O/1wtf79rr//O93yOurey64ZMiQsS2DHJH8lT+l/9wPT5QhQ8YBjKsHk7DYCZr8zg9nliFDhoxSoCShlieUMmTIkMEZpH5M00EZMmTIIIxamXoVNEkiuCq4y5Ah4wRGrdT8n9dfmW/IkCFjK8Y7vHijn7fe0mHAh1PJkCFjNKMzgEyXKvrfejiPDBkyhjJ4Q5/fOl3O4AODeI9DhgwZgxg8sPJkrvNd3vL7E3BlyJBxGCMdN357UezhkzJkyDiA0Un+0mWLtFVXXLOQIUPGIEa62lVbfegUsfGahQwZMoYy0tBGbsoL0TQ0X55QhgwZBzD4QLGWIHYYwSRWhgwZQxm1owehEAfrDliGDBmzGfcJWdoUS5PCWtiVIUPGOYy4J9cYQHZWNNCyhQwZMkYzak18fnQ+gEwDNPrFkCFDxggGH0OmhyZDUP4vXrAzIkOGjA0ZaXON8Dqrq7y4DWpxGTJkDGLwgNgpR2trryjEy5Ah4xgGP1Yagvk4IR2FypAh4zRGrRDlKWC6tBG05GTIkDGU8Q6vWpd+VaJZzG1lyJCxOaPW8EpTxrQBx8vXGCNDhoxtGSREpqOC2mghTVXjSC9DhozNGbXAx1PMtAHHQ78MGTJkkDZZp+nPw/oDVYYMGTIWHWLVIHNBwJUhQ8aGjE5K1ymAeSiXIUPGyYzaigMvZfuH6Je+MmTI2JbxA4h6Qc+wn3joAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Linux服务管理 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux,crontab">
+    <meta name="description" content="Crontab周期性任务 at可以一次性执行。service atd status，它可以使用黑名单和白名单控制，参见/etc/at.deny,at.allow。  $ at now+5 minutes at&amp;gt; echo hehe # ctrl + d保存退出 $ atq # 查看at任务 $ at -c 1 # 查看工作号执行的具体任务 $ atrm 1 # 删除at任务  同理cront">
+<meta name="keywords" content="linux,crontab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux服务管理">
+<meta property="og:url" content="https://consoles.fun/2016/12/11/linux-service/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="Crontab周期性任务 at可以一次性执行。service atd status，它可以使用黑名单和白名单控制，参见/etc/at.deny,at.allow。  $ at now+5 minutes at&amp;gt; echo hehe # ctrl + d保存退出 $ atq # 查看at任务 $ at -c 1 # 查看工作号执行的具体任务 $ atrm 1 # 删除at任务  同理cront">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-crontab.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.976Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux服务管理">
+<meta name="twitter:description" content="Crontab周期性任务 at可以一次性执行。service atd status，它可以使用黑名单和白名单控制，参见/etc/at.deny,at.allow。  $ at now+5 minutes at&amp;gt; echo hehe # ctrl + d保存退出 $ atq # 查看at任务 $ at -c 1 # 查看工作号执行的具体任务 $ atrm 1 # 删除at任务  同理cront">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-crontab.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Linux服务管理</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Linux服务管理</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-12-11T02:24:54.000Z" itemprop="datePublished" class="page-time">
+  2016-12-11
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Crontab周期性任务"><span class="post-toc-text">Crontab周期性任务</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#配置文件"><span class="post-toc-text">配置文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#anacron配置"><span class="post-toc-text">anacron配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Linux服务管理"><span class="post-toc-text">Linux服务管理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#进程管理"><span class="post-toc-text">进程管理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#工作管理"><span class="post-toc-text">工作管理</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-linux-service"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Linux服务管理</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-12-11 10:24:54" datetime="2016-12-11T02:24:54.000Z"  itemprop="datePublished">2016-12-11</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="Crontab周期性任务"><a href="#Crontab周期性任务" class="headerlink" title="Crontab周期性任务"></a>Crontab周期性任务</h1><blockquote>
+<p><code>at</code>可以一次性执行。<code>service atd status</code>，它可以使用黑名单和白名单控制，参见<code>/etc/at.deny,at.allow</code>。</p>
+</blockquote>
+<pre><code class="lang-bash">$ at now+5 minutes
+at&gt; echo hehe # ctrl + d保存退出
+$ atq # 查看at任务
+$ at -c 1 # 查看工作号执行的具体任务
+$ atrm 1 # 删除at任务
+</code></pre>
+<p>同理crontab也有访问控制文件<code>cron.deny</code>等。<br>系统服务crond每分钟会从配置文件中刷新定时任务。</p>
+<pre><code class="lang-bash">$ crontab -l # 列出任务，-r 清空
+$ service crond status # 查看服务是否正常启动
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-crontab.png" alt="crontab的格式" title>
+                </div>
+                <div class="image-caption">crontab的格式</div>
+            </figure>
+<p><code>crontab -e</code>可以编辑计划任务。在最后追加</p>
+<pre><code class="lang-bash"># 每分钟输出系统时间到文件
+*/1 * * * * date &gt;&gt; /tmp/date.tmp
+# 每天21:30重启apache
+30 21 * * * service httpd restart
+# 每月1号、10号、22号4:45重启apache
+45 4 1,10,22 * * service httpd restart
+# 每月1~10号的4:45重启apache
+45 4 1-10 * * service httpd restart
+# 每隔2分钟
+*/2 * * * * service httpd restart
+# 晚上11点到早上7点，每隔1小时
+0 23-7/1 * * * service httpd restart
+</code></pre>
+<p>以root身份执行下列命令</p>
+<pre><code class="lang-bash">$ crontab -e
+1-59/2 * * * * echo &quot;奇数分钟&quot;
+$ crontab -e -u user1
+0-58/2 * * * * echo &quot;偶数分钟&quot;
+$ tail -f /var/log/cron
+</code></pre>
+<p>查看crond的日志文件可以发现每次都是新启动了一个进程。</p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p><code>/etc/crontab</code>,<code>/etc/crond/filename</code>，这两个是系统级的定时任务，使用<code>crontab -l</code> 命令无法列出。</p>
+<p>在<code>/etc/crontab</code>中实际上是指定了<code>MAILTO=root</code>，即将定时任务执行的结果发送给root，我们可以查看<code>/var/spool/mail/root</code>文件。</p>
+<pre><code class="lang-bash">*/1 * * * * root echo &quot;job in the /etc/crontab&quot;
+*/1 * * * * user1 echo &quot;job in the /etc/cron.d/user1&quot;
+</code></pre>
+<p><code>crontab -l</code>命令列出的任务实际上位于<code>/var/spool/cron/username</code>文件。</p>
+<p>crontab最小单位是1分钟，如何让每0.5分钟执行一次？其实可以配置<code>sleep</code>命令。</p>
+<pre><code class="lang-bash">*/1 * * * * date &gt;&gt; /tmp/tmp.date
+*/1 * * * * sleep 30s;date &gt;&gt; /tmp/tmp.date
+</code></pre>
+<blockquote>
+<p><code>/usr</code>其实不是user的缩写，而是Unix System Resource的缩写。</p>
+</blockquote>
+<p>系统定时任务我们也可以将脚本拷贝到<code>/etc/cron.daily|hourly|monthly|weekly</code>中将被anacron自动管理，推荐使用这种方式。</p>
+<h2 id="anacron配置"><a href="#anacron配置" class="headerlink" title="anacron配置"></a>anacron配置</h2><p>如果执行定时任务之前宕机了，anacron会自动判断是否需要重新执行定时任务。其配置文件位于<code>/etc/anacrontab</code>。</p>
+<h1 id="Linux服务管理"><a href="#Linux服务管理" class="headerlink" title="Linux服务管理"></a>Linux服务管理</h1><p><a href="https://zh.wikipedia.org/zh-hans/%E8%BF%90%E8%A1%8C%E7%BA%A7%E5%88%AB" target="_blank" rel="noopener">系统运行级别</a>可以使用<code>runlevel</code>查看，可以使用<code>init level</code>进入特定的运行级别。</p>
+<p><code>/etc/services</code>文件写了常规服务和端口的映射。</p>
+<pre><code class="lang-bash">$ chkconfig --list | grep nginx
+$ chkconfig --level 2345 nginx on # 设置nginx开机自启动（2，3，4，5指定运行级别）
+</code></pre>
+<p>第二种方式设置开机自启动可以编辑配置文件<code>/etc/rc.d/rc.local</code>（别忘了赋予可执行权限），该文件和<code>/etc/rc.local</code>是一个软链接，修改哪个都一样。</p>
+<p><a href="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/Linux%E6%9C%8D%E5%8A%A1%E5%88%97%E8%A1%A8.pdf" target="_blank" rel="noopener">centos中的服务</a></p>
+<h1 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a>进程管理</h1><blockquote>
+<p>有计划重启服务器是系统维护的重要原则。</p>
+</blockquote>
+<p><code>ps aux</code>中TIME指的是进程占用CPU的时间，使用<code>pstree -pu</code>可以显示进程树（包含用户名和pid）。<br><code>top</code>命令支持交互模式(P，CPU排序，M，内存排序，N，pid排序),该命令的前5行解释如下：</p>
+<pre><code class="lang-bash">top - 20:19:51 up 19 days, 16:38,  2 users,  load average: 0.15, 0.19, 0.18 # 1min,5min,15min的平均负载，单核不能大于1，双核不能大于2
+Tasks: 241 total,   1 running, 240 sleeping,   0 stopped,   0 zombie
+Cpu(s):  0.7%us(用户空间占用),  0.2%sy(内核空间占用),  0.0%ni(改变过优先级的进程占用), 98.9%id(空闲，不能低于20%),  0.1%wa(IO等待进程),  0.0%hi(硬中断请求),  0.0%si(软中断请求),  0.0%st(虚拟时间steal time，当有虚拟机时，虚拟CPU等待实际CPU的百分比)
+Mem:  12148312k total, 12006948k used,   141364k free,   401640k buffers
+Swap:  2096444k total,    13472k used,  2082972k free,  7821136k cached
+</code></pre>
+<p><code>w</code>命令可以查看登陆到当前系统中的用户，使用<code>pkill</code>可以按照登陆的终端号踢出用户，例如：<code>pkill -9 -t tty1</code></p>
+<h1 id="工作管理"><a href="#工作管理" class="headerlink" title="工作管理"></a>工作管理</h1><p>就是将程序放到后台执行。将程序放入后台有2种方法：</p>
+<ol>
+<li>在执行的命令后面加上<code>&amp;</code>（后台运行）；</li>
+<li>执行命令后按下<code>Ctrl+Z</code>（后台暂停）。</li>
+</ol>
+<p>放入后台后可以使用<code>jobs -l</code>命令查看后台工作(<code>+</code>表示最后一个放入到后台的工作，<code>-</code>表示倒数第二个)。需要注意的是放入后台的任务不能和用户交互。<br><code>fg %工作号</code>将后台挂起的进程恢复到前台执行；<code>bg %工作号</code>用于将后台暂停的工作(Ctrl+Z)恢复到后台执行。</p>
+<blockquote>
+<p><code>touch</code>命令并不是新建文件，而是<em>修改文件的时间戳</em>。</p>
+<p>把命令放入后台执行只能在当前终端执行，一旦退出或者关闭终端后台程序就会终止（发送了SIGHUB信号）！标准方法是使用<code>nohub 命令 &amp;</code>。</p>
+<p><code>time</code>命令用于统计程序的运行时间，包括用户态和内核态。详见：<a href="https://my.oschina.net/aiguozhe/blog/41052" target="_blank" rel="noopener">开源中国</a>。</p>
+</blockquote>
+<p>Linux上源码安装的3个步骤是<code>./configure &amp;&amp; make &amp;&amp; make install</code>，在configuration的时候可以使用<code>-h</code>查看编译选项。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.976Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/12/11/linux-service/" target="_blank" rel="external">https://consoles.fun/2016/12/11/linux-service/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/crontab/">crontab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/12/11/linux-service/&title=《Linux服务管理》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/12/11/linux-service/&title=《Linux服务管理》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/12/11/linux-service/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux服务管理》 — 雨碎江南&url=https://consoles.fun/2016/12/11/linux-service/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/12/11/linux-service/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/12/16/linux-security/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Linux网络安全</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/12/04/linux-network/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Linux网络管理和权限配置</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/12/11/linux-service/&title=《Linux服务管理》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/12/11/linux-service/&title=《Linux服务管理》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/12/11/linux-service/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux服务管理》 — 雨碎江南&url=https://consoles.fun/2016/12/11/linux-service/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/12/11/linux-service/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIklEQVR42u3aS3KDQAwFQN//0s42iwBPEk7CTLNyuVwwzULW7/WKr/fpdf77798kn4/uecOFgYHxWEZyxPl7ytlHz714fRgYGBswjm6dhMW7wOd3vjgzBgYGRot6Djv/HgMDA2MecPNwmaR6f/a/gYGB8ShG8oB5s+xf1OIYGBgPZOTl5e9//sh8AwMD41GMd/GqFrq95K98KgwMjKUZeYDrlZ3JEXsBFwMDYx9G0x2nj3lpmo8KfvgGAwNjG0ZvhSIfA8zbaodPx8DA2IDRS+AmAbfX5rtIDTEwMBZl9Jpik2WLe5fGmrseGBgYj2XkoTMJzflvJmtkGBgYezLy1a7J+LMaXpMBKgYGxj6M/LifGEneUMRiYGAsx7i3BdYL2efZXZRiYmBgLM2orln0hpHRwsRk2QIDA2MbRq/1PwmyPeQFBgMDY1FGdTAwWc6YD0oLGSsGBsZCjOoDkpbcvPisNuAwMDDWZiQP7pWg9y6cXaShGBgYGzAmS6XVbC1v2BVSTwwMjC0Z87WJfFGsWrgWAi4GBsZCjKTgrIbOKnK06oGBgbEo4128esPOJMiOlmIxMDCWZlQL0d6WWXXkkCepzWktBgbGAxnVINtLIqvJXzXRxMDA2IGRN/SrbbXqULOJxMDAwIjHmXlonoTpaGcEAwMDI2iTVSvpyQoaBgbGDow8pUua/nkTP38RGBgYOzN6Kw758LJ6iN6oAAMDY1HGF6JGdHLH+h+mAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

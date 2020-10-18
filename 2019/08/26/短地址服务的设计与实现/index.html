@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>短地址服务的设计与实现 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="设计模式,软件工程">
+    <meta name="description" content="有不少网站可以提供长链转短链的服务,例如新浪短地址服务、bitly。背后的原理其实是将长链和短链进行一一映射。换而言之，通过各家短链服务商的锻炼和长链是一一对应的。其中的关键点在于如何根据长链生成短链，以及当用户访问短链后怎么处理。 如何生成短地址比较直观想到的解法是使用哈希函数，但是无论怎样构造哈希函数，都存在哈希碰撞的问题。再次想到碰撞之后可以在hash字符串后面补充其他字符串来实现，但是需要">
+<meta name="keywords" content="设计模式,软件工程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="短地址服务的设计与实现">
+<meta property="og:url" content="https://consoles.fun/2019/08/26/短地址服务的设计与实现/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="有不少网站可以提供长链转短链的服务,例如新浪短地址服务、bitly。背后的原理其实是将长链和短链进行一一映射。换而言之，通过各家短链服务商的锻炼和长链是一一对应的。其中的关键点在于如何根据长链生成短链，以及当用户访问短链后怎么处理。 如何生成短地址比较直观想到的解法是使用哈希函数，但是无论怎样构造哈希函数，都存在哈希碰撞的问题。再次想到碰撞之后可以在hash字符串后面补充其他字符串来实现，但是需要">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.027Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="短地址服务的设计与实现">
+<meta name="twitter:description" content="有不少网站可以提供长链转短链的服务,例如新浪短地址服务、bitly。背后的原理其实是将长链和短链进行一一映射。换而言之，通过各家短链服务商的锻炼和长链是一一对应的。其中的关键点在于如何根据长链生成短链，以及当用户访问短链后怎么处理。 如何生成短地址比较直观想到的解法是使用哈希函数，但是无论怎样构造哈希函数，都存在哈希碰撞的问题。再次想到碰撞之后可以在hash字符串后面补充其他字符串来实现，但是需要">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">短地址服务的设计与实现</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">短地址服务的设计与实现</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-26T12:52:26.000Z" itemprop="datePublished" class="page-time">
+  2019-08-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#如何生成短地址"><span class="post-toc-text">如何生成短地址</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#如何解析短连接"><span class="post-toc-text">如何解析短连接</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#进一步优化"><span class="post-toc-text">进一步优化</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考资料"><span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-短地址服务的设计与实现"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">短地址服务的设计与实现</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-26 20:52:26" datetime="2019-08-26T12:52:26.000Z"  itemprop="datePublished">2019-08-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>有不少网站可以提供长链转短链的服务,例如<a href="http://www.sina.lt/" target="_blank" rel="noopener">新浪短地址服务</a>、<a href="https://bitly.com/" target="_blank" rel="noopener">bitly</a>。背后的原理其实是将长链和短链进行一一映射。换而言之，通过各家短链服务商的锻炼和长链是一一对应的。其中的关键点在于如何根据长链生成短链，以及当用户访问短链后怎么处理。</p>
+<h1 id="如何生成短地址"><a href="#如何生成短地址" class="headerlink" title="如何生成短地址"></a>如何生成短地址</h1><p>比较直观想到的解法是使用哈希函数，但是无论怎样构造哈希函数，都存在<em>哈希碰撞</em>的问题。再次想到碰撞之后可以在hash字符串后面补充其他字符串来实现，但是需要补充多少位呢？这种方案显然不是那么方便。联想到全局唯一，以及数据存储我们很容易想到数据库的自增id，其实这样也是可以的，这里为了实现简单(主要是天然的过期时间)，采用了redis来存储数据,其key设计如下：</p>
+<p>globalId:全局自增id，用于保证短链的唯一性<br>shortToLong:短地址到长地址的映射,key为短地址，可以很方便通过短地址找到长地址<br>longToShortInfo:长链到短链的映射，如果这个键存在值就无需重复生成了.</p>
+<pre><code class="lang-js">const Redis = require(&#39;ioredis&#39;);
+const base62 = require(&quot;base62&quot;);
+
+class ShortLinkService {
+    constructor() {
+        this.redis = new Redis(&#39;192.168.3.118&#39;);
+    }
+
+    /**
+     * 长地址 -&gt; 短地址
+     */
+    async longUrlToShortLink(url, ttl) {
+        let linkInfo = (await this.redis.exists(`longToShortInfo:${url}`)) &amp;&amp; await this.redis.hgetall(`longToShortInfo:${url}`);
+        if (linkInfo) {
+            return linkInfo;
+        }
+
+        const id = await this.redis.incr(&#39;globalID&#39;);
+        linkInfo = {
+            shortLink: base62.encode(id),
+            created: Date.now(),
+            ttl
+        };
+        // 存储短地址对应的长地址
+        await this.redis.set(`shortToLong:${linkInfo.shortLink}`, url,&#39;EX&#39;, ttl);
+        // 存储长地址对应的短地址（防止重复生成）
+        await this.redis.hmset(`longToShortInfo:${url}`, linkInfo);
+        await this.redis.expire(`longToShortInfo:${url}`,ttl);
+        return linkInfo;
+    }
+
+    /**
+     * 通过短地址反解长地址
+     */
+    async resolveShortLink(shortLink) {
+        return await this.redis.get(`shortToLong:${shortLink}`);
+    }
+}
+</code></pre>
+<p>其实短地址的核心就是将一个地址对应了一个整数，之所以将id转化为base62编码是因为base62将每个短链对应一个62进制的数(数字10个，大小写字母一共52)。这样单个位能表示的信息量就更多了，意味着我们可以用更少的位数表示更大的整数。</p>
+<h1 id="如何解析短连接"><a href="#如何解析短连接" class="headerlink" title="如何解析短连接"></a>如何解析短连接</h1><p>当收短链转长链的请求的时候去redis中查找短链对应的长链，并且向浏览器发送<em>302跳转</em>。注意不使用301的原因是301是永久重定向，浏览器会缓存（虽然301符合HTTP语义并且对服务器的压力更小），这样我们就没法追踪用户了。</p>
+<h1 id="进一步优化"><a href="#进一步优化" class="headerlink" title="进一步优化"></a>进一步优化</h1><p>上面的代码的问题是我们的发号器是一个单点。如果要做成分布式就需要多个节点保持同步加1，这个以CAP理论来看本身是不可能真正做到的，况且存在比较大的数据冗余。其实这个问题的解决非常简单，我们可以退一步考虑，我们是否可以实现两个发号器，一个发单号，一个发双号，这样就变单点为多点了？依次类推，我们可以实现1000个逻辑发号器，分别发尾号为0到999的号。每发一个号，每个发号器加1000，而不是加1。这些发号器独立工作，互不干扰即可。而且在实现上，也可以先是逻辑的，真的压力变大了，再拆分成独立的物理机器单元。1000个节点，估计对人类来说应该够用了。如果你真的还想更多，理论上也是可以的。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://jiayi797.github.io/2018/02/03/系统设计-设计短网址系统Tiny-URL/" target="_blank" rel="noopener">系统设计-设计短网址系统Tiny-URL</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.027Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/08/26/短地址服务的设计与实现/" target="_blank" rel="external">https://consoles.fun/2019/08/26/短地址服务的设计与实现/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件工程/">软件工程</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&title=《短地址服务的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&title=《短地址服务的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/26/短地址服务的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《短地址服务的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/26/秒杀系统的设计与实现/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">秒杀系统的设计与实现</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/22/面试常用套路/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">面试常用套路</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&title=《短地址服务的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&title=《短地址服务的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/26/短地址服务的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《短地址服务的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/26/短地址服务的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACsUlEQVR42u3aQW7jMBAEwPz/095rgI3i7iFn4QVKJ8MWKJYOJN0zX1/x9fp2ff/m73uevnmNrqenX77w8PDwDqaePyB5ZHL/0wj5fJ7uwcPDw9vmJZP7/fHt+pxsP/m29Pg9Hh4e3ofx8s/JVtH+ioeHh/e/8JLD8a0lHg8PD++Tecmf//agfD7CLBTGw8PD2+blVaTP+bxS38PDw8M7rqq3wevJAp03IhSzxcPDw1vg5QvuSTvUrYaqdp54eHh4G7x88W0jhpOyWb4NvAl88fDw8JZ5ecm/XbjzCeWtXXWjKh4eHt4Cb1a8b0tWs4P7m/8ETyI8PDy8BV6yoLeRQb7xtA0K7Td4eHh427y7B+Jha2kZGRcFMDw8PLxLvNkU8+U+P/7mUUgxGh4eHt4ab/a3/2SJz6OHZD5vYlw8PDy8Bd5sQnkAMXtBbevAD6Ph4eHhLfBmRa8ZuJ1c0vLVblR4eHh4t3gbD86DibYVoD2I4+Hh4e3x2uNsG2HMylongS8eHh7eBu+k/J9Mty32nzRd/aDAw8PDW+DNBpqFs0n5Pw+Fk+0EDw8Pb4OXBBAJu30psyJZ3aaAh4eHt8A72Rjq42x55S+iCHbx8PDwrvLyYtVJLDuLJ/LR3mTVeHh4eJd4ScvUSUCQH8RvtSDg4eHh/RtegmwBJ6W1trEgOkzj4eHhXeW17AQ8K5L9Plp+Dx4eHt42b9Z3kIe8eVA7G61OWfDw8PBGvFd5tQ/Oo9g8BLmQTOPh4eEd8M4L+UlEOyubtWMetS/g4eHhlbz8SN1GunkzQRvgDgtgeHh4eFd5ScDaBrX5Kzi53oyJh4eH92G8/NdZ2DFrzMLDw8P7TF7LaF9TjlnZGPDw8PACXts6MCtHzRq5TspmeHh4eBu89g9/e4C+9YIu1/Tw8PDwJrw/b+E1yqSklYoAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

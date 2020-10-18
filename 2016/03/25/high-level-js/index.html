@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>javascript高级技巧 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="javascript">
+    <meta name="description" content="高级函数安全类型的检测例如: let isArray = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Array]&amp;#39; let isFunction = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Function">
+<meta name="keywords" content="javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript高级技巧">
+<meta property="og:url" content="https://consoles.fun/2016/03/25/high-level-js/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="高级函数安全类型的检测例如: let isArray = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Array]&amp;#39; let isFunction = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Function">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.962Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="javascript高级技巧">
+<meta name="twitter:description" content="高级函数安全类型的检测例如: let isArray = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Array]&amp;#39; let isFunction = value =&amp;gt; Object.prototype.toString.call(value) === &amp;#39;[object Function">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">javascript高级技巧</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">javascript高级技巧</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-25T12:31:02.000Z" itemprop="datePublished" class="page-time">
+  2016-03-25
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#高级函数"><span class="post-toc-text">高级函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安全类型的检测"><span class="post-toc-text">安全类型的检测</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#作用域安全的构造函数"><span class="post-toc-text">作用域安全的构造函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#js中的类和继承"><span class="post-toc-text">js中的类和继承</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类定义的方法"><span class="post-toc-text">类定义的方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类继承的方法"><span class="post-toc-text">类继承的方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#设计模式"><span class="post-toc-text">设计模式</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#原型式污染"><span class="post-toc-text">原型式污染</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#js面试题"><span class="post-toc-text">js面试题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何实现一个深拷贝"><span class="post-toc-text">如何实现一个深拷贝</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ES6-let关键字的坑"><span class="post-toc-text">ES6 let关键字的坑</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#不能被重复声明"><span class="post-toc-text">不能被重复声明</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#暂时性死区"><span class="post-toc-text">暂时性死区</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#js中的字符串"><span class="post-toc-text">js中的字符串</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#解构的妙用"><span class="post-toc-text">解构的妙用</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-high-level-js"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">javascript高级技巧</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-25 20:31:02" datetime="2016-03-25T12:31:02.000Z"  itemprop="datePublished">2016-03-25</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="高级函数"><a href="#高级函数" class="headerlink" title="高级函数"></a>高级函数</h1><h2 id="安全类型的检测"><a href="#安全类型的检测" class="headerlink" title="安全类型的检测"></a>安全类型的检测</h2><p>例如:</p>
+<pre><code class="lang-js">let isArray = value =&gt; Object.prototype.toString.call(value) === &#39;[object Array]&#39;
+let isFunction = value =&gt; Object.prototype.toString.call(value) === &#39;[object Function]&#39;
+let isRegExp = value =&gt; Object.prototype.toString.call(value) === &#39;[object RegExp]&#39;
+// let isNativeJSON = value =&gt; window.JSON &amp;&amp; Object.prototype.toString.call(value) === &#39;[object JSON]&#39;
+// 上面的方法有疑问？什么是原生JSON?
+</code></pre>
+<h2 id="作用域安全的构造函数"><a href="#作用域安全的构造函数" class="headerlink" title="作用域安全的构造函数"></a>作用域安全的构造函数</h2><p>例如以下的构造函数:</p>
+<pre><code class="lang-js">function Person(name){
+  this.name = name
+}
+</code></pre>
+<p>如果我们不是new出来的,而是直接将构造函数当做一个普通的函数调用就会将<code>name</code>属性绑定到window上面(this指向window):</p>
+<pre><code class="lang-js">Person(123)
+window.name // 123
+</code></pre>
+<p>以上的操作<em>为window添加了新的属性</em>,导致window的属性意外增加或者覆盖!解决方案是创建一个作用域安全的构造函数:</p>
+<pre><code class="lang-js">function Person(name){
+  if(this instanceof Person)
+    this.name = name
+  else
+    return new Person(name)  
+}
+</code></pre>
+<p>以上的函数要么使用现有的实例,要么创建新的实例,this指向的始终是实例,避免了在全局对象上意外增加属性.这是最佳实践.</p>
+<h2 id="js中的类和继承"><a href="#js中的类和继承" class="headerlink" title="js中的类和继承"></a>js中的类和继承</h2><h3 id="类定义的方法"><a href="#类定义的方法" class="headerlink" title="类定义的方法"></a>类定义的方法</h3><p>构造函数定义类</p>
+<pre><code class="lang-js">function Person(){
+  this.name = &#39;michaelqin&#39;;
+}
+Person.prototype.sayName = function(){
+  alert(this.name);
+}
+
+var person = new Person();
+person.sayName();
+</code></pre>
+<p>对象创建方法定义类</p>
+<pre><code class="lang-js">var Person = {
+  name: &#39;michaelqin&#39;,
+  sayName: function(){ alert(this.name); }
+};
+
+var person = Object.create(Person);
+person.sayName();
+</code></pre>
+<p>ES5推荐使用第二种模式，但是原型法更普遍。</p>
+<h3 id="类继承的方法"><a href="#类继承的方法" class="headerlink" title="类继承的方法"></a>类继承的方法</h3><p>原型链</p>
+<pre><code class="lang-js">function Animal() {
+  this.name = &#39;animal&#39;;
+}
+Animal.prototype.sayName = function(){
+  alert(this.name);
+};
+
+function Person() {}
+Person.prototype = Animal.prototype; // 人继承自动物
+Person.prototype.constructor = &#39;Person&#39;; // 更新构造函数为人
+</code></pre>
+<p>属性复制</p>
+<pre><code class="lang-js">function Animal() {
+  this.name = &#39;animal&#39;;
+}
+Animal.prototype.sayName = function() {
+  alert(this.name);
+};
+
+function Person() {}
+
+for(prop in Animal.prototype) {
+  Person.prototype[prop] = Animal.prototype[prop];
+} // 复制动物的所有属性到人量边
+Person.prototype.constructor = &#39;Person&#39;; // 更新构造函数为人
+</code></pre>
+<p>ES5中的继承是通过<em>借用父类的构造方法</em>来实现方法/属性的继承：</p>
+<pre><code class="lang-js">// 父类
+function supFather(name) {
+    this.name = name;
+    this.colors = [&#39;red&#39;, &#39;blue&#39;, &#39;green&#39;]; // 复杂类型
+}
+
+supFather.prototype.sayName = function (age) {
+    console.log(this.name, &#39;age&#39;);
+};
+
+// 子类
+function sub(name, age) {
+    // 借用父类的方法：修改它的this指向,赋值父类的构造函数里面方法、属性到子类上
+    supFather.call(this, name);
+    this.age = age;
+}
+
+// 重写子类的prototype，修正constructor指向
+function inheritPrototype(sonFn, fatherFn) {
+    sonFn.prototype = Object.create(fatherFn.prototype); // 继承父类的属性以及方法
+    sonFn.prototype.constructor = sonFn; // 修正constructor指向到继承的那个函数上
+}
+
+inheritPrototype(sub, supFather);
+sub.prototype.sayAge = function () {
+    console.log(this.age, &#39;foo&#39;);
+};
+
+// 实例化子类，可以在实例上找到属性、方法
+const instance1 = new sub(&quot;OBKoro1&quot;, 24);
+const instance2 = new sub(&quot;小明&quot;, 18);
+instance1.colors.push(&#39;black&#39;)
+
+console.log(instance1);
+//&gt;&gt; {&quot;name&quot;:&quot;OBKoro1&quot;,&quot;colors&quot;:[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;,&quot;black&quot;],&quot;age&quot;:24}
+console.log(instance2);
+//&gt;&gt; {&quot;name&quot;:&quot;小明&quot;,&quot;colors&quot;:[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;],&quot;age&quot;:18}
+</code></pre>
+<p>js中多重继承的实现就是使用属性复制来实现的，因为当父类的<code>prototype</code>属性被复制后，子类自然拥有类似的行为和属性。</p>
+<pre><code class="lang-js">const mixinClass = (base, ...mixins) =&gt; {
+  const mixinProps = (target, source) =&gt; {
+    Object.getOwnPropertyNames(source).forEach(prop =&gt; {
+      if (/^constructor$/.test(prop)) { return; }
+      Object.defineProperty(target, prop, Object.getOwnPropertyDescriptor(source, prop));
+    })
+  };
+
+  let Ctor;
+  if (base &amp;&amp; typeof base === &#39;function&#39;) {
+    Ctor = class extends base {
+      constructor(...props) {
+        super(...props);
+      }
+    };
+    mixins.forEach(source =&gt; {
+      mixinProps(Ctor.prototype, source.prototype);
+    });
+  } else {
+    Ctor = class {};
+  }
+  return Ctor;
+};
+
+class A {
+  methodA() {}
+}
+class B {
+  methodB() {}
+}
+class C extends mixinClass(A, B) {
+  methodA() { console.log(&#39;methodA in C&#39;); }
+  methodC() {}
+}
+
+let c = new C();
+c instanceof C  // true
+c instanceof A  // true
+c instanceof B  // false
+</code></pre>
+<h2 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h2><p>工厂</p>
+<pre><code class="lang-js">function Person() { this.name = &#39;Person1&#39;; }
+function Animal() { this.name = &#39;Animal1&#39;; }
+
+function Factory() {}
+Factory.prototype.getInstance = function(className) {
+  return eval(&#39;new &#39; + className + &#39;()&#39;);
+}
+
+var factory = new Factory();
+var obj1 = factory.getInstance(&#39;Person&#39;);
+var obj2 = factory.getInstance(&#39;Animal&#39;);
+console.log(obj1.name); // Person1
+console.log(obj2.name); // Animal1
+</code></pre>
+<p>代理</p>
+<pre><code class="lang-js">function Person() { }
+Person.prototype.sayName = function() { console.log(&#39;michaelqin&#39;); }
+Person.prototype.sayAge = function() { console.log(30); }
+
+function PersonProxy() {
+  this.person = new Person();
+  var that = this;
+  this.callMethod = function(functionName) {
+    console.log(&#39;before proxy:&#39;, functionName);
+    that.person[functionName](); // 代理
+    console.log(&#39;after proxy:&#39;, functionName);
+  }
+}
+
+var pp = new PersonProxy();
+pp.callMethod(&#39;sayName&#39;); // 代理调用Person的方法sayName()
+pp.callMethod(&#39;sayAge&#39;); // 代理调用Person的方法sayAge()
+</code></pre>
+<p>观察者，又称事件模式，例如按钮的onclick</p>
+<pre><code class="lang-js">function Publisher() {
+  this.listeners = [];
+}
+Publisher.prototype = {
+  &#39;addListener&#39;: function(listener) {
+    this.listeners.push(listener);
+  },
+
+  &#39;removeListener&#39;: function(listener) {
+    delete this.listeners[listener];
+  },
+
+  &#39;notify&#39;: function(obj) {
+    for(var i = 0; i &lt; this.listeners.length; i++) {
+      var listener = this.listeners[i];
+      if (typeof listener !== &#39;undefined&#39;) {
+        listener.process(obj);
+      }
+    }
+  }
+}; // 发布者
+
+function Subscriber() {
+
+}
+Subscriber.prototype = {
+  &#39;process&#39;: function(obj) {
+    console.log(obj);
+  }
+};　// 订阅者
+
+var publisher = new Publisher();
+publisher.addListener(new Subscriber());
+publisher.addListener(new Subscriber());
+publisher.notify({name: &#39;michaelqin&#39;, ageo: 30}); // 发布一个对象到所有订阅者
+publisher.notify(&#39;2 subscribers will both perform process&#39;); // 发布一个字符串到所有订阅者
+</code></pre>
+<h1 id="原型式污染"><a href="#原型式污染" class="headerlink" title="原型式污染"></a>原型式污染</h1><pre><code class="lang-js">let foo = {bar:1}
+foo.bar // 1
+foo.__proto__.bar = 233
+foo.bar // 1
+let zoo = {}
+zoo.bar // 233
+Object.prototype // { bar: 233 }
+</code></pre>
+<p>而foo是一个Object类的实例，所以实际上是修改了Object这个类，给这个类增加了一个属性bar，值为233，后来，我们又用Object类创建了一个zoo对象let zoo = {}，zoo对象自然也有一个bar属性了。</p>
+<p>那么，在一个应用中，如果攻击者控制并修改了一个对象的原型，那么将可以影响所有和这个对象来自同一个类、父祖类的对象。这种攻击方式就是原型链污染。</p>
+<h1 id="js面试题"><a href="#js面试题" class="headerlink" title="js面试题"></a>js面试题</h1><pre><code class="lang-js">var b = 10;
+(function b(){
+    b = 20;
+    console.log(b);
+})();
+</code></pre>
+<p>输出:</p>
+<pre><code class="lang-bash">ƒ b(){
+    b = 20;
+    console.log(b);
+}
+</code></pre>
+<p>主要考察作用域和var的变量提升，如果把匿名函数中的<code>b = 20</code>改成<code>var b = 20</code>，则会输出20，上面的b其实是个函数。</p>
+<pre><code class="lang-js">function func() {
+  console.log(this.a);
+}
+var a = 2;
+var o = { a: 3, func: func };
+var p = { a: 4 };
+o.func(); //&gt;&gt; 3
+(p.func = o.func)(); //&gt;&gt; 2 ，注意：输出不是4
+// 赋值表达式 p.func=o.func 的返回值是目标函数的引用，也就是 func 函数的引用
+// 因此调用位置是 func() 而不是 p.func() 或者 o.func()
+</code></pre>
+<h2 id="如何实现一个深拷贝"><a href="#如何实现一个深拷贝" class="headerlink" title="如何实现一个深拷贝"></a>如何实现一个深拷贝</h2><pre><code class="lang-js">const obj = {
+    a: 1,
+    b: [1, 2, 3, 4, 5],
+    c: {
+        d: 12
+    }
+};
+obj.obj = obj;
+
+function cloneDeep(obj, map = new WeakMap()) {
+    if (typeof obj === &#39;object&#39;) {
+        if (map.has(obj)) {
+            return map.get(obj);
+        }
+        const clone = Array.isArray(obj) ? [] : {};
+    // 解决循环引用
+        map.set(obj, clone);
+        for (const key of Object.keys(obj)) {
+            clone[key] = cloneDeep(obj[key], map);
+        }
+        return clone;
+    }
+    return obj;
+}
+
+const copy = cloneDeep(obj);
+copy.obj.b.push(-1);
+console.log(obj, copy);
+
+// { a: 1, b: [ 1, 2, 3, 4, 5 ], c: { d: 12 }, obj: [Circular] } { a: 1, b: [ 1, 2, 3, 4, 5, -1 ], c: { d: 12 }, obj: [Circular] }
+</code></pre>
+<p>注意：我们常用<code>Object.assign({},obj)</code>来拷贝对象，但是这其实是浅拷贝，可以参考<code>lodash.cloneDeep</code>。</p>
+<h2 id="ES6-let关键字的坑"><a href="#ES6-let关键字的坑" class="headerlink" title="ES6 let关键字的坑"></a>ES6 let关键字的坑</h2><h3 id="不能被重复声明"><a href="#不能被重复声明" class="headerlink" title="不能被重复声明"></a>不能被重复声明</h3><pre><code class="lang-js">function fn (a){
+   let a = 2;
+   console.log(a); //Uncaught SyntaxError: Identifier &#39;a&#39; has already been declared
+}
+</code></pre>
+<h3 id="暂时性死区"><a href="#暂时性死区" class="headerlink" title="暂时性死区"></a>暂时性死区</h3><pre><code class="lang-js">let a = &#39;outside&#39;;
+if(true) {
+   console.log(a);//Uncaught ReferenceError: Cannot access &#39;a&#39; before initialization
+    let a = &quot;inside&quot;;
+}
+</code></pre>
+<h2 id="js中的字符串"><a href="#js中的字符串" class="headerlink" title="js中的字符串"></a>js中的字符串</h2><p>字符串是不可变对象，意味着我们不能单独改变某一特定索引的字符，例如：</p>
+<pre><code class="lang-js">str = &#39;123&#39;;
+str[0]=&#39;a&#39;; // str仍然是123
+</code></pre>
+<h2 id="解构的妙用"><a href="#解构的妙用" class="headerlink" title="解构的妙用"></a>解构的妙用</h2><p>常用在配置的默认值初始化，例如</p>
+<pre><code class="lang-js">options = {host:null,port:null,...options}
+// 等价于
+options = Object.assign({host:null,port:null},options)
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.962Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/25/high-level-js/" target="_blank" rel="external">https://consoles.fun/2016/03/25/high-level-js/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/25/high-level-js/&title=《javascript高级技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/25/high-level-js/&title=《javascript高级技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/25/high-level-js/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript高级技巧》 — 雨碎江南&url=https://consoles.fun/2016/03/25/high-level-js/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/25/high-level-js/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/26/new-api-in-js/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">javascript中的新api</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/24/other-cors/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">其他跨域解决方案</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/25/high-level-js/&title=《javascript高级技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/25/high-level-js/&title=《javascript高级技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/25/high-level-js/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript高级技巧》 — 雨碎江南&url=https://consoles.fun/2016/03/25/high-level-js/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/25/high-level-js/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACI0lEQVR42u3aQY7jMAwEwPn/pzPAnhaYcdItOouNVD4ZthOrfCAokl9f8fH4c1yd/33l6np+/vPfbjswMDA+lvF4evx8WbuU/O7z56/WhoGBcQ4jCbLJ61tA/oFerBkDAwOjfGaSPmJgYGDcG3Cfp5L3bncxMDAw8mW1zySp5OS9GBgYJzDmjYH3nf/T/gYGBsZ/yXiUx6S12QbTYlUYGBhbM5ImYl4ge85eK8zlBTgMDIxdGWubzMmQxNXdvKn5yxUMDIytGe3YaNsGWHtLvp3GwMA4gXFvkF0r1eWB+PIcAwNja0a+oLUSWL6hnWykMTAwTmAkAS5P6ZJGwqQ892JHjoGBcQAj+sGtS88TwRerxcDAOJIxL661G91RgoiBgbEp44YwFy8lCdntdQwMjHMYbVLYJnP12MRkzAIDA2M7Rh7s8g1q3gBom6PFjBsGBsZGjGTjmg9k3NXmrDfPGBgYWzPagJuX1dY2vWsNTgwMjHMY7VDXPJjmTQUMDIyTGW0pv20x5h9r1FrAwMA4gJEkdu2TbUN0NLqBgYGxNWPSAMjblm3a146OYWBg7M2YlPLbtK9tfBZ3MTAwtmbkx1pYbAt5ecLargoDA+PTGZMgu/b69kNEHxcDA+MARrvhnIxfTHj1bQwMjMMY+T8sBs0JGAMDAyNeyjuGKiIYBgbGAYy8QJYPjbXUNzYyMTAwPpwxGZJoU8C1IbN5CQ8DA+NjGd8X3PAuGquSCwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

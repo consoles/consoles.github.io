@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>高可用MySQL架构 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="MySQL,高可用">
+    <meta name="description" content="There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)知之为知之，不知为不知，是知也。也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作">
+<meta name="keywords" content="MySQL,高可用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高可用MySQL架构">
+<meta property="og:url" content="https://consoles.fun/2016/08/02/high-availability-mysql/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)知之为知之，不知为不知，是知也。也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-log.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-copy.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-gtid-copy.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-mmm.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.960Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高可用MySQL架构">
+<meta name="twitter:description" content="There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)知之为知之，不知为不知，是知也。也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-log.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">高可用MySQL架构</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">高可用MySQL架构</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-08-02T06:22:24.000Z" itemprop="datePublished" class="page-time">
+  2016-08-02
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据库复制功能"><span class="post-toc-text">数据库复制功能</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL二进制日志"><span class="post-toc-text">MySQL二进制日志</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#二进制日志的格式"><span class="post-toc-text">二进制日志的格式</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于日志点的复制的配置步骤："><span class="post-toc-text">基于日志点的复制的配置步骤：</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于GDIT的复制"><span class="post-toc-text">基于GDIT的复制</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#具体步骤"><span class="post-toc-text">具体步骤</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MySQL复制性能优化"><span class="post-toc-text">MySQL复制性能优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#高可用架构"><span class="post-toc-text">高可用架构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#MMM"><span class="post-toc-text">MMM</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MHA架构"><span class="post-toc-text">MHA架构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置各个节点SSH免认证登陆"><span class="post-toc-text">配置各个节点SSH免认证登陆</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#读写分离和负载均衡"><span class="post-toc-text">读写分离和负载均衡</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#为什么要读写分离？"><span class="post-toc-text">为什么要读写分离？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#读写分离中间件maxScale"><span class="post-toc-text">读写分离中间件maxScale</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-high-availability-mysql"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">高可用MySQL架构</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-08-02 14:22:24" datetime="2016-08-02T06:22:24.000Z"  itemprop="datePublished">2016-08-02</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)<br>知之为知之，不知为不知，是知也。<br>也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作祟。但是既然开始了，就不愿意停下来。<br>我本微末凡尘，却也心向天空。—— 我吃西红柿·《莽荒纪》<br>我在起点与终点之间两全其美,却无法禅定于一夜琴声。直至悠悠的琴声被暗香淹没，我才刚刚赶到岸边，片刻之间，已被一缕清风绣在水面。 ——仓央嘉措</p>
+</blockquote>
+<h2 id="数据库复制功能"><a href="#数据库复制功能" class="headerlink" title="数据库复制功能"></a>数据库复制功能</h2><p>数据库服务器由于事务性不能像web服务器那样简单增加机器的数量来进行拓展（事务）。MySQL的复制功能提供了分担<em>读负载</em>的办法。增加多个备库分担主服务器的读负载，为高可用、灾难恢复、备份提供更多选择。MySQL复制利用<em>二进制</em>日志进行增量异步复制，需要的带宽少。其原理是在备库上重放主库上的二进制日志文件。</p>
+<h2 id="MySQL二进制日志"><a href="#MySQL二进制日志" class="headerlink" title="MySQL二进制日志"></a>MySQL二进制日志</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-log.png" alt="MySQL日志分类" title>
+                </div>
+                <div class="image-caption">MySQL日志分类</div>
+            </figure>
+<p>在二进制文件中记录了所有对数据库的修改事件，包括CRUD和对表结构的修改事件。有一点需要注意：二进制日志文件中记录的都是成功执行了的，已经回滚了的或者有语法错误的SQL是不在二进制日志文件中的。</p>
+<h3 id="二进制日志的格式"><a href="#二进制日志的格式" class="headerlink" title="二进制日志的格式"></a>二进制日志的格式</h3><pre><code class="lang-bash">mysql&gt; show variables like &#39;binlog_format&#39;;
+</code></pre>
+<ul>
+<li>基于段的格式：binlog_format=STATEMENT,日志记录量相对较小，节约磁盘和网络IO，缺点是：必须记录上下文信息，保证语句在从服务器上执行结果和主服务器上相同。对特定函数，例如：UUID(),USER()这样的非确定性函数无法复制（可能造成主从服务器数据不一致）。也称为基于SQL语句的复制，相比于基于行的复制会造成更多的行锁，因为基于行的复制仅仅是插入一条数据。</li>
+</ul>
+<pre><code class="lang-bash">mysql&gt; set session binlog_format=statement;
+mysql&gt; show binary logs;
+mysql&gt; flush logs; -- 会产生新的binlog文件
+mysql&gt; show binary logs;
+mysql&gt; create database crn;
+mysql&gt; use crn;
+mysql&gt; create table t(id int,c1 varchar(10));
+mysql&gt; insert t values(1,&#39;a&#39;),(2,&#39;b&#39;);
+mysql&gt; update t set c1 = &#39;dd&#39; where id = 1;
+</code></pre>
+<p>以上我们进行了数据的CRUD操作，接下来使用mysqlbinlog工具查看二进制日志文件（数据目录下）：</p>
+<pre><code class="lang-bash">$ mysqlbinlog muke-49-468585-v52l3-bin.000004
+</code></pre>
+<p>在此日志文件中我们可以很清楚看到执行的SQL语句。</p>
+<ul>
+<li>基于行的日志格式：binlog_format=ROW,该种格式可以避免MySQL主从复制中不一致的问题，是5.7之后的默认格式。和基于段的日志不同的是：同一语句修改了1000条数据，基于段的日志只会记录1条SQL，而基于行的复制会有1000条记录分别记录每一行的数据修改。<em>如果修改了DB中的数据，同时又没有备份可以恢复的时候我们可以通过分析二进制日志，对日志中记录的操作进行反向处理来恢复数据</em>。该种日志默认保存每一行，日志量大，但是可以通过binlog_row_image=MINIMAL（默认值为FULL,还可以是NOBLOB(与FULL相似，区别仅为不记录TEXT和BLOB)）来达到节约网络和磁盘IO的目的。</li>
+</ul>
+<pre><code class="lang-bash">mysql&gt; set session binlog_format=row;
+mysql&gt; show variables like &#39;binlog_row_image&#39;;
+mysql&gt; alter table t add t2 text; # 重用上面的t表并为其增加字段
+mysql&gt; insert t values(3,&#39;hehe&#39;,&#39;hahahaha&#39;);
+mysql&gt; delete from t where id = 1;
+</code></pre>
+<p>使用mysqlbinlog命令查看二进制文件内容：</p>
+<pre><code class="lang-bash">$ mysqlbinlog -vv muke-49-468585-v52l3-bin.000006 | less # 注意基于ROW的二进制日志需要加入-vv参数
+</code></pre>
+<p>混合日志格式binlog_format=MIXED是基于段的和基于行的日志格式的一种折衷选择。根据SQL语句由系统决定在基于段和基于行的日志格式间进行选择，大部分会采用STATEMENT,而类似于UUID之类的会采用基于ROW的日志格式；数据量大小由所执行的SQL决定。</p>
+<p>MySQL的复制功能必须依赖于二进制日志文件，其工作原理如下图：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-copy.png" alt="MySQL复制" title>
+                </div>
+                <div class="image-caption">MySQL复制</div>
+            </figure>
+<p>在实际应用中建议使用混合的或者基于ROW的日志格式。</p>
+<h2 id="基于日志点的复制的配置步骤："><a href="#基于日志点的复制的配置步骤：" class="headerlink" title="基于日志点的复制的配置步骤："></a>基于日志点的复制的配置步骤：</h2><pre><code class="lang-bash">mysql&gt; CREATE USER &#39;repl&#39;@&#39;从Server IP段&#39; identified by &#39;password&#39;; -- 在主DB上建立复制账号
+mysql&gt; GRANT REPLICATION SLAVE ON *.* TO &#39;repl&#39;@&#39;从Server IP段&#39;;
+</code></pre>
+<p>主服务器上有2个参数需要配置：</p>
+<pre><code class="lang-bash">log-bin=mysql-bin
+server-id=1
+</code></pre>
+<p>从服务器上配置对应的参数：</p>
+<pre><code class="lang-bash">log-bin=mysql-bin
+server-id=2
+relay_log=mysql-relay-bin
+log_slave_update=on # 可选
+read_only=on # 可选，安全考虑
+</code></pre>
+<p>在从服务器上启动复制链路</p>
+<pre><code class="lang-bash">mysql&gt; CHANGE MASTER TO MASTER_HOST = &#39;master_host_ip&#39;,MASTER_USER=&#39;repl&#39;,MASTER_PASSWORD=&#39;password&#39;,MASTER_LOG_FILE=&#39;master_log_file_name&#39; MASTER_LOG_POS=4;
+</code></pre>
+<p>下面是实际操作：</p>
+<p>主库：192.168.1.4(server-id=1)，从库:192.168.1.5(server-id=2)，IP地址的查看可以使用<code>ip addr</code>命令。</p>
+<ol>
+<li><p>在主库上创建并授权用户</p>
+<pre><code class="lang-bash">mysql&gt; create user repl@&#39;192.168.1.%&#39; identified by &#39;123456&#39;; -- 主库创建用户
+mysql&gt; grant replication slave on *.* to repl@&#39;192.168.1.%&#39;;
+</code></pre>
+</li>
+<li><p>从主库导出数据并根据此数据初始化从库</p>
+</li>
+</ol>
+<pre><code class="lang-bash">$ mysqldump -uroot -p123456 --single-transaction --master-data --triggers --routines --all-databases &gt;&gt; all.sql
+$ scp all.sql root@192.168.1.5:/root
+</code></pre>
+<ol>
+<li>在从库上导入sql文件：</li>
+</ol>
+<pre><code class="lang-bash">$ mysql -uroot -p123456 &lt; all.sql
+</code></pre>
+<ol>
+<li>在从库上使用<code>change master</code>命令。</li>
+</ol>
+<pre><code class="lang-bash">mysql&gt;CHANGE MASTER TO MASTER_HOST=&#39;192.168.1.4&#39;,MASTER_USER=&#39;repl&#39;,MASTER_PASSWORD=&#39;123456&#39;,MASTER_LOG_FILE=&#39;mysql-bin.000012&#39;, MASTER_LOG_POS=429; -- 最后2个参数可以从all.sql中得到
+</code></pre>
+<p>以上就完成了主从备份的配置，我们可以在从库上使用<code>start slave;</code>启动备份，并使用<code>show slave status\G;</code>观察可以发现IO进程和SQL进程都已经起来了。在master和slaver上我们也可以分别执行<code>show processlist;</code>来查看mysql进程。</p>
+<h2 id="基于GDIT的复制"><a href="#基于GDIT的复制" class="headerlink" title="基于GDIT的复制"></a>基于GDIT的复制</h2><p>全局事务ID，保证为每一个在主库上提交的事务在复制集群中可以生成唯一ID。5.6版本开始起，新支持的复制方式，和基于日志的方式存在很大不同。基于日志的方式要求告诉从主库的哪个二进制文件的偏移量进行增量同步，如果指定错误会造成遗漏或者重复，从而造成数据一致性问题。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-gtid-copy.png" alt="基于GDIT的复制" title>
+                </div>
+                <div class="image-caption">基于GDIT的复制</div>
+            </figure>
+<p>GTID=source_id:transaction_id，GTID由2部分组成。source_id是主库的server-uuid，在DB启动时自动生成（数据目录下的auto.cnf）,可以保证每个MySQL实例的server-uuid都是不同的。</p>
+<h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><p>首先在主库上建立账号，并授权（同基于日志点的复制）。主库和从库都需要配置<code>log-bin</code>和<code>server-id</code>。相比于基于日志点的复制，需要在主库上多设置如下内容：<br>是：</p>
+<pre><code class="lang-bash">gtid_mode=on
+enforce_gtid_consistency=on
+log_slave_updates=on
+master_info_repository=table
+relay_log_info_repository=table
+</code></pre>
+<p>从库配置:</p>
+<pre><code class="lang-bash">gtid_mode=on
+enforce_gtid_consistency=on
+log_slave_updates=on
+</code></pre>
+<p>接下来导出主库数据并在从库上恢复：</p>
+<pre><code class="lang-bash">$ mysqldump -uroot -p123456 --single-transaction --master-data=2 --triggers --routines --all-databases &gt; all2.sql
+$ scp -P22 all2.sql root@192.168.1.5:/root
+</code></pre>
+<p>最后使用<code>change master</code>命令指定复制。</p>
+<pre><code class="lang-bash">mysql&gt;CHANGE MASTER TO MASTER_HOST=&#39;192.168.1.4&#39;,MASTER_USER=&#39;repl&#39;,MASTER_PASSWORD=&#39;123456&#39;,MASTER_AUTO_POSITION=1;
+mysql&gt;start slave;
+mysql&gt;show slave status\G;
+</code></pre>
+<p>我们可以在从库上执行<code>stop slave;set global slave_parallel_workers=4;start slave;show processlist;</code>进行多线程复制。</p>
+<p>这种方式的优点是可以很方便地进行故障转移，从库不会丢失主库上的任何修改（建立在主库的二进制日志文件没有被删除）</p>
+<blockquote>
+<p>mysql查看用户授权：<code>use mysql;show grants for repl@&#39;192.168.1.%&#39;;</code></p>
+</blockquote>
+<p>基于GTID的复制方式在数据完整性和安全性上较高。</p>
+<h2 id="MySQL复制性能优化"><a href="#MySQL复制性能优化" class="headerlink" title="MySQL复制性能优化"></a>MySQL复制性能优化</h2><p>MySQL复制是异步的，只有事务在主库上执行完并记录到二进制日志中之后，从库才能从二进制日志中读取并执行事务</p>
+<h2 id="高可用架构"><a href="#高可用架构" class="headerlink" title="高可用架构"></a>高可用架构</h2><p>HA(High Availability)指的是通过尽量缩短因日常维护操作和突发的系统崩溃导致的停机时间，以提高系统和应用的可用性。5个9的可用性要求全年只有5min对外不提供服务：360<em>24</em>60*(1-0.99999)=5.26.</p>
+<h3 id="MMM"><a href="#MMM" class="headerlink" title="MMM"></a>MMM</h3><p>Multi-Master Replication Manager。监控MySQL的主主复制拓扑，在当前主服务器失效时，进行主备服务器之间的主从切换和故障转移。</p>
+<p>主库：192.168.1.4和5互为主从，192.168.4为主，6为从。首先使用基于日志点的复制方法导出主库数据。接下来在三个节点上都安装3M包：</p>
+<pre><code class="lang-bash">$ apt-get install mysql-mmm-agent
+</code></pre>
+<p>在监控节点192.168.1.6上安装3M监控<code>apt get install mysql-mmm-common mysql-mmm-monitor mysql-mmm-tools</code></p>
+<p>在4上建立DB账号：</p>
+<pre><code class="lang-bash">mysql&gt;grant replication client on *.* to &#39;mmm_monitor&#39;@&#39;192.168.1.%&#39; identified by &#39;123456&#39;;
+mysql&gt;grant super,replication client,process on *.* to &#39;mmm_agent&#39;@&#39;192.168.1.%&#39; identified by &#39;123456&#39;;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-mmm.png" alt="MMM架构" title>
+                </div>
+                <div class="image-caption">MMM架构</div>
+            </figure>
+<p><code>/etc/mysql-mmm/mmm_common.conf</code>是通用配置，所有集群节点中都是一致的。</p>
+<pre><code class="lang-bash">active_master_role         writer
+
+
+&lt;host default&gt;
+           cluster_interface              eth0
+
+           pid_path                       /var/run/mmm_agentd.pid
+           bin_path                       /usr/lib/mysql-mmm/
+
+    # repl的用户名和密码
+    replication_user        repl
+    replication_password    123456
+
+           agent_user                     mmm_agent
+           agent_password             123456
+&lt;/host&gt;
+
+# 主库
+&lt;host db1&gt;
+           ip                             192.168.1.4
+           mode                       master
+           peer                       db2
+&lt;/host&gt;
+
+# 主备
+&lt;host db2&gt;
+           ip                             192.168.1.5
+           mode                       master
+           peer                       db1
+&lt;/host&gt;
+
+# 从
+&lt;host db3&gt;
+           ip                             192.168.1.6
+           mode                       slave
+&lt;/host&gt;
+
+# 主、主备，虚拟ip
+&lt;role writer&gt;
+           hosts                      db1, db2
+           ips                            192.168.1.50
+           mode                       exclusive
+&lt;/role&gt;
+
+&lt;role reader&gt;
+           hosts                      db1, db2, db3
+           ips                            192.168.1.51, 192.168.1.52, 192.168.1.53
+           mode                       balanced
+&lt;/role&gt;
+</code></pre>
+<p>将以上配置复制到各个节点的对应位置。</p>
+<pre><code class="lang-bash">$ scp mmm_common.conf root@192.168.1.5:/etc/mysql-mmm/mmm_common.conf
+$ scp mmm_common.conf root@192.168.1.6:/etc/mysql-mmm/mmm_common.conf
+</code></pre>
+<p>分别配置3台节点上的<code>mmm_agent.conf</code>为db1,db2和db3</p>
+<p>现在为止我们已经配置完成了db节点，接下来需要配置监控节点192.168.1.6,<code>/etc/mysql-mmm/mmm_mon.conf</code>:</p>
+<pre><code class="lang-bash">include mmm_common.conf
+
+&lt;monitor&gt;
+        ip                                      192.168.1.6
+        pid_path                                /var/run/mmm_mond.pid
+        bin_path                                /usr/lib/mysql-mmm/
+        status_path                             /var/lib/misc/mmm_mond.status
+        ping_ips                                192.168.1.4, 192.168.1.5, 192.168.1.6
+&lt;/monitor&gt;
+
+&lt;host default&gt;
+        monitor_user                    mmm_monitor
+        monitor_password                RepMonitor
+&lt;/host&gt;
+
+debug 1
+</code></pre>
+<p>使用apt-get安装完3M后会在<code>/etc/init.d/</code>下生成2个脚本，分别表示代理和监控。在集群所有节点中启动所有的代理进程，可能会遇到下面的问题：mmm_agent_navy2.conf is world readable! at /usr/share/perl5/MMM/Common/Config.pm line 132，解决方案是：<code>chmod 640 /etc/mysql-mmm/*</code>。在最后一个节点启动监控服务。</p>
+<pre><code class="lang-bash">$ /etc/init.d/mysql-mmm-agent start
+$ /etc/init.d/mysql-mmm-monitor start
+</code></pre>
+<p>以上即完成了3M集群，当一台主服务器宕机时将写操作转到另一个DB。它提供了读写VIP（虚拟IP），使服务器角色的变更对前端应用透明。在服务器出现大量的主从延迟或者主从链路中断时可以把这台服务器上的读的虚拟IP漂移到集群中其他正常的服务器上，提供了了从服务器的延迟监控，提供了主DB故障转移后从服务器对新主的重新同步功能。但是缺点也是明显的：发布时间较早，不支持MySQL新的复制功能（GDIT复制）；没有读负载均衡的能力；进行主从切换时容易造成数据丢失，由于3M监控服务器只有一台，因此容易造成单点故障。</p>
+<h2 id="MHA架构"><a href="#MHA架构" class="headerlink" title="MHA架构"></a>MHA架构</h2><p>全称是Master High Availability,由Perl脚本开发，可在30s内完成主从切换。集群中有3个节点都是192.168.1网段，分别是4(主)，5（从），6（从，监控节点）。3个节点上都运行着一个MySQL实例，并且启用了GTID_MODE(<code>show variables like &#39;%gtid_mode%&#39;;</code>)。以4为主库，5，6为从库，使用change master命令建立基于GTID的复制。</p>
+<h3 id="配置各个节点SSH免认证登陆"><a href="#配置各个节点SSH免认证登陆" class="headerlink" title="配置各个节点SSH免认证登陆"></a>配置各个节点SSH免认证登陆</h3><ol>
+<li>使用<code>ssh-keygen</code>命令生成密钥（简单回车即可）,在4上执行以下命令：</li>
+</ol>
+<pre><code class="lang-bash">$ ssh-keygen # 一路回车
+$ ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@192.168.1.4
+$ ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@192.168.1.5
+$ ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@192.168.1.6
+</code></pre>
+<p>在集群中所有节点进行类似操作。</p>
+<ol>
+<li><p>mha软件包认为node和manager，前者需要安装在集群中的所有节点，后者只需要安装在监控节点(使用apt-get即可)。</p>
+</li>
+<li><p>主库节点（4）上建立用户</p>
+</li>
+</ol>
+<pre><code class="lang-bash">mysql&gt; grant all privileges on *.* to mha@&#39;192.168.1.%&#39; identified by &#39;123456&#39;;
+</code></pre>
+<ol>
+<li>在监控节点（6）上进行MHA配置：</li>
+</ol>
+<pre><code class="lang-bash">$ mkdir -p /etc/mha;mkdir -p /home/mysql_mha # 建立工作目录和配置目录
+$ vim /etc/mha/mysql_mha.conf # 配置文件如下
+[server default]
+user=mha
+password=123456
+manager_workdir=/home/mysql_mha
+manager_log=/home/mysql_mha/manager.log
+remote_workdir=/home/mysql_mha
+ssh_user=root
+repl_user=repl
+repl_password=123456
+ping_interval=1
+master_binlog_dir=/var/log/mysql
+[server1]
+hostname=192.168.1.4
+candidate_master=1
+[server2]
+hostname=192.168.1.5
+candidate_master=1
+[server3]
+hostname=192.168.1.6
+no_master=1
+</code></pre>
+<ol>
+<li>在监控节点(6)上进行基础环境的检测</li>
+</ol>
+<pre><code class="lang-bash">$ masterha_check_ssh --conf=/etc/mha/mysql_mha.conf
+$ masterha_check_repl --conf=/etc/mha/mysql_mha.conf
+</code></pre>
+<ol>
+<li>步骤5的检测通过后使用<code>nohup masterha_manager --conf=/etc/mha/mysql_mha.conf &amp;</code>在监控节点上启动mha。</li>
+</ol>
+<h2 id="读写分离和负载均衡"><a href="#读写分离和负载均衡" class="headerlink" title="读写分离和负载均衡"></a>读写分离和负载均衡</h2><h3 id="为什么要读写分离？"><a href="#为什么要读写分离？" class="headerlink" title="为什么要读写分离？"></a>为什么要读写分离？</h3><p>一般来说，写负载时不可分担的，而且只能在主上进行写操作，而读操作在主和从上都可以进行。为了分担主库的压力，将读操作分离到从库上。主从复制一般有2种：</p>
+<ol>
+<li>程序实现读写分离</li>
+<li>中间件实现读写分离，例如：mysql-proxy和maxScale。由中间件根据查询语法进行分析，自动完成读写分离，对应用程序透明，已有程序不需要做任何修改。缺点是查询效率降低（降低50%~70%的QPS），因此使用中间件需要进行必要的基准测试。</li>
+</ol>
+<h3 id="读写分离中间件maxScale"><a href="#读写分离中间件maxScale" class="headerlink" title="读写分离中间件maxScale"></a>读写分离中间件maxScale</h3><p><a href="https://mariadb.com/products/mariadb-maxscale" target="_blank" rel="noopener">maxscale</a>是<a href="https://mariadb.org/" target="_blank" rel="noopener">mariadb</a>公司开发的读写分离中间件。</p>
+<p><a href="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-arch.png" target="_blank" rel="noopener">高可用MySQL架构</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.960Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/08/02/high-availability-mysql/" target="_blank" rel="external">https://consoles.fun/2016/08/02/high-availability-mysql/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高可用/">高可用</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/08/02/high-availability-mysql/&title=《高可用MySQL架构》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/08/02/high-availability-mysql/&title=《高可用MySQL架构》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/08/02/high-availability-mysql/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高可用MySQL架构》 — 雨碎江南&url=https://consoles.fun/2016/08/02/high-availability-mysql/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/08/02/high-availability-mysql/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/09/06/learn-redis/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">redis入门</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/08/02/mysql-query-optimize/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MySQL查询优化和数据库监控</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/08/02/high-availability-mysql/&title=《高可用MySQL架构》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/08/02/high-availability-mysql/&title=《高可用MySQL架构》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/08/02/high-availability-mysql/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高可用MySQL架构》 — 雨碎江南&url=https://consoles.fun/2016/08/02/high-availability-mysql/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/08/02/high-availability-mysql/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJ0lEQVR42u3aSW7DMBAEQP//084DAjndQzmAyNIpCGyR5cNgttcrft4Xz+zzyf9f33gwMDAey3h/fO49+Pcn23MvT8TAwDiA8fnI/Oor1KvvJj8HBgYGRn6Jz4H1rnMxMDAwZgE3Tyjz0IyBgYHRFrF5OZoXsflPdlstjoGB8UBG2yb7z7+/Mt/AwMB4FONdPvl7VpK/+lYYGBhbM9pWWltetsODlftgYGCcxmgHlnnxOVvdiIYKGBgYmzISwKyWbBcvVpJIDAyMcxjtADJfsMjfMEwuMTAwtmbkR+YXmg1B84HoH+0/DAyMrRlJ+TpbdMjXL5KgH52OgYGxKWO9rZYPNfPT27QSAwNjP0ab5LUt/rYozUP2ZS2OgYGxHePe9tlsjawdAwyLWAwMjO0YK4XlrN12w84IBgbG1oy2rdYOI/MwvYTBwMDYlNGWoG24zNtt+bnF9BUDA2MLxuwLwwWIUaFb3BYDA+NgRrvSOuOtp4kYGBgnMGZNrpVF1bxhF6WtGBgYBzDWrz5rt9WB9erzGBgYBzDa9Yi7iuFZ4lhv4GJgYDyW8S6ffMCZjwTWl2IxMDD2ZsyCY5vGrYwEkgIYAwPjBEYeZJOydn3JLC96o18aAwNjI0Ye+FbCa5s41qUsBgYGxijhy9fIkuXXei0MAwPjSEaePib/yXlREYuBgbE1oy1E20FC+54vttswMDAeyMhLxzZAt0tgyduWBpkYGBjPY/wA34zk86pj8S4AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

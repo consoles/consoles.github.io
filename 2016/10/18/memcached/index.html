@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>memcached初窥 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="缓存,memcached">
+    <meta name="description" content="内存分配机制考虑这样一种情形：申请20M内存，释放15M内存，然后又需要申请12M内存，这样就产生了3M的内存碎片，随着程序的运行，碎片会越来越多。memcached采用了Slab Allocator分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk分成组(chunk的集合)，尽可能（完全解决内存碎片是不可能的）解决内存碎片问题。">
+<meta name="keywords" content="缓存,memcached">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memcached初窥">
+<meta property="og:url" content="https://consoles.fun/2016/10/18/memcached/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="内存分配机制考虑这样一种情形：申请20M内存，释放15M内存，然后又需要申请12M内存，这样就产生了3M的内存碎片，随着程序的运行，碎片会越来越多。memcached采用了Slab Allocator分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk分成组(chunk的集合)，尽可能（完全解决内存碎片是不可能的）解决内存碎片问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/memcached-slab-allocator.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash-range.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash-virtual-node.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/distribution-mod.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/distribution-hash.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.983Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="memcached初窥">
+<meta name="twitter:description" content="内存分配机制考虑这样一种情形：申请20M内存，释放15M内存，然后又需要申请12M内存，这样就产生了3M的内存碎片，随着程序的运行，碎片会越来越多。memcached采用了Slab Allocator分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk分成组(chunk的集合)，尽可能（完全解决内存碎片是不可能的）解决内存碎片问题。">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/memcached-slab-allocator.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">memcached初窥</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">memcached初窥</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-10-18T14:46:04.000Z" itemprop="datePublished" class="page-time">
+  2016-10-18
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#内存分配机制"><span class="post-toc-text">内存分配机制</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#过期和删除机制"><span class="post-toc-text">过期和删除机制</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#memcached中的一些参数限制"><span class="post-toc-text">memcached中的一些参数限制</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#分布式取模算法的缺陷"><span class="post-toc-text">分布式取模算法的缺陷</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一致性哈希"><span class="post-toc-text">一致性哈希</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一致性hash对其他节点的影响"><span class="post-toc-text">一致性hash对其他节点的影响</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一致性哈希-虚拟节点对缓存命中率的影响"><span class="post-toc-text">一致性哈希+虚拟节点对缓存命中率的影响</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-memcached"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">memcached初窥</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-10-18 22:46:04" datetime="2016-10-18T14:46:04.000Z"  itemprop="datePublished">2016-10-18</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="内存分配机制"><a href="#内存分配机制" class="headerlink" title="内存分配机制"></a>内存分配机制</h1><p>考虑这样一种情形：申请20M内存，释放15M内存，然后又需要申请12M内存，这样就产生了3M的内存碎片，随着程序的运行，碎片会越来越多。memcached采用了Slab Allocator分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk分成组(chunk的集合)，尽可能（完全解决内存碎片是不可能的）解决内存碎片问题。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/memcached-slab-allocator.png" alt="Slab Allocator" title>
+                </div>
+                <div class="image-caption">Slab Allocator</div>
+            </figure>
+<p>根据收到的数据大小自动选择最合适的slab（具体实现是memcached中保存着slab空闲chunk的列表，根据这个列表选择空的chunk并将数据缓存其中），例如100bytes的item将会被存放在上图中的Slab2，但是<em>剩下的12字节同样被浪费了，无法重新利用</em>，这种做法只是<strong>尽可能减少内存碎片</strong>。使用<code>memcached -vvv</code>启动服务的时候可以看到类似以下的输出：</p>
+<pre><code class="lang-bash">slab class   1: chunk size        96 perslab   10922
+slab class   2: chunk size       120 perslab    8738
+slab class   3: chunk size       152 perslab    6898
+slab class   4: chunk size       192 perslab    5461
+slab class   5: chunk size       240 perslab    4369
+slab class   6: chunk size       304 perslab    3449
+slab class   7: chunk size       384 perslab    2730
+slab class   8: chunk size       480 perslab    2184
+</code></pre>
+<p>仔细观察可以发现:120/96 = 152 / 120 = 1.25，这个chunk的增长比例就叫做增长因子(grow factor，默认1.25,启动时可指定-f命令行参数) 。</p>
+<blockquote>
+<p>警告：如果我们要存100bytes数据，正常情况下应该保存在chunk size为120bytes的仓库（即slab2），但是slab2已经满了，<em>并不会选择存到更大的slab，例如slab3，而是将老的数据挤出去，其策略是惰性过期机制和LRU删除机制！</em></p>
+</blockquote>
+<h1 id="过期和删除机制"><a href="#过期和删除机制" class="headerlink" title="过期和删除机制"></a>过期和删除机制</h1><ol>
+<li>当某个值过期时，并没有从内存中删除，因此stats命令统计的时候<code>curr_items</code>有其信息；</li>
+<li>取值的时候先判断是否过期，如果过期则返回空清空该key占用的chunk，<code>curr_items</code>就减少了；</li>
+<li>如果之前没有get过，将不会自动删除，当某个新值占用其位置时，将会被当做空chunk来用。</li>
+</ol>
+<blockquote>
+<p>过期指的是让用户看不到数据，并不是在过期瞬间正真从内存中移除，被称为惰性失效(lazy expiration)。好处是节省了CPU时间和检测是否过期的成本。</p>
+</blockquote>
+<p>删除机制使用的LRU，对key进行更新，查询将会刷新key为最新（被认为是新数据）。<em>即使某个key被设置为永久有效期也一样会被踢出</em>，这个就是大名鼎鼎的永久数据被踢的现象。以122bytes大小的chunk为例，如果122bytes的chunk满了，又有新的值需要加入（长度为120bytes），应该挤掉最近最久未使用的。</p>
+<p>memcached的LRU的原理是：维护每个key的计数器，当某个key被请求时该key对应的计数器清零，其他key对应的计数器加1，最后比较哪个key的计数器最大，这个key就是LRU。</p>
+<h1 id="memcached中的一些参数限制"><a href="#memcached中的一些参数限制" class="headerlink" title="memcached中的一些参数限制"></a>memcached中的一些参数限制</h1><ul>
+<li>key的长度限制为250bytes,<a href="https://github.com/memcached/memcached/releases/tag/1.3.2" target="_blank" rel="noopener">二进制协议</a>支持65535字节。</li>
+<li>value限制为1M(100W字符)。</li>
+</ul>
+<h1 id="分布式取模算法的缺陷"><a href="#分布式取模算法的缺陷" class="headerlink" title="分布式取模算法的缺陷"></a>分布式取模算法的缺陷</h1><p>所谓的分布式就是将不同的键存储到多态服务器，这样就引来一个问题？如何确定键和服务器的对应关系？最容易的算法是将key转化成数字（例如hash签名算法或者CRC32），然后将这个数字对服务器数量进行MOD运算。这种算法存在一个很大的弊端：原先有3个server分别按照hash取余，存储的数据对应关系为:</p>
+<pre><code class="lang-bash">server1 - key0,key3 # mod = 0
+server2 - key1,key4 # mod = 1
+server3 - key2 # mod = 2
+</code></pre>
+<p>如果server3宕机，查询key3的时候，计算出来的是<code>3 mod 2 = 1</code>，即：我们应该到server2去取key3，肯定是无法找到的！然而key3对应的数据仍然好好滴在server1上存储着，一个严重的问题是：<em>缓存命中率大大降低</em>。</p>
+<blockquote>
+<p>从数学上讲，当服务器从N变成N-1之后，在[0,N<em>N-1]范围内只有[0,N-1]算出来的余数没有改变（一共N个数），即：每N</em>N-1个key只有N个key的模没有变，命中率为:<code>N/(N*N-1) = 1/N-1</code>。所以10台服务器变成9台服务器的时候11台变成10台服务器的时候命中率只有10%了，下降了90%!，并且服务器越多后果越严重，买的服务器越多结果性能越差，这不就亏大了？</p>
+</blockquote>
+<p>求余算法的另一个缺点是打乱了原有的数据存储，例如：原来有3台服务器，存储数据为</p>
+<pre><code class="lang-bash">server1 - 0,3,6,9
+server2 - 1,4,7
+server3 - 2,5,8
+</code></pre>
+<p>当server2宕机时，按照求余算法，数据分布为：</p>
+<pre><code class="lang-bash">server1 - 0,2,4,6,8
+server3 - 1,3,5,7,9
+</code></pre>
+<p>可以发现原来的3和9在server1上好好滴放着被迁移到了server3，原来的2和8在server3上放着被迁移到了server1，我们理想的情况是将宕机的server2中的数据分配到server1和server3就行了。<em>数据迁移是很耗性能的</em>。</p>
+<p>鉴于分布式取余的以上缺点，我们使用一致性哈希。</p>
+<h1 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h1><blockquote>
+<p>把服务器各个节点映射放在钟表的各个时刻上，吧key也映射到钟表的某个时刻上。该key沿着钟表顺时针走，碰到的第一个节点即为该key的存储节点。如图所示：</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash.png" alt="memcached一致性哈希" title>
+                </div>
+                <div class="image-caption">memcached一致性哈希</div>
+            </figure>
+<p>以上有2点疑问：</p>
+<ol>
+<li>时钟上的指针的最大才11点，如果有上百个memcached节点该怎么办？时钟只是为了便于理解做的比喻。在实际应用中我们可以在圆环上分布[0,2^32-1]个数字，这样全世界的服务器都可以装下了。</li>
+<li>如何将“节点名”和“键名”转化为整数。可以使用现成的函数，例如：crc32()。也可以自定义转化规则，但是要注意转化的<em>碰撞率</em>要低（碰撞值的是：不同的输入得到了相同的输出）。</li>
+</ol>
+<h2 id="一致性hash对其他节点的影响"><a href="#一致性hash对其他节点的影响" class="headerlink" title="一致性hash对其他节点的影响"></a>一致性hash对其他节点的影响</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash-range.png" alt="一致性哈希的影响范围" title>
+                </div>
+                <div class="image-caption">一致性哈希的影响范围</div>
+            </figure>
+<p>从上图可以看出：当某个节点宕机之后哦只影响该节点顺时针之后的一个节点，而其他节点不受此影响，<em>一致性哈希最大限度抑制了键的重新分布</em>。</p>
+<h2 id="一致性哈希-虚拟节点对缓存命中率的影响"><a href="#一致性哈希-虚拟节点对缓存命中率的影响" class="headerlink" title="一致性哈希+虚拟节点对缓存命中率的影响"></a>一致性哈希+虚拟节点对缓存命中率的影响</h2><p>由上图我们可以看出，在理想状态下：</p>
+<ol>
+<li>节点在圆环上分配均匀，因此承担的任务也是平均的，但事实上：一般的哈希函数对于节点在圆环上的映射并不均匀。</li>
+<li>当某个节点宕机之后直接冲击下一个节点，对下一个节点的冲击过大，所以能否把down掉的节点上的压力平均分配到其他所有存活着的节点上？</li>
+</ol>
+<p>我们可以通过引入虚拟节点完全解决上述问题。</p>
+<p>每个真实节点可以映射成M个虚拟节点，则N个真实节点就映射为M<em>N个虚拟节点散列在圆环上。各个真实节点对应的虚拟节点</em>交错分布*。这样，某个真实节点down掉之后，则把其影响分到到其他所有节点上。如图所示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/consistent-hash-virtual-node.png" alt="memcached虚拟节点" title>
+                </div>
+                <div class="image-caption">memcached虚拟节点</div>
+            </figure>
+<p>即：N台服务器变成N-1台服务器之后，剩下的N-1台服务器分担宕机的1台服务器的影响，从而<em>不命中率</em>为1/N-1，和分布式取模算法刚好相反！<a href="https://gitee.com/gaopengfei/dsa4j/tree/master/src/main/java/io/github/consoles/distribution" target="_blank" rel="noopener">java代码实现</a>，<a href="https://gitee.com/gaopengfei/dsa4j/tree/master/src/main/webapp/memcached" target="_blank" rel="noopener">这个实验</a>模拟了当5台服务器挂掉一台之后不同算法对缓存命中率的影响：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/distribution-mod.png" alt="分布式取模" title>
+                </div>
+                <div class="image-caption">分布式取模</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/distribution-hash.png" alt="一致性hash" title>
+                </div>
+                <div class="image-caption">一致性hash</div>
+            </figure>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.983Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/10/18/memcached/" target="_blank" rel="external">https://consoles.fun/2016/10/18/memcached/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcached/">memcached</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/10/18/memcached/&title=《memcached初窥》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/10/18/memcached/&title=《memcached初窥》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/10/18/memcached/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《memcached初窥》 — 雨碎江南&url=https://consoles.fun/2016/10/18/memcached/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/10/18/memcached/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/12/04/linux-network/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Linux网络管理和权限配置</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/10/09/vim-skill/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">vim技巧</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/10/18/memcached/&title=《memcached初窥》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/10/18/memcached/&title=《memcached初窥》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/10/18/memcached/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《memcached初窥》 — 雨碎江南&url=https://consoles.fun/2016/10/18/memcached/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/10/18/memcached/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aQQ7CMAwEQP7/aXgAarqOiUWlyQmVtJn2YDl2Xq94vL/G979X89dXXicGLi5um/teju9Hr3HJveuXWX8aXFzcSe5VxFgvuZ6/npkENVxc3Cdyk1QmSZVwcXGfy11vV/IXwMXFfQo3D085OgmIB/dquLi4DW5epTz3+0h9FxcXd4v7Lo7Oa+Rl1svVcXFxR7idVkpe/ki2NIX5uLi4h7l5UyRZbO/QRuH5uLi4g9xkw5NcqTZRqkkPLi7uDHfv0FV/ZjXpwcXFnefmjc98U9QpnUStFFxc3GPcvZJlOejEwesmVcLFxf0DbmcjtHcs4yZ04uLijnPz0JaHs2rj9mYVXFzcEW61lLlX+vzxc3BxcUe4my3Pn9LzVAkXF3eS2y+eJo2ZvEFbKLLg4uIe4HbaG600pdNQwcXFHeHm5c5q0lNNX27m4OLiHuZ2mqzVZmoSBG/uwsXFHeHuVR7yB1WTm70gi4uLe4LbCV57Qap1Ly4u7iC3WrDYS2uqofPyzAguLu5fcvPwl7RsC2UUXFzcv+fmxdC94umPAxkuLm6R29n8VDcze4fAcHFxJ7nlUBK/QLUUsv4EuLi4I9wPOxevjpKURSgAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

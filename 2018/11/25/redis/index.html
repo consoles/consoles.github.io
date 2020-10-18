@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>redis使用场景 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="redis">
+    <meta name="description" content="redis5.0新特性Stream数据类型本质是抽象日志，基于时间序列的数据。物联网，各种传感器产生的时间序列数据，定位未来。 redis5.0之stream尝鲜 Timers &amp;amp; Cluster APIRDB现在存储LFU和LRU信息集群管理器从Ruby(redis-trib.rb)移植到C搭建集群集群创建不用先安装ruby。配置3主3从的redis集群：端口范围是5001~5006 r">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis使用场景">
+<meta property="og:url" content="https://consoles.fun/2018/11/25/redis/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="redis5.0新特性Stream数据类型本质是抽象日志，基于时间序列的数据。物联网，各种传感器产生的时间序列数据，定位未来。 redis5.0之stream尝鲜 Timers &amp;amp; Cluster APIRDB现在存储LFU和LRU信息集群管理器从Ruby(redis-trib.rb)移植到C搭建集群集群创建不用先安装ruby。配置3主3从的redis集群：端口范围是5001~5006 r">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.001Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis使用场景">
+<meta name="twitter:description" content="redis5.0新特性Stream数据类型本质是抽象日志，基于时间序列的数据。物联网，各种传感器产生的时间序列数据，定位未来。 redis5.0之stream尝鲜 Timers &amp;amp; Cluster APIRDB现在存储LFU和LRU信息集群管理器从Ruby(redis-trib.rb)移植到C搭建集群集群创建不用先安装ruby。配置3主3从的redis集群：端口范围是5001~5006 r">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">redis使用场景</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">redis使用场景</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-11-25T02:48:49.000Z" itemprop="datePublished" class="page-time">
+  2018-11-25
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#redis5-0新特性"><span class="post-toc-text">redis5.0新特性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Stream数据类型"><span class="post-toc-text">Stream数据类型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Timers-amp-Cluster-API"><span class="post-toc-text">Timers &amp; Cluster API</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#RDB现在存储LFU和LRU信息"><span class="post-toc-text">RDB现在存储LFU和LRU信息</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#集群管理器从Ruby-redis-trib-rb-移植到C"><span class="post-toc-text">集群管理器从Ruby(redis-trib.rb)移植到C</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#搭建集群"><span class="post-toc-text">搭建集群</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#集群扩容"><span class="post-toc-text">集群扩容</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#添加主节点5007"><span class="post-toc-text">添加主节点5007</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#添加从节点5008"><span class="post-toc-text">添加从节点5008</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#缩容"><span class="post-toc-text">缩容</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#删除从节点"><span class="post-toc-text">删除从节点</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#删除主节点"><span class="post-toc-text">删除主节点</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#新的sorted-set命令zpopmin-max和阻塞变种"><span class="post-toc-text">新的sorted set命令zpopmin/max和阻塞变种</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#主动碎片整理V2-amp-更好的内存统计报告"><span class="post-toc-text">主动碎片整理V2 &amp; 更好的内存统计报告</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#许多带有子命令的命令现在都有一个HELP子命令"><span class="post-toc-text">许多带有子命令的命令现在都有一个HELP子命令</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#分布式锁"><span class="post-toc-text">分布式锁</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分布式锁的条件"><span class="post-toc-text">分布式锁的条件</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#缓存中常见的几个问题"><span class="post-toc-text">缓存中常见的几个问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#并发竞争"><span class="post-toc-text">并发竞争</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#redis的过期策略是怎样的"><span class="post-toc-text">redis的过期策略是怎样的</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何实现redis的高可用和高并发"><span class="post-toc-text">如何实现redis的高可用和高并发</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#redis主从架构实现高并发"><span class="post-toc-text">redis主从架构实现高并发</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基于哨兵集群的高可用"><span class="post-toc-text">基于哨兵集群的高可用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#哨兵核心知识"><span class="post-toc-text">哨兵核心知识</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#持久化的2种方式如何选择"><span class="post-toc-text">持久化的2种方式如何选择</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考资料："><span class="post-toc-text">参考资料：</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-redis"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">redis使用场景</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-11-25 10:48:49" datetime="2018-11-25T02:48:49.000Z"  itemprop="datePublished">2018-11-25</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="redis5-0新特性"><a href="#redis5-0新特性" class="headerlink" title="redis5.0新特性"></a>redis5.0新特性</h1><h2 id="Stream数据类型"><a href="#Stream数据类型" class="headerlink" title="Stream数据类型"></a>Stream数据类型</h2><p>本质是抽象日志，基于时间序列的数据。物联网，各种传感器产生的时间序列数据，定位未来。</p>
+<p><a href="https://mp.weixin.qq.com/s/rjTt0HMNCk9VO5x5Mi_c-w" target="_blank" rel="noopener">redis5.0之stream尝鲜</a></p>
+<h2 id="Timers-amp-Cluster-API"><a href="#Timers-amp-Cluster-API" class="headerlink" title="Timers &amp; Cluster API"></a>Timers &amp; Cluster API</h2><h2 id="RDB现在存储LFU和LRU信息"><a href="#RDB现在存储LFU和LRU信息" class="headerlink" title="RDB现在存储LFU和LRU信息"></a>RDB现在存储LFU和LRU信息</h2><h2 id="集群管理器从Ruby-redis-trib-rb-移植到C"><a href="#集群管理器从Ruby-redis-trib-rb-移植到C" class="headerlink" title="集群管理器从Ruby(redis-trib.rb)移植到C"></a>集群管理器从Ruby(redis-trib.rb)移植到C</h2><h3 id="搭建集群"><a href="#搭建集群" class="headerlink" title="搭建集群"></a>搭建集群</h3><p>集群创建不用先安装ruby。配置3主3从的redis集群：端口范围是5001~5006</p>
+<p>redis5001.conf</p>
+<pre><code class="lang-bash">port 5001
+pidfile /usr/local/var/run/redis5001.pid
+logfile /tmp/logs/redis/redis-server5001.log
+cluster-config-file redis5001.conf
+</code></pre>
+<p>其他配置文件类似。使用6个配置文件启动redis。可以使用<code>redis-cli --cluster help</code>命令查看帮助信息：</p>
+<pre><code class="lang-bash"># 创建集群,主从比例为1:1
+➜  redis-cluster redis-cli --cluster create 127.0.0.1:5001 127.0.0.1:5002 127.0.0.1:5003 127.0.0.1:5004 127.0.0.1:5005 127.0.0.1:5006 --cluster-replicas 1
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 127.0.0.1:5004 to 127.0.0.1:5001
+Adding replica 127.0.0.1:5005 to 127.0.0.1:5002
+Adding replica 127.0.0.1:5006 to 127.0.0.1:5003
+&gt;&gt;&gt; Trying to optimize slaves allocation for anti-affinity
+[WARNING] Some slaves are in the same host as their master
+M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+   slots:[0-5460] (5461 slots) master
+M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+   slots:[5461-10922] (5462 slots) master
+M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+   slots:[10923-16383] (5461 slots) master
+S: 2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004
+   replicates a118aa98313f9d7bb3799ad942f3a69489e55e89
+S: 51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005
+   replicates 6592afc22ce09055b713a049c594445ecdf9246c
+S: f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006
+   replicates 965e863a346c5c0558623313bbc4b9124a7707ee
+Can I set the above configuration? (type &#39;yes&#39; to accept): yes
+&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+....
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:5001)
+M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+S: 51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005
+   slots: (0 slots) slave
+   replicates 6592afc22ce09055b713a049c594445ecdf9246c
+M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006
+   slots: (0 slots) slave
+   replicates 965e863a346c5c0558623313bbc4b9124a7707ee
+S: 2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004
+   slots: (0 slots) slave
+   replicates a118aa98313f9d7bb3799ad942f3a69489e55e89
+M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+</code></pre>
+<p>从上面的信息可以看出16384个slots几乎平均分配给了3个master节点，3个slave节点是没有slots的，分别和对应的主节点的数据是一致的。</p>
+<pre><code class="lang-bash">➜  redis-cluster redis-cli -c -p 5001
+127.0.0.1:5001&gt; set a 1
+-&gt; Redirected to slot [15495] located at 127.0.0.1:5003
+OK
+127.0.0.1:5003&gt; get a
+&quot;1&quot;
+127.0.0.1:5003&gt; set b 2
+-&gt; Redirected to slot [3300] located at 127.0.0.1:5001
+OK
+127.0.0.1:5001&gt; get b
+&quot;2&quot;
+127.0.0.1:5001&gt; keys *
+1) &quot;b&quot;
+# 当前连接到了5001端口，这个服务器上只存放了b的key
+127.0.0.1:5001&gt; CLUSTER INFO
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:6
+cluster_my_epoch:1
+cluster_stats_messages_ping_sent:469
+cluster_stats_messages_pong_sent:463
+cluster_stats_messages_sent:932
+cluster_stats_messages_ping_received:458
+cluster_stats_messages_pong_received:469
+cluster_stats_messages_meet_received:5
+cluster_stats_messages_received:932
+127.0.0.1:5001&gt; CLUSTER NODES
+51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005@15005 slave 6592afc22ce09055b713a049c594445ecdf9246c 0 1550143239486 5 connected
+965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003@15003 master - 0 1550143238000 3 connected 10923-16383
+a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001@15001 myself,master - 0 1550143237000 1 connected 0-5460
+f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006@15006 slave 965e863a346c5c0558623313bbc4b9124a7707ee 0 1550143240496 6 connected
+2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004@15004 slave a118aa98313f9d7bb3799ad942f3a69489e55e89 0 1550143240000 4 connected
+6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002@15002 master - 0 1550143240000 2 connected 5461-10922
+</code></pre>
+<h3 id="集群扩容"><a href="#集群扩容" class="headerlink" title="集群扩容"></a>集群扩容</h3><p>创建2个配置文件5007和5008并启动服务器。</p>
+<h4 id="添加主节点5007"><a href="#添加主节点5007" class="headerlink" title="添加主节点5007"></a>添加主节点5007</h4><pre><code class="lang-bash">➜  redis-cluster redis-cli --cluster add-node 127.0.0.1:5007 127.0.0.1:5001
+&gt;&gt;&gt; Adding node 127.0.0.1:5007 to cluster 127.0.0.1:5001
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:5001)
+M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+S: 51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005
+   slots: (0 slots) slave
+   replicates 6592afc22ce09055b713a049c594445ecdf9246c
+M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006
+   slots: (0 slots) slave
+   replicates 965e863a346c5c0558623313bbc4b9124a7707ee
+S: 2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004
+   slots: (0 slots) slave
+   replicates a118aa98313f9d7bb3799ad942f3a69489e55e89
+M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+&gt;&gt;&gt; Send CLUSTER MEET to node 127.0.0.1:5007 to make it join the cluster.
+[OK] New node added correctly.
+</code></pre>
+<pre><code class="lang-bash">127.0.0.1:5001&gt; CLUSTER NODES
+51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005@15005 slave 6592afc22ce09055b713a049c594445ecdf9246c 0 1550143794065 5 connected
+965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003@15003 master - 0 1550143797086 3 connected 10923-16383
+a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001@15001 myself,master - 0 1550143797000 1 connected 0-5460
+f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006@15006 slave 965e863a346c5c0558623313bbc4b9124a7707ee 0 1550143795000 6 connected
+32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007@15007 master - 0 1550143795071 0 connected
+2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004@15004 slave a118aa98313f9d7bb3799ad942f3a69489e55e89 0 1550143796079 4 connected
+6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002@15002 master - 0 1550143798092 2 connected 5461-10922
+</code></pre>
+<p>新添加的5007节点作为了master节点，但是还没有slots，暂时还不能存储数据，需要进行<em>分片</em>的操作将其他master节点的slots分一些给5007节点均衡一下存储。</p>
+<pre><code class="lang-bash">➜  redis-cluster redis-cli --cluster reshard 127.0.0.1:5007
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:5007)
+M: 32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007
+   slots: (0 slots) master
+M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: 2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004
+   slots: (0 slots) slave
+   replicates a118aa98313f9d7bb3799ad942f3a69489e55e89
+M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: 51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005
+   slots: (0 slots) slave
+   replicates 6592afc22ce09055b713a049c594445ecdf9246c
+S: f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006
+   slots: (0 slots) slave
+   replicates 965e863a346c5c0558623313bbc4b9124a7707ee
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+How many slots do you want to move (from 1 to 16384)? 500
+What is the receiving node ID? 32a4a4886b43f7005c265b3b5813fea2fe578541 # 输入5007的id
+Please enter all the source node IDs.
+  Type &#39;all&#39; to use all the nodes as source nodes for the hash slots.
+  Type &#39;done&#39; once you entered all the source nodes IDs.
+Source node #1: all
+
+Ready to move 500 slots.
+  Source nodes:
+    M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+       slots:[0-5460] (5461 slots) master
+       1 additional replica(s)
+    M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+       slots:[5461-10922] (5462 slots) master
+       1 additional replica(s)
+    M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+       slots:[10923-16383] (5461 slots) master
+       1 additional replica(s)
+  Destination node:
+    M: 32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007
+       slots: (0 slots) master
+  Resharding plan:
+    Moving slot 5461 from 6592afc22ce09055b713a049c594445ecdf9246c
+    Moving slot 11088 from 965e863a346c5c0558623313bbc4b9124a7707ee
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+</code></pre>
+<h4 id="添加从节点5008"><a href="#添加从节点5008" class="headerlink" title="添加从节点5008"></a>添加从节点5008</h4><pre><code class="lang-bash">redis-cluster redis-cli --cluster add-node 127.0.0.1:5008 127.0.0.1:5001
+</code></pre>
+<p>上面的操作将5008添加为了master节点（可以使用客户端连上使用CLUSTER NODES查看），需要设置其变为从节点:</p>
+<pre><code class="lang-bash">➜  redis-cluster redis-cli -c -p 5008
+127.0.0.1:5008&gt; CLUSTER NODES
+965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003@15003 master - 0 1550144560000 3 connected 11089-16383
+32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007@15007 master - 0 1550144562933 7 connected 0-165 5461-5627 10923-11088
+f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006@15006 slave 965e863a346c5c0558623313bbc4b9124a7707ee 0 1550144560914 3 connected
+a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001@15001 master - 0 1550144561920 1 connected 166-5460
+aafdcb6b443c9449ca0131562e1ee516f2f6a6e4 127.0.0.1:5008@15008 myself,master - 0 1550144559000 0 connected
+51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005@15005 slave 6592afc22ce09055b713a049c594445ecdf9246c 0 1550144561000 2 connected
+6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002@15002 master - 0 1550144560000 2 connected 5628-10922
+2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004@15004 slave a118aa98313f9d7bb3799ad942f3a69489e55e89 0 1550144559903 1 connected
+127.0.0.1:5008&gt; CLUSTER REPLICATE 32a4a4886b43f7005c265b3b5813fea2fe578541
+OK
+127.0.0.1:5008&gt; CLUSTER NODES
+965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003@15003 master - 0 1550144580000 3 connected 11089-16383
+32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007@15007 master - 0 1550144579000 7 connected 0-165 5461-5627 10923-11088
+f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006@15006 slave 965e863a346c5c0558623313bbc4b9124a7707ee 0 1550144579000 3 connected
+a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001@15001 master - 0 1550144582129 1 connected 166-5460
+aafdcb6b443c9449ca0131562e1ee516f2f6a6e4 127.0.0.1:5008@15008 myself,slave 32a4a4886b43f7005c265b3b5813fea2fe578541 0 1550144578000 0 connected
+51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005@15005 slave 6592afc22ce09055b713a049c594445ecdf9246c 0 1550144581114 2 connected
+6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002@15002 master - 0 1550144580104 2 connected 5628-10922
+2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004@15004 slave a118aa98313f9d7bb3799ad942f3a69489e55e89 0 1550144581000 1 connected
+127.0.0.1:5008&gt;
+</code></pre>
+<h3 id="缩容"><a href="#缩容" class="headerlink" title="缩容"></a>缩容</h3><h4 id="删除从节点"><a href="#删除从节点" class="headerlink" title="删除从节点"></a>删除从节点</h4><pre><code class="lang-bash">redis-cli --cluster del-node 127.0.0.1:5008 aafdcb6b443c9449ca0131562e1ee516f2f6a6e4
+</code></pre>
+<h4 id="删除主节点"><a href="#删除主节点" class="headerlink" title="删除主节点"></a>删除主节点</h4><p>删除主节点之前要先进行分片，将slots中的数据分配给集群中的其他master。</p>
+<pre><code class="lang-bash">➜  redis-cluster redis-cli --cluster reshard 127.0.0.1:5007
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:5007)
+M: 32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007
+   slots:[0-165],[5461-5627],[10923-11088] (499 slots) master
+M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+   slots:[166-5460] (5295 slots) master
+   1 additional replica(s)
+M: 6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002
+   slots:[5628-10922] (5295 slots) master
+   1 additional replica(s)
+S: 2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004
+   slots: (0 slots) slave
+   replicates a118aa98313f9d7bb3799ad942f3a69489e55e89
+M: 965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003
+   slots:[11089-16383] (5295 slots) master
+   1 additional replica(s)
+S: 51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005
+   slots: (0 slots) slave
+   replicates 6592afc22ce09055b713a049c594445ecdf9246c
+S: f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006
+   slots: (0 slots) slave
+   replicates 965e863a346c5c0558623313bbc4b9124a7707ee
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+How many slots do you want to move (from 1 to 16384)? 500 # 因为扩容的时候分配了500个
+What is the receiving node ID? a118aa98313f9d7bb3799ad942f3a69489e55e89 # 随机挑选一个master节点，此处为node1
+Please enter all the source node IDs.
+  Type &#39;all&#39; to use all the nodes as source nodes for the hash slots.
+  Type &#39;done&#39; once you entered all the source nodes IDs.
+Source node #1: 32a4a4886b43f7005c265b3b5813fea2fe578541 # 5007的id
+Source node #2: done
+
+Ready to move 500 slots.
+  Source nodes:
+    M: 32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007
+       slots:[0-165],[5461-5627],[10923-11088] (499 slots) master
+  Destination node:
+    M: a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001
+       slots:[166-5460] (5295 slots) master
+       1 additional replica(s)
+  Resharding plan:
+    Moving slot 0 from 32a4a4886b43f7005c265b3b5813fea2fe578541
+    Moving slot 1 from 32a4a4886b43f7005c265b3b5813fea2fe578541
+    Moving slot 11088 from 32a4a4886b43f7005c265b3b5813fea2fe578541
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+</code></pre>
+<pre><code class="lang-bash">➜  redis-cluster redis-cli -c -p 5001
+127.0.0.1:5001&gt; CLUSTER NODES
+51c8959f1b428fe9e21b634800bf1da80b2d97e7 127.0.0.1:5005@15005 slave 6592afc22ce09055b713a049c594445ecdf9246c 0 1550145060000 5 connected
+965e863a346c5c0558623313bbc4b9124a7707ee 127.0.0.1:5003@15003 master - 0 1550145058000 3 connected 11089-16383
+a118aa98313f9d7bb3799ad942f3a69489e55e89 127.0.0.1:5001@15001 myself,master - 0 1550145061000 8 connected 0-5627 10923-11088
+f0ba58939c6ae6de4e178e7f7070c78ed19d376d 127.0.0.1:5006@15006 slave 965e863a346c5c0558623313bbc4b9124a7707ee 0 1550145061000 6 connected
+32a4a4886b43f7005c265b3b5813fea2fe578541 127.0.0.1:5007@15007 master - 0 1550145061643 7 connected
+2c06122ac54a7cf34027d1248a6b89df4e74ff0d 127.0.0.1:5004@15004 slave a118aa98313f9d7bb3799ad942f3a69489e55e89 0 1550145062000 8 connected
+6592afc22ce09055b713a049c594445ecdf9246c 127.0.0.1:5002@15002 master - 0 1550145062649 2 connected 5628-10922
+</code></pre>
+<p>5007的slots已经分配给了别人！最后从集群中移除5007</p>
+<pre><code class="lang-bash">redis-cli --cluster del-node 127.0.0.1:5007 32a4a4886b43f7005c265b3b5813fea2fe578541
+</code></pre>
+<h2 id="新的sorted-set命令zpopmin-max和阻塞变种"><a href="#新的sorted-set命令zpopmin-max和阻塞变种" class="headerlink" title="新的sorted set命令zpopmin/max和阻塞变种"></a>新的sorted set命令zpopmin/max和阻塞变种</h2><p>取出集合中分值最大和最小的元素。</p>
+<h2 id="主动碎片整理V2-amp-更好的内存统计报告"><a href="#主动碎片整理V2-amp-更好的内存统计报告" class="headerlink" title="主动碎片整理V2 &amp; 更好的内存统计报告"></a>主动碎片整理V2 &amp; 更好的内存统计报告</h2><p>当删除一个key的时候，redis并不会立即回收内存空间。如果反复进行增删键值，内存中将产生大量碎片，这就会影响到之后申请大块连续的内存，所以有必要对内存碎片进行整理。</p>
+<pre><code class="lang-bash"># 快速产生测试数据
+127.0.0.1:6379&gt; DEBUG populate  300000 abc 1000
+127.0.0.1:6379&gt; info memory
+# Memory
+used_memory:326834704
+used_memory_human:311.69M
+used_memory_rss:317788160
+used_memory_rss_human:303.07M
+used_memory_peak:331743840
+used_memory_peak_human:316.38M
+used_memory_peak_perc:98.52%
+used_memory_overhead:17232110
+used_memory_startup:988032
+used_memory_dataset:309602594
+used_memory_dataset_perc:95.01%
+allocator_allocated:326801360
+allocator_active:317750272
+allocator_resident:317750272
+total_system_memory:8589934592
+total_system_memory_human:8.00G
+used_memory_lua:37888
+used_memory_lua_human:37.00K
+used_memory_scripts:0
+used_memory_scripts_human:0B
+number_of_cached_scripts:0
+maxmemory:0
+maxmemory_human:0B
+maxmemory_policy:noeviction
+allocator_frag_ratio:0.97
+allocator_frag_bytes:18446744073700500528
+allocator_rss_ratio:1.00
+allocator_rss_bytes:0
+rss_overhead_ratio:1.00
+rss_overhead_bytes:37888
+mem_fragmentation_ratio:0.97
+mem_fragmentation_bytes:-9013200
+mem_not_counted_for_evict:0
+mem_replication_backlog:0
+mem_clients_slaves:0
+mem_clients_normal:49694
+mem_aof_buffer:0
+mem_allocator:libc
+active_defrag_running:0
+lazyfree_pending_objects:0
+</code></pre>
+<p>上述used_memory_human:311.69M，而used_memory_rss_human:303.07M，rss比used还小，这种情况比较糟糕，redis服务器的内存可能被OS换到了交换空间中了，相反如果used小很多的话可能有大量内存碎片；还可以查看<code>mem_fragmentation_ratio</code>，这个参数大于1是比较理想的情况，如果这个只为几十或者几百也表示有大量内存碎片。</p>
+<pre><code class="lang-bash">127.0.0.1:6379&gt; MEMORY STATS
+ 1) &quot;peak.allocated&quot; # 最大内存
+ 2) (integer) 331743840 
+ 3) &quot;total.allocated&quot; # 当前已使用的内存
+ 4) (integer) 326834688
+ 5) &quot;startup.allocated&quot; # 服务启动初始化之后的内存
+ 6) (integer) 988032
+ 7) &quot;replication.backlog&quot; # 主从复制中backlog占用
+ 8) (integer) 0
+ 9) &quot;clients.slaves&quot;
+10) (integer) 0
+11) &quot;clients.normal&quot;
+12) (integer) 49694
+13) &quot;aof.buffer&quot;
+14) (integer) 0
+15) &quot;lua.caches&quot;
+16) (integer) 0
+17) &quot;db.0&quot;
+18) 1) &quot;overhead.hashtable.main&quot;
+    2) (integer) 16194384
+    3) &quot;overhead.hashtable.expires&quot;
+    4) (integer) 0
+19) &quot;overhead.total&quot;
+20) (integer) 17232110
+21) &quot;keys.count&quot;
+22) (integer) 300002
+23) &quot;keys.bytes-per-key&quot;
+24) (integer) 1086
+25) &quot;dataset.bytes&quot;
+26) (integer) 309602578
+27) &quot;dataset.percentage&quot;
+28) &quot;95.014816284179688&quot;
+29) &quot;peak.percentage&quot;
+30) &quot;98.520195007324219&quot;
+31) &quot;allocator.allocated&quot;
+32) (integer) 326801360
+33) &quot;allocator.active&quot;
+34) (integer) 312306688
+35) &quot;allocator.resident&quot;
+36) (integer) 312306688
+37) &quot;allocator-fragmentation.ratio&quot;
+38) &quot;0.95564687252044678&quot;
+39) &quot;allocator-fragmentation.bytes&quot;
+40) (integer) -14494672
+41) &quot;allocator-rss.ratio&quot;
+42) &quot;1&quot;
+43) &quot;allocator-rss.bytes&quot;
+44) (integer) 0
+45) &quot;rss-overhead.ratio&quot;
+46) &quot;1.0001213550567627&quot;
+47) &quot;rss-overhead.bytes&quot;
+48) (integer) 37888
+49) &quot;fragmentation&quot;
+50) &quot;0.95576280355453491&quot;
+51) &quot;fragmentation.bytes&quot;
+52) (integer) -14456784
+# 查看单个键占用的内存
+127.0.0.1:6379&gt; MEMORY USAGE abc:2
+(integer) 1053
+</code></pre>
+<h2 id="许多带有子命令的命令现在都有一个HELP子命令"><a href="#许多带有子命令的命令现在都有一个HELP子命令" class="headerlink" title="许多带有子命令的命令现在都有一个HELP子命令"></a>许多带有子命令的命令现在都有一个HELP子命令</h2><pre><code class="lang-bash">127.0.0.1:6379&gt; XINFO help
+1) XINFO &lt;subcommand&gt; arg arg ... arg. Subcommands are:
+2) CONSUMERS &lt;key&gt; &lt;groupname&gt;  -- Show consumer groups of group &lt;groupname&gt;.
+3) GROUPS &lt;key&gt;                 -- Show the stream consumer groups.
+4) STREAM &lt;key&gt;                 -- Show information about the stream.
+5) HELP                         -- Print this help.
+127.0.0.1:6379&gt; XINFO CONSUMERS codehole cg1
+1) 1) &quot;name&quot;
+   2) &quot;c1&quot;
+   3) &quot;pending&quot;
+   4) (integer) 2
+   5) &quot;idle&quot;
+   6) (integer) 675253
+127.0.0.1:6379&gt; XINFO STREAM codehole
+ 1) &quot;length&quot;
+ 2) (integer) 3
+ 3) &quot;radix-tree-keys&quot;
+ 4) (integer) 1
+ 5) &quot;radix-tree-nodes&quot;
+ 6) (integer) 2
+ 7) &quot;groups&quot;
+ 8) (integer) 2
+ 9) &quot;last-generated-id&quot;
+10) &quot;1550066609501-0&quot;
+11) &quot;first-entry&quot;
+12) 1) &quot;1550066141188-0&quot;
+    2) 1) &quot;name&quot;
+       2) &quot;youming&quot;
+       3) &quot;age&quot;
+       4) &quot;60&quot;
+13) &quot;last-entry&quot;
+14) 1) &quot;1550066609501-0&quot;
+    2) 1) &quot;name&quot;
+       2) &quot;xiaorui&quot;
+       3) &quot;age&quot;
+       4) &quot;1&quot;
+127.0.0.1:6379&gt;
+</code></pre>
+<p>pubsub，xgroup也有子命令。</p>
+<h1 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h1><p>分布式系统中经常会碰到2个问题：互斥性和幂等性。互斥性问题的解决方案是分布式锁；幂等性问题，分布式环境中，有些接口是天然保证幂等性的，如查询操作。其他情况下，所有涉及对数据的修改、状态的变更就都有必要防止重复性操作的发生。通过间接的实现接口的幂等性来防止重复操作所带来的影响，成为了一种有效的解决方案。这个间接方案也可以使用分布式锁来实现。</p>
+<h2 id="分布式锁的条件"><a href="#分布式锁的条件" class="headerlink" title="分布式锁的条件"></a>分布式锁的条件</h2><ul>
+<li>需要有存储锁的空间，并且锁的空间是可以访问到的。</li>
+<li>锁需要被唯一标识。</li>
+<li>锁要有至少两种状态。</li>
+</ul>
+<p>redis中实现分布式锁的解决方案: <code>SETNX lockid</code>，如果锁不存在则set并获得锁，否则跳过此次操作或者等待下一次操作，SETNX是一个原子操作，可以保证一个节点只会拿到一个锁。</p>
+<p>首先看看不加锁的版本：</p>
+<pre><code class="lang-js">const key = &#39;money&#39;;
+
+const Redis = require(&#39;ioredis&#39;);
+const redis = new Redis();
+
+class Lock {
+    constructor(redis, lockKey, lockValue, lockTTL) {
+        this.redis = redis;
+        this.lockKey = lockKey;
+        this.lockValue = lockValue;
+        this.lockTTL = lockTTL;
+    }
+
+    async lock() {
+        const res = await this.redis.set(this.lockKey, this.lockValue, &#39;NX&#39;, &#39;EX&#39;, this.lockTTL);
+        return res === &#39;OK&#39;;
+    }
+
+    async unlock() {
+        // 使用redis lua脚本的方式避免窗口时间
+        const res = await this.redis.get(this.lockKey);
+        if (res !== this.lockValue) return false;
+        const delCount = await this.redis.del(this.lockKey);
+        return delCount &gt; 0;
+    }
+}
+
+const lock = new Lock(redis,&#39;money_lock&#39;,&#39;money_lock_value&#39;,100);
+
+async function doTask(seq){
+    const money = await redis.get(key);
+    const value = money - 10;
+    await redis.set(key, value);
+    console.log(seq, money, value);
+}
+
+async function task1(seq) {
+
+    const locked = await lock.lock();
+
+    if (locked) {
+        await doTask(seq);
+        await lock.unlock();
+    } else {
+        task1(seq);
+    }
+}
+
+async function task2(seq) {
+    await doTask(seq);
+}
+
+for (let i = 0; i &lt; 10; i++) {
+    // process.nextTick(task2.bind(this, i)); // 不加锁版本
+    process.nextTick(task1.bind(this, i)); // 加锁版本
+}
+</code></pre>
+<p>nodejs中由于没有多线程的概念，用异步模拟了多线程（其实用child_process模拟多进程也可以）</p>
+<pre><code class="lang-bash"># 加锁版本
+0 &#39;100&#39; 90
+1 &#39;90&#39; 80
+2 &#39;80&#39; 70
+3 &#39;70&#39; 60
+4 &#39;60&#39; 50
+5 &#39;50&#39; 40
+6 &#39;40&#39; 30
+9 &#39;30&#39; 20
+8 &#39;20&#39; 10
+7 &#39;10&#39; 0
+# 不加锁版本
+0 &#39;100&#39; 90
+1 &#39;100&#39; 90
+2 &#39;100&#39; 90
+3 &#39;100&#39; 90
+4 &#39;100&#39; 90
+5 &#39;100&#39; 90
+6 &#39;100&#39; 90
+7 &#39;100&#39; 90
+8 &#39;100&#39; 90
+9 &#39;100&#39; 90
+</code></pre>
+<p>为什么要用redis实现分布式锁：上述的doTask不是一个原子操作，多个线程（进程）get到了同一个值，然后将其减少设置到redis，上述锁的释放也不是一个原子操作，存在一个时间窗口，可以使用lua脚本重写<code>unlock</code>。</p>
+<pre><code class="lang-lua">async unlock(key: string, value: string): Promise&lt;boolean&gt; {
+   const luaScript = `
+   if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then
+      return redis.call(&#39;del&#39;,KEYS[1])
+   else
+      return 0
+   end`;
+   const delCount = await this.redis.eval(luaScript, 1, key, value);
+   return delCount === 1;
+}
+</code></pre>
+<h1 id="缓存中常见的几个问题"><a href="#缓存中常见的几个问题" class="headerlink" title="缓存中常见的几个问题"></a>缓存中常见的几个问题</h1><h2 id="并发竞争"><a href="#并发竞争" class="headerlink" title="并发竞争"></a>并发竞争</h2><p>这个也是线上非常常见的一个问题，就是多客户端同时并发写一个 key，可能本来应该先到的数据后到了，导致数据版本错了；或者是多客户端同时获取一个 key，修改值之后再写回去，只要顺序错了，数据就错了。redis 自己就有天然解决这个问题的 CAS 类的乐观锁方案。</p>
+<p>某个时刻，多个系统实例都去更新某个 key。可以基于 zookeeper 实现分布式锁。每个系统通过 zookeeper 获取分布式锁，确保同一时间，只能有一个系统实例在操作某个 key，别人都不允许读和写。你要写入缓存的数据，都是从 mysql 里查出来的，都得写入 mysql 中，写入 mysql 中的时候必须保存一个时间戳，从 mysql 查出来的时候，时间戳也查出来。每次要<strong>写之前，先判断一下当前这个 value 的时间戳是否比缓存里的 value 的时间戳要新</strong>。如果是的话，那么可以写，否则，就不能用旧的数据覆盖新的数据。</p>
+<h2 id="redis的过期策略是怎样的"><a href="#redis的过期策略是怎样的" class="headerlink" title="redis的过期策略是怎样的"></a>redis的过期策略是怎样的</h2><p>redis 过期策略是：定期删除+惰性删除。</p>
+<p>所谓定期删除，指的是 redis 默认是每隔 100ms 就随机抽取一些设置了过期时间的 key，检查其是否过期，如果过期就删除。</p>
+<p>假设 redis 里放了 10w 个 key，都设置了过期时间，你每隔几百毫秒，就检查 10w 个 key，那 redis 基本上就死了，cpu 负载会很高的，消耗在你的检查过期 key 上了。注意，这里可不是每隔 100ms 就遍历所有的设置过期时间的 key，那样就是一场性能上的灾难。实际上 redis 是每隔 100ms 随机抽取一些 key 来检查和删除的。</p>
+<p>但是问题是，定期删除可能会导致很多过期 key 到了时间并没有被删除掉，那咋整呢？所以就是惰性删除了。这就是说，在你获取某个 key 的时候，redis 会检查一下 ，这个 key 如果设置了过期时间那么是否过期了？如果过期了此时就会删除，不会给你返回任何东西。</p>
+<p>获取 key 的时候，如果此时 key 已经过期，就删除，不会返回任何东西。</p>
+<p>但是实际上这还是有问题的，如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，此时会怎么样？如果大量过期 key 堆积在内存里，导致 redis 内存块耗尽了，咋整？</p>
+<p>答案是：走内存淘汰机制（比如最常用的是allkeys-lru）。</p>
+<h2 id="如何实现redis的高可用和高并发"><a href="#如何实现redis的高可用和高并发" class="headerlink" title="如何实现redis的高可用和高并发"></a>如何实现redis的高可用和高并发</h2><p>redis 实现高并发主要依靠<strong>主从架构</strong>，一主多从，一般来说，很多项目其实就足够了，单主用来写入数据，单机几万 QPS，多从用来查询数据，多个从实例可以提供每秒 10w 的 QPS。</p>
+<p>如果想要在实现高并发的同时，容纳大量的数据，那么就需要 redis 集群，使用 redis 集群之后，可以提供每秒几十万的读写并发。</p>
+<p>redis 高可用，如果是做主从架构部署，那么加上哨兵就可以了，就可以实现，任何一个实例宕机，可以进行主备切换。</p>
+<h3 id="redis主从架构实现高并发"><a href="#redis主从架构实现高并发" class="headerlink" title="redis主从架构实现高并发"></a>redis主从架构实现高并发</h3><p>单机的 redis，能够承载的 QPS 大概就在上万到几万不等。对于缓存来说，一般都是用来支撑读高并发的。因此架构做成主从(master-slave)架构，一主多从，主负责写，并且将数据复制到其它的 slave 节点，从节点负责读。所有的读请求全部走从节点。这样也可以很轻松实现水平扩容，支撑读高并发。</p>
+<p>redis 采用异步方式复制数据到 slave 节点.注意，如果采用了主从架构，那么建议<strong>必须开启 master node 的持久化</strong>，不建议用 slave node 作为 master node 的数据热备，因为那样的话，如果你关掉 master 的持久化，可能在 master 宕机重启的时候数据是空的，然后可能一经过复制， slave node 的数据也丢了。另外，master 的各种备份方案，也需要做。万一本地的所有文件丢失了，从备份中挑选一份 rdb 去恢复 master，这样才能<strong>确保启动的时候，是有数据的</strong>，即使采用了后续讲解的高可用机制，slave node 可以自动接管 master node，但也可能 sentinel 还没检测到 master failure，master node 就自动重启了，还是可能导致上面所有的 slave node 数据被清空。</p>
+<p>redis的主从复制支持断点续传、无磁盘化复制（master在内存中创建RDB发送给slave），对于过期key的处理是master过期了key或者LRU淘汰了一个key，那么会模拟一条del命令发送给salve。</p>
+<h3 id="基于哨兵集群的高可用"><a href="#基于哨兵集群的高可用" class="headerlink" title="基于哨兵集群的高可用"></a>基于哨兵集群的高可用</h3><p>sentinel，中文名是哨兵。哨兵是 redis 集群机构中非常重要的一个组件，主要有以下功能：</p>
+<ul>
+<li>集群监控：负责监控 redis master 和 slave 进程是否正常工作。</li>
+<li>消息通知：如果某个 redis 实例有故障，那么哨兵负责发送消息作为报警通知给管理员。</li>
+<li>故障转移：如果 master node 挂掉了，会自动转移到 slave node 上。</li>
+<li>配置中心：如果故障转移发生了，通知 client 客户端新的 master 地址。</li>
+</ul>
+<p>哨兵用于实现 redis 集群的高可用，本身也是分布式的，作为一个哨兵集群去运行，互相协同工作。</p>
+<ul>
+<li>故障转移时，判断一个 master node 是否宕机了，需要大部分的哨兵都同意才行，涉及到了分布式选举的问题。</li>
+<li>即使部分哨兵节点挂掉了，哨兵集群还是能正常工作的，因为如果一个作为高可用机制重要组成部分的故障转移系统本身是单点的，那就很坑爹了。</li>
+</ul>
+<h4 id="哨兵核心知识"><a href="#哨兵核心知识" class="headerlink" title="哨兵核心知识"></a>哨兵核心知识</h4><ul>
+<li>哨兵至少需要 3 个实例，来保证自己的健壮性。</li>
+<li>哨兵 + redis 主从的部署架构，是<em>不保证数据零丢失</em>的，只能保证 redis 集群的高可用性。</li>
+<li>对于哨兵 + redis 主从这种复杂的部署架构，尽量在测试环境和生产环境，都进行充足的测试和演练。</li>
+</ul>
+<h2 id="持久化的2种方式如何选择"><a href="#持久化的2种方式如何选择" class="headerlink" title="持久化的2种方式如何选择"></a>持久化的2种方式如何选择</h2><p>AOF 日志文件的命令通过非常可读的方式进行记录，这个特性<strong>非常适合做灾难性的误删除的紧急恢复</strong>。比如某人不小心用 flushall 命令清空了所有数据，只要这个时候后台 rewrite 还没有发生，那么就可以立即拷贝 AOF 文件，将最后一条 flushall 命令给删了，然后再将该 AOF 文件放回去，就可以通过恢复机制，自动恢复所有数据。redis为了避免AOF文件过大的问题，会对AOF文件进行rewrite，rewrite的时候是直接<strong>基于当前内存中的数据进行指令的重新构建</strong>，而不是基于旧的指令日志进行merge，这样鲁棒性会好很多。</p>
+<p>redis需要同时开启AOF和RDB。用AOF来保证数据不丢失，作为数据恢复的第一选择；而使用RDB来做不同程度的冷备，在AOF问你见你都丢失或者损坏不可用的时候还可以使用RDB来进行快速的数据恢复。</p>
+<h1 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h1><ul>
+<li><a href="http://ifeve.com/redis-lock/" target="_blank" rel="noopener">redis实现分布式锁</a></li>
+<li><a href="https://segmentfault.com/a/1190000009853286" target="_blank" rel="noopener">最强大的命令之一-sort</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.001Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/11/25/redis/" target="_blank" rel="external">https://consoles.fun/2018/11/25/redis/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/11/25/redis/&title=《redis使用场景》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/11/25/redis/&title=《redis使用场景》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/11/25/redis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis使用场景》 — 雨碎江南&url=https://consoles.fun/2018/11/25/redis/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/11/25/redis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/12/10/elk/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Elastic Stack入门</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/11/15/web-security/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">白帽子谈网络安全</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/11/25/redis/&title=《redis使用场景》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/11/25/redis/&title=《redis使用场景》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/11/25/redis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis使用场景》 — 雨碎江南&url=https://consoles.fun/2018/11/25/redis/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/11/25/redis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwElEQVR42u3aQYrDMAwF0Nz/0p3tQEn6JUdOC8+rkAb83IWQJR1HvF7BOvvy/f3/N8fEwsXFXebmiOvnhJUf8v0bXFzc/dyziHHNOiNW3ycGXFzc7+f20pQkUOLi4v4Wtxe8Vi5CuLi4z3JXih29gDV+V8PFxV3g5qnJ3PNIfRcXF7fFfRXXCus6GYp2x8XF3cJdaaXce6W5TmhwcXF3cnst0rxsWm3Hfmjb4OLibuQmBYik/JFfnHpJDy4u7n5ub4O86ZKXXU73xcXFfYibb1O92NzQSsHFxd3IzfsX1XGravD6sCMuLu4WbnVsYmXcqvprRMfFxR3g5gXNaiGjUOyIy7W4uLg7uStNjnuLp1Egw8XFHeZWEUlSkh+j2rLFxcXdya3Sc1YvqBX+Dlxc3DFur8k6MT3abKjg4uIOc3uhKg9DvVGMI+nZ4uLi3sR9FVeeoFSvT+XBLFxc3DFuvu46WDWA4uLiPsVNNs7DWW+0Ig9wuLi4O7nVgkU1/B3FhYuL+1vcvJyRvymkR7i4uF/JvW6rJM/VMYtoMAsXF3eAm19+8oJIoXWaHwkXF3cLtxxKFq46vVDYrO/i4uJ2uH+/mFLBoyIULQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

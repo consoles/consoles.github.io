@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>数学之美 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,数学,软件工程">
+    <meta name="description" content="教育的本质不是将篮子填满，而是将灯点亮。 简单性和模块化是软件工程的基石；分布式和容错性是互联网的生命。 —— 蒂姆·博纳斯·李 Virture is like a rich stone,best plain set.(美德如同宝石，在朴素的映衬下最显华丽) —— 培根 爱是一念之差，最幸福的不过是，你曾经的呼唤，而我恰有过应答。 —— 朝小诚《黑白》 技术分为术和道2种。具体的做事方法是术，做">
+<meta name="keywords" content="算法,数学,软件工程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数学之美">
+<meta property="og:url" content="https://consoles.fun/2016/06/17/beauty-of-mathematics/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="教育的本质不是将篮子填满，而是将灯点亮。 简单性和模块化是软件工程的基石；分布式和容错性是互联网的生命。 —— 蒂姆·博纳斯·李 Virture is like a rich stone,best plain set.(美德如同宝石，在朴素的映衬下最显华丽) —— 培根 爱是一念之差，最幸福的不过是，你曾经的呼唤，而我恰有过应答。 —— 朝小诚《黑白》 技术分为术和道2种。具体的做事方法是术，做">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DESKTOP-JFBP8T5/%E6%8A%97%E9%94%AF%E9%BD%BF%E5%8E%9F%E7%90%86.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DESKTOP-JFBP8T5/%E5%8F%8C%E7%BC%93%E5%86%B2.png">
+<meta property="og:updated_time" content="2020-10-07T10:02:33.071Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数学之美">
+<meta name="twitter:description" content="教育的本质不是将篮子填满，而是将灯点亮。 简单性和模块化是软件工程的基石；分布式和容错性是互联网的生命。 —— 蒂姆·博纳斯·李 Virture is like a rich stone,best plain set.(美德如同宝石，在朴素的映衬下最显华丽) —— 培根 爱是一念之差，最幸福的不过是，你曾经的呼唤，而我恰有过应答。 —— 朝小诚《黑白》 技术分为术和道2种。具体的做事方法是术，做">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DESKTOP-JFBP8T5/%E6%8A%97%E9%94%AF%E9%BD%BF%E5%8E%9F%E7%90%86.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">数学之美</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">数学之美</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-06-17T05:06:09.000Z" itemprop="datePublished" class="page-time">
+  2016-06-17
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文字语言-VS-数字和信息"><span class="post-toc-text">文字语言 VS 数字和信息</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自然语言处理——从规则到统计"><span class="post-toc-text">自然语言处理——从规则到统计</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#隐含马尔科夫模型"><span class="post-toc-text">隐含马尔科夫模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通信的度量和所用"><span class="post-toc-text">通信的度量和所用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#信息熵"><span class="post-toc-text">信息熵</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Google-PageRank算法"><span class="post-toc-text">Google PageRank算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#信息指纹和网络爬虫"><span class="post-toc-text">信息指纹和网络爬虫</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#从判定集合相等问题到YouTube视频反盗版"><span class="post-toc-text">从判定集合相等问题到YouTube视频反盗版</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#图论和欧拉七桥"><span class="post-toc-text">图论和欧拉七桥</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#新闻分离和余弦定理"><span class="post-toc-text">新闻分离和余弦定理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#VCD分解"><span class="post-toc-text">VCD分解</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#怪诞心理学"><span class="post-toc-text">怪诞心理学</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#等价关系"><span class="post-toc-text">等价关系</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#仅仅用一个整数实现存储年月日"><span class="post-toc-text">仅仅用一个整数实现存储年月日</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#判断回环变位"><span class="post-toc-text">判断回环变位</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#递归的应用"><span class="post-toc-text">递归的应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#字符串反转"><span class="post-toc-text">字符串反转</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Mac电脑中的数学"><span class="post-toc-text">Mac电脑中的数学</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#微波炉与ISM频段"><span class="post-toc-text">微波炉与ISM频段</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#斐波那契数列"><span class="post-toc-text">斐波那契数列</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#抗锯齿原理"><span class="post-toc-text">抗锯齿原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#双缓冲"><span class="post-toc-text">双缓冲</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#蒙特卡洛算法"><span class="post-toc-text">蒙特卡洛算法</span></a>
+        </nav>
+    </aside>
+
+
+<article id="post-beauty-of-mathematics"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">数学之美</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-06-17 13:06:09" datetime="2016-06-17T05:06:09.000Z"  itemprop="datePublished">2016-06-17</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>教育的本质不是将篮子填满，而是将灯点亮。</p>
+<p>简单性和模块化是软件工程的基石；分布式和容错性是互联网的生命。 —— 蒂姆·博纳斯·李</p>
+<p>Virture is like a rich stone,best plain set.(美德如同宝石，在朴素的映衬下最显华丽) —— 培根</p>
+<p>爱是一念之差，最幸福的不过是，你曾经的呼唤，而我恰有过应答。 —— 朝小诚《黑白》</p>
+<p>技术分为术和道2种。具体的做事方法是术，做事的原理和原则是道。很多具体的技术很快就会从独门绝技到普及，再到落伍，追求术的人一辈子很辛苦，只有掌握了道才能够做到游刃有余。追求“术”的人多半抱有侥幸心理，想走捷径，但真正做好一件事没有捷径，需要一万小时的专业训练和努力，也就是“一万小时定律”。</p>
+<p>中国古代的阴阳学说可以看做是二进制的雏形。</p>
+<p>数据库索引和布尔代数息息相关。</p>
+<p>网络爬虫一般的步骤是“下载-索引-排序”，其中广度优先遍历用得比较多。</p>
+<p>完全随机的高斯白噪声是很难消除的。</p>
+</blockquote>
+<h2 id="文字语言-VS-数字和信息"><a href="#文字语言-VS-数字和信息" class="headerlink" title="文字语言 VS 数字和信息"></a>文字语言 VS 数字和信息</h2><blockquote>
+<p>信息的冗余是信息安全的保障。信息的作用在于消除不确定度。</p>
+<p>阿拉伯数字的发明人其实是古印度人，阿拉伯人其实是二道贩子。</p>
+<p>从象形文字到拼音文字是一个飞跃，因为人们在描述物体的外表到抽象的概念，同时不自觉采用了对信息的<em>编码</em>。常用字笔画少，生僻字笔画多，完全符合信息论中的<strong>最短编码原理</strong>,省材料省时间。</p>
+<p>在通信时如果信道较宽，就可以直接传输；如果信道较窄就需要在通信前尽可能压缩，在接收端进行解压。将日常白话写成精简的文言文本质上是压缩。</p>
+<p>犹太学者在抄写《圣经》的时候采用了校验码机制。将每一个字母映射为一个数字。将每一行的数字加起来得到一个奇怪的数字，就是这一行的校验码，同理可以得出每一列的校验码。如果某一行的校验码有差别就知道该行有错，再次判断每一列的校验码，即可快速定位。</p>
+</blockquote>
+<h2 id="自然语言处理——从规则到统计"><a href="#自然语言处理——从规则到统计" class="headerlink" title="自然语言处理——从规则到统计"></a>自然语言处理——从规则到统计</h2><p>图灵测试：让人和机器进行交流，如果人无法判断自己交流的对象是人还是计算机，就说明机器具有了智能。</p>
+<p>莱特兄弟发明飞机依靠的是空气动力学而不是仿生学。今天的机器翻译和语音识别并不是计算机理解了自然语言，他们全部依靠的是统计学。</p>
+<p>程序设计语言是上下文无关文法，而自然语言是上下文有关文法。</p>
+<h2 id="隐含马尔科夫模型"><a href="#隐含马尔科夫模型" class="headerlink" title="隐含马尔科夫模型"></a>隐含马尔科夫模型</h2><p>雅格布森通信6要素：信源、信道、信息、接受者、上下文和编码。</p>
+<p>马尔马夫模型指的是随机过程中的每个状态都只和它前面的一个状态有关。例如：明天的天气只和今天的天气有关而和昨天的无关。这种假设未必正确，但是在不少的棘手的问题上都得到了近似解。该模型首先应用于通信领域，继而推广到语音和语言处理，也是机器学习的主要工具。机器学习依靠一个训练算法（鲍姆-卡尔其算法）和使用时的解码算法（维特比算法）。</p>
+<h2 id="通信的度量和所用"><a href="#通信的度量和所用" class="headerlink" title="通信的度量和所用"></a>通信的度量和所用</h2><h3 id="信息熵"><a href="#信息熵" class="headerlink" title="信息熵"></a>信息熵</h3><p>主要用来评价信息量。一条信息的信息量和它的<em>不确定性</em>有着直接的关系。例如如果我们对某件事一无所知就需要了解大量的信息。变量的不确定性越大，熵越大。同样字数的书，所含信息量可能相差很多。如果一本书重复内容多，它的信息量就小，冗余度就大。汉语的冗余度相对较小，这也暗示了“汉语是最简单的语言”。几乎所有的自然语言处理信息和信号处理的应用都是一个消除不确定性的过程。</p>
+<h2 id="Google-PageRank算法"><a href="#Google-PageRank算法" class="headerlink" title="Google PageRank算法"></a>Google PageRank算法</h2><p>如果一个网页被其他许多网页所链接，说明它受到承认和信赖，那么它的排名就高。类似于明主表决，网页排名高的网站共享的链接权重大。该算法的核心是矩阵相乘，利用稀疏矩阵进行化简，使用MapReduce（本质上是分治）并行计算工具进行计算。</p>
+<h2 id="信息指纹和网络爬虫"><a href="#信息指纹和网络爬虫" class="headerlink" title="信息指纹和网络爬虫"></a>信息指纹和网络爬虫</h2><p>在网络爬虫中为了防止重复下载同一url需要将其放到hash表中。但是以字符串的形式存储浪费空间（哈希表的存储效率一般只有50%），查找也耗时（网址一般很长）。我们可以将这些url映射为128比特的二进制，我们只需要16个字节存储一个网址，同时这个整数的查找效率远远高于字符串。</p>
+<h2 id="从判定集合相等问题到YouTube视频反盗版"><a href="#从判定集合相等问题到YouTube视频反盗版" class="headerlink" title="从判定集合相等问题到YouTube视频反盗版"></a>从判定集合相等问题到YouTube视频反盗版</h2><p>判定集合相同一般有以下的几种做法：</p>
+<ol>
+<li>一一比较,O(N^2)</li>
+<li>排序比较，O(NlgN)</li>
+<li>哈希表，O(N),但需要额外存储空间</li>
+<li>分别计算每个元素的指纹并相加（我们可以联想到java中的hashCode方法）</li>
+</ol>
+<p>将以上的算法4稍加改动就可以用来判断文章是否抄袭——将文章切分成小段，找出关键词集合，计算指纹，根据时间先后就可以找出原创和抄袭的文章。YouTube的视频反盗版也是提取关键帧（视频中绝大多数是过渡帧），对关键帧进行指纹。</p>
+<h2 id="图论和欧拉七桥"><a href="#图论和欧拉七桥" class="headerlink" title="图论和欧拉七桥"></a>图论和欧拉七桥</h2><blockquote>
+<p>每个顶点和它连接的边称为<em>度</em>。如果一个图能够从一个顶点出发，每条边不重复走一遍然后回到这个顶点，那么这一顶点的度必为偶数。</p>
+</blockquote>
+<p>我们可以这样证明以上结论：如果能够遍历图的每条边各一次。那么对于每个顶点进入和离开顶点的次数是相同的，因此对于每个顶点有多少条进入的边就有多少条出去的边。每个顶点相连边的数量成对出现，即：每个顶点的度都是偶数。</p>
+<h2 id="新闻分离和余弦定理"><a href="#新闻分离和余弦定理" class="headerlink" title="新闻分离和余弦定理"></a>新闻分离和余弦定理</h2><p>金融类的新闻中股票、利息、债券、银行等词出现的几率较高；而二氧化碳、宇宙、诗歌、木匠、诺贝尔等词出现的较少。如果两个新闻属于同一类，他们的特征向量在某几个维度的值比较大，而其他维度的值比较小。</p>
+<p>余弦定理：</p>
+<pre><code class="lang-python">a^2 = b^2 + c^2 - 2bcCosA
+</code></pre>
+<p>证明可以使用向量法。勾股定理其实是夹角为π/2时的余弦定理。向量的夹角为0表示两条新闻完全相同。余弦定理也可以用来处理<strong>聚类问题</strong>。</p>
+<h2 id="VCD分解"><a href="#VCD分解" class="headerlink" title="VCD分解"></a>VCD分解</h2><ul>
+<li>View，视觉</li>
+<li>Controller，控制</li>
+<li>Data，数据</li>
+</ul>
+<blockquote>
+<p>解决问题的两大必要条件：首先要有好的思路，如果方向不对，再怎么努力也无法到达目的地；同时，扎实的基础、毅力、效率也非常重要，否则只能是空中楼阁、纸上谈兵。— 金出武雄《像外行一样思考，像专家一样实践》</p>
+</blockquote>
+<p>跳出现有的成功往往是最困难的。像外行一样自由发散地想出创意、以专业人士的方法去付诸实现，这种思路是非常必要的。</p>
+<blockquote>
+<p><a href="https://zh.wikipedia.org/wiki/%E8%BC%BE%E8%BD%89%E7%9B%B8%E9%99%A4%E6%B3%95" target="_blank" rel="noopener">辗转相除法</a>是现代密码学RSA算法的基础。</p>
+<p>编辑器中常见的撤销和重试可以使用使用stack这种数据结构来保存。</p>
+<p>白名单应用是众多二分查找算法的用例之一。</p>
+</blockquote>
+<h2 id="怪诞心理学"><a href="#怪诞心理学" class="headerlink" title="怪诞心理学"></a>怪诞心理学</h2><blockquote>
+<p>1.女性的征友广告如果让男性来写往往会带来更多的回应，但是男性的征友广告如果换成女性来写就不会有这种效果。<br>2.蒙娜丽莎的微笑之所以那么什么是达芬奇出色的画法所致。如果你看着她的眼睛，她的笑容就会非常明显，而且非常迷人。如果看她的嘴唇，微笑就消失了。<br>3.有些看起来很诡异的体验，例如感觉到有神秘的东西存在，事实上都是风吹过打开的窗户时产生的低频声波所致。<br>4.夏季出生的人比冬季出生的人更幸运一些，出生时的温度差异让夏季出生的人更乐观积极，而且更容易把握身边的机会。<br>5.鉴别谎言的最佳方法是取聆听而不是去观看。说谎者通常说的话不多，不会给出太多的细节，而且使用表示“我”的单词I的频率远远低于说真话的人。<br>6.真心的笑容和虚假的笑容之间的差异都写在了人的眼睛上；当人们露出真心的笑容时，眼睛周围的皮肤会形成皱纹；当人们假笑时，眼睛周围的皮肤就依然是平平的。</p>
+</blockquote>
+<h2 id="等价关系"><a href="#等价关系" class="headerlink" title="等价关系"></a>等价关系</h2><p><a href="https://zh.wikipedia.org/wiki/%E7%AD%89%E4%BB%B7%E5%85%B3%E7%B3%BB" target="_blank" rel="noopener">等价关系</a>是一种二元关系，满足自反性(x等价x自身)、对称性(若x等价y,则y等价x)和传递性（x等价y，y等价z，则x等价z）。</p>
+<h2 id="仅仅用一个整数实现存储年月日"><a href="#仅仅用一个整数实现存储年月日" class="headerlink" title="仅仅用一个整数实现存储年月日"></a>仅仅用一个整数实现存储年月日</h2><pre><code class="lang-js">class Date {
+  /**
+   * 这种实现的正确性基于日的范围位于0~31，月的值位于0~15，年的值为正
+   * 512 / 32 = 16
+   */
+  constructor(year,month,day){
+    this.value = year * 512 + month * 32 + day
+  }
+  get year(){
+    return this.value / 512 | 0
+  }
+  get month(){
+    return (this.value / 32 | 0) % 16
+  }
+  get day(){
+    return this.value % 32
+  }
+  toString(){
+    return [this.year,this.month,this.day].join(&#39;-&#39;)
+  }
+}
+</code></pre>
+<h2 id="判断回环变位"><a href="#判断回环变位" class="headerlink" title="判断回环变位"></a>判断回环变位</h2><p>如果字符串s中的字符循环移动位置之后可以得到另一个字符串t，那么s就被称为t的回环变位(sircular rotation)，例如：ACTGACG就是TGACGAC的回环变位，反之亦然。判断这个条件在基因组序列的研究中非常重要。下面的实现仅仅用了一行代码。</p>
+<pre><code class="lang-js">var isCircularRotation = function(str1,str2){
+    return str1.length === str2.length &amp;&amp; str1.repeat(2).indexOf(str2) != -1
+}
+</code></pre>
+<p>上面的<em>循环等价于2倍</em>的思想非常重要，一个典型的应用就是前端开发中的无缝滚动通常将需要循环播放的图片实体设置为2倍大小，外边使用1倍大小的容器包裹，多余的部分隐藏。</p>
+<h2 id="递归的应用"><a href="#递归的应用" class="headerlink" title="递归的应用"></a>递归的应用</h2><h3 id="字符串反转"><a href="#字符串反转" class="headerlink" title="字符串反转"></a>字符串反转</h3><pre><code class="lang-js">// 自底向上反转字符串
+var mystery = function(str){
+  var N = str.length
+  if (N &lt;= 1) return str
+
+  var mid = N &gt;&gt;&gt; 1
+  var a = str.slice(0,mid)
+  var b = str.slice(mid,N)
+  return mystery(b) + mystery(a) 
+}
+</code></pre>
+<p>以上是分治法的简单应用。将一个长的字符串分为2个部分，后边的字符加上前面的字符组成新的字符串。如果将最后的return条件改为<code>mystery(a) + mystery(b)</code>则返回的是字符串本身。</p>
+<h3 id="Mac电脑中的数学"><a href="#Mac电脑中的数学" class="headerlink" title="Mac电脑中的数学"></a>Mac电脑中的数学</h3><p>Mac的桌面窗口一开始就被乔布斯要求设计成圆角，而计算机画圆形图案涉及到平方根计算，当时的 CPU（摩托罗拉68000微处理器）并不支持平方根计算。为此，阿特金森研究出一个加法运算来代替平方根运算的算法：一组奇数序列相加可以得到一组完全平方数序列（如，1+3=4，1+3+5=9，等等）。等差数列求和。1 + 3 + 5 + … + 2*n - 1 = n^2。</p>
+<h3 id="微波炉与ISM频段"><a href="#微波炉与ISM频段" class="headerlink" title="微波炉与ISM频段"></a>微波炉与ISM频段</h3><p>1945年，美国雷神公司一位工程师在研究微波雷达的时候，无意中发现 2.4GHz 频段的电磁波会使得口袋中的巧克力融化，从而发现了微波的热效应，发明了微波炉。</p>
+<p>大量实验测量表明，2.450GHz 频率电磁波能很好的使得水分子等极性分子跟随电磁波发生振荡，从而在宏观上表现为食物被加热。</p>
+<p>之后 2.4GHz 逐渐成为了各国通用的「ISM频段」之一，大量的工业、科研、医学、家用无线设备的工作频率都在这一频段，包括我们常见的蓝牙设备（2.402GHz - 2.480GHz）。</p>
+<p>由此可见：</p>
+<ol>
+<li>在雨天等潮湿环境下，Wi-Fi 信号会因为被水分子吸收而变差；</li>
+<li>很多无线设备在 2.4GHz 频段下工作，导致 Wi-Fi 信号很容易被干扰。</li>
+</ol>
+<h3 id="斐波那契数列"><a href="#斐波那契数列" class="headerlink" title="斐波那契数列"></a>斐波那契数列</h3><p>斐波那契数列和我们的物理世界有着千丝万缕的联系。</p>
+<ul>
+<li>爬楼梯</li>
+</ul>
+<h1 id="抗锯齿原理"><a href="#抗锯齿原理" class="headerlink" title="抗锯齿原理"></a>抗锯齿原理</h1><p>图像显示的锯齿是每一个像素非黑即白渲染，显示器中的一个个像素可以看成是一个个的小正方形，小正方形的边缘是无法表现出平滑的效果的，响应的就会产生锯齿感。抗锯齿就是在边缘的位置使用不同深度的颜色或者利用透明度这样的概念，使得边缘的渲染效果不是“非黑即白”的，而是存在灰度的，人眼在视觉上看上去在边缘的地方相对平滑。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DESKTOP-JFBP8T5/%E6%8A%97%E9%94%AF%E9%BD%BF%E5%8E%9F%E7%90%86.png" alt="抗锯齿原理.png" title>
+                </div>
+                <div class="image-caption">抗锯齿原理.png</div>
+            </figure>
+<h1 id="双缓冲"><a href="#双缓冲" class="headerlink" title="双缓冲"></a>双缓冲</h1><p>画布上物体的运动需要这样表现：计算出物体新出现的位置-&gt;清空画布-&gt;重新渲染画布。这个过程中画布会被清空，从而造成屏幕闪烁。双缓存是对应显示屏幕的画布有2块，第一块画布的物体显示在屏幕上的时候，我们的计算以及绘制发生在第二块画布上，第二块画布绘制好之后将第二块画布投影到屏幕上，从而可以放心大胆地清空第一块画布，采用这种方式我们不会在屏幕上看到画布清空的瞬间。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DESKTOP-JFBP8T5/%E5%8F%8C%E7%BC%93%E5%86%B2.png" alt="双缓冲.png" title>
+                </div>
+                <div class="image-caption">双缓冲.png</div>
+            </figure>
+<h1 id="蒙特卡洛算法"><a href="#蒙特卡洛算法" class="headerlink" title="蒙特卡洛算法"></a>蒙特卡洛算法</h1><p>统计学中的一种方法，是一种模拟。是二战期间为了解决原子弹研制过程中裂变物质中子随机扩散问题，美国数学家冯诺依曼和乌拉姆等提出的一种统计方法，代号：蒙特卡洛。之所以取这个代号，是因为蒙特卡洛位于摩纳哥，是当时非常著名的一个赌城，而随机模拟的方法和赌博的关系非常大。</p>
+<blockquote>
+<p>种一棵树最好的时间是十年前，而后是现在。<br>东隅已逝，桑榆非晚。 ——王勃《滕王阁序》</p>
+</blockquote>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-07T10:02:33.071Z" itemprop="dateUpdated">2020-10-07 18:02:33</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/06/17/beauty-of-mathematics/" target="_blank" rel="external">https://consoles.fun/2016/06/17/beauty-of-mathematics/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数学/">数学</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件工程/">软件工程</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&title=《数学之美》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&title=《数学之美》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/06/17/beauty-of-mathematics/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《数学之美》 — 雨碎江南&url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/06/17/learn-swift-basic/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">swift学习</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/06/16/js-binging/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">IOS7中的js binding技术</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&title=《数学之美》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&title=《数学之美》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/06/17/beauty-of-mathematics/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《数学之美》 — 雨碎江南&url=https://consoles.fun/2016/06/17/beauty-of-mathematics/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/06/17/beauty-of-mathematics/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKklEQVR42u3a0W7jMAwEwP7/T+deD+hF2aXV4iyPn4JGtjUKwJKivr7i6/XX9f3v6/Hf711/fvfMDRcGBsZtGa/l9W7MmrF+VzKHfG4YGBjPYaxfOQu1SRhdj0zuwsDAwEgYs0D87pkYGBgYexl5QjkLzRgYGBjthGZbcv9dLY6BgXFDRrtN9puff6S/gYGBcSvGq7zadmYysg2y/5gVBgbG0YxZ2pdMKy99ZwEXAwPjmYxZi3HWKtgVyosaGgMD4+aMdoqzbf32wNnwwAcGBsZxjKQBsH5Bvn1WNCPbuzAwMI5mJLvrybd5CG6Xry2nMTAwTmW0gGJtgu2zWRG7IdRiYGDchJFvx7cj2+NleWh+W8RiYGAczfiJFLAtaNfT/cDGwMA4mlHkj/FRiTYot22AD1U4BgbGcYw8RM4K2g2HvZJlwsDAOJqRA9oUcFcjc/NvgoGBcUNGe/MruOpAOUpSL60BBgbGrRjtFtve518vdDEwMJ7MaNPB2dHV/GlRSYyBgfFgxiywXkku2yMaGBgYz2G0ydyVMe0S1I0BDAyMoxl5ezKfyqxVkD8BAwPjbMaVRK09cpEvTZIgfshtMTAwDmJcL1CvFLHtf4brwRoDA+O+jNmGVzLd2coNt/8wMDAewCiq3rJ5mQfQbbU4BgYGxtbW5rYcFgMDAyMmJZtoeRAvRmJgYDyAkTcD8jI4CaPX34iBgfEExizvytuTeTiebeRhYGAczfgD4rLk8/aq62IAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>浅谈函数式编程 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="javascript,函数式编程,软件随想录">
+    <meta name="description" content="我们可以将匿名函数(anonymous function)作为参数，这种操作具有普遍意义。 map实现function map(arr,fn){     var ret = [];     for (let item of arr) ret.push(fn(item));     return ret; }  上面的操作对数组中的每个元素进行某种变换。 另一种常见的事情是对数组中的每个元素进行累加">
+<meta name="keywords" content="javascript,函数式编程,软件随想录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈函数式编程">
+<meta property="og:url" content="https://consoles.fun/2017/05/05/function-programing/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="我们可以将匿名函数(anonymous function)作为参数，这种操作具有普遍意义。 map实现function map(arr,fn){     var ret = [];     for (let item of arr) ret.push(fn(item));     return ret; }  上面的操作对数组中的每个元素进行某种变换。 另一种常见的事情是对数组中的每个元素进行累加">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.956Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈函数式编程">
+<meta name="twitter:description" content="我们可以将匿名函数(anonymous function)作为参数，这种操作具有普遍意义。 map实现function map(arr,fn){     var ret = [];     for (let item of arr) ret.push(fn(item));     return ret; }  上面的操作对数组中的每个元素进行某种变换。 另一种常见的事情是对数组中的每个元素进行累加">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">浅谈函数式编程</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">浅谈函数式编程</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-05-05T11:02:39.000Z" itemprop="datePublished" class="page-time">
+  2017-05-05
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#map实现"><span class="post-toc-text">map实现</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-function-programing"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">浅谈函数式编程</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-05-05 19:02:39" datetime="2017-05-05T11:02:39.000Z"  itemprop="datePublished">2017-05-05</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>我们可以将匿名函数(anonymous function)作为参数，这种操作具有普遍意义。</p>
+<h1 id="map实现"><a href="#map实现" class="headerlink" title="map实现"></a>map实现</h1><pre><code class="lang-js">function map(arr,fn){
+    var ret = [];
+    for (let item of arr) ret.push(fn(item));
+    return ret;
+}
+</code></pre>
+<p>上面的操作对数组中的每个元素进行某种变换。</p>
+<p>另一种常见的事情是对数组中的每个元素进行累加。例如：</p>
+<pre><code class="lang-js">function sum(arr){
+    var ret = 0;
+    for(let i = 0;i &lt; arr.length;i++) ret += arr[i];
+    return ret;
+}
+
+function join(arr) {
+    var ret = &#39;&#39;;
+    for(let i = 0;i &lt; arr.length;i++) ret += arr[i];
+    return ret;
+}
+</code></pre>
+<p>sum和join函数很像，我们可以将它们抽象一下，把具有共性的代码写成一个通用的函数，将数组的元素合并成一个单一的值。</p>
+<pre><code class="lang-js">function reduce(fn,arr,init){
+    var s = init;
+    for (let i = 0;i &lt; arr.length;i++) s = fn(s,arr[i]);
+    return s;
+}
+</code></pre>
+<p>从而上面的sum和join函数可以变成下面的写法：</p>
+<pre><code class="lang-js">const sum = arr =&gt; reduce((a,b) =&gt; a + b,arr,0);
+const join = arr =&gt; reduce((a,b) =&gt; a + b,arr,&#39;&#39;);
+</code></pre>
+<p>让我们回过头来看map函数，当你需要对数组中的每一个元素依次进行处理时，实际情况可能是到底按照哪一种次序进行遍历实际上是无关紧要的：无论从头到尾，还是从尾到头都可以得到相同的结果。如果我们有2个CPU可以用，我们可以写一些代码，使得每个CPU遍历一般的元素，于是一瞬间map函数的运行效率就快了一倍。同理，我们可以将计算任务分配到多台服务器上。</p>
+<p>如果我们将map和reduce函数看做任何人都可以调用并且确实是每个人都能用的函数，只需要找到一个超级天才，让他写出能够在全世界庞大的服务器阵列上分布式运行map和reduce函数，所有以前在单机上能够进行的循环操作(loop)的代码依然能够使用，并且速度提高了几十亿倍，同样的代码可以在很短的时间内处理完巨型问题！</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.956Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2017/05/05/function-programing/" target="_blank" rel="external">https://consoles.fun/2017/05/05/function-programing/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件随想录/">软件随想录</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2017/05/05/function-programing/&title=《浅谈函数式编程》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2017/05/05/function-programing/&title=《浅谈函数式编程》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2017/05/05/function-programing/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《浅谈函数式编程》 — 雨碎江南&url=https://consoles.fun/2017/05/05/function-programing/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2017/05/05/function-programing/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/04/14/sed-and-awk/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">sed-and-awk</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/01/17/oauth2/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">浅谈第三方登陆</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2017/05/05/function-programing/&title=《浅谈函数式编程》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2017/05/05/function-programing/&title=《浅谈函数式编程》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2017/05/05/function-programing/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《浅谈函数式编程》 — 雨碎江南&url=https://consoles.fun/2017/05/05/function-programing/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2017/05/05/function-programing/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIklEQVR42u3a0WrDMAwF0P3/T3ew1y3dvXJbiH38FJLg+qQgLEtfX/F4/IyrO1dPr955fv17tpcNDAyM2zIeT8fVQpPZZgu9ev9qbRgYGOcw8unaO/n7SSi/vI+BgYFRTj0DYGBgYLw24H5m6RgYGBhtEjt7MzmSSz7Hy3JxDAyMGzLawsAnr99Y38DAwLgJ41GOltqG0eGqMDAwtmYkjRSzBov1jWDyOYp+EAwMjNsy8jCatEe0IXV2qBf9DxgYGBsxVhLLNiy2S2zvY2Bg7MrID/TbINiG2lmhFAMD4wTGLMytN1jkAXrWNIaBgbETI19E21TRpsftSjAwMM5htMGuDax52M3LpS8oYWJgYNyK0U69Uph8R5saBgbGOYxZ8jk7RGtJURDHwMA4mLFeyEwOy/L3/6lvYGBgbM0o+jIWyo15kaAmYWBgbM0otl+jAmSeEs9KDhgYGKcxksP9tmyw0uaVz4CBgXECoy0rzsqNs7R22MyBgYGxESNqtxpt1/Jk9S3fHgMDYztGuy1b+SjPA/csQGNgYOzNSMLrrGywws43mhgYGCcwHuXID/HzLoi2jeyPpxgYGFsz2uDYpp2zA7v2tzAwME5gzIJse72eDP+zScXAwDiAkRcX8+R2BVMnzxgYGBgLLRHtnjTfbmJgYGAkP98C8oO2OvRjYGAcwMgPyIoguLDdrEsCGBgYWzNmhYF2ollBNA/0GBgYmzK+AbcP2xnmjJNvAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

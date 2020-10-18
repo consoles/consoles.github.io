@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>红包业务系统的构建 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="高并发,秒杀">
+    <meta name="description" content="概述红包系统本质上是高并发资金秒杀系统。 架构一览 系统演进之路 满足业务需求，快速迭代上线 出现超卖现象，启用事务锁 流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍 流量继续增加，乐观锁也扛不住了，上缓存 分布式MQ解决异步写 数据分片来解决DB横向拓展  业务场景需求分析红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样活着不一样），之后将红包商品赠送出去（对象是红">
+<meta name="keywords" content="高并发,秒杀">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红包业务系统的构建">
+<meta property="og:url" content="https://consoles.fun/2019/02/20/redpacket-system/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="概述红包系统本质上是高并发资金秒杀系统。 架构一览 系统演进之路 满足业务需求，快速迭代上线 出现超卖现象，启用事务锁 流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍 流量继续增加，乐观锁也扛不住了，上缓存 分布式MQ解决异步写 数据分片来解决DB横向拓展  业务场景需求分析红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样活着不一样），之后将红包商品赠送出去（对象是红">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-arch.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/send-redpacket.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/get-redpacket.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-expiret.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-core-model.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-actors.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-roles.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.003Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="红包业务系统的构建">
+<meta name="twitter:description" content="概述红包系统本质上是高并发资金秒杀系统。 架构一览 系统演进之路 满足业务需求，快速迭代上线 出现超卖现象，启用事务锁 流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍 流量继续增加，乐观锁也扛不住了，上缓存 分布式MQ解决异步写 数据分片来解决DB横向拓展  业务场景需求分析红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样活着不一样），之后将红包商品赠送出去（对象是红">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-arch.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">红包业务系统的构建</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">红包业务系统的构建</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-02-20T14:41:42.000Z" itemprop="datePublished" class="page-time">
+  2019-02-20
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#概述"><span class="post-toc-text">概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#架构一览"><span class="post-toc-text">架构一览</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#系统演进之路"><span class="post-toc-text">系统演进之路</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#业务场景需求分析"><span class="post-toc-text">业务场景需求分析</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#业务模型分析和设计"><span class="post-toc-text">业务模型分析和设计</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#红包算法概述"><span class="post-toc-text">红包算法概述</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-redpacket-system"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">红包业务系统的构建</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-02-20 22:41:42" datetime="2019-02-20T14:41:42.000Z"  itemprop="datePublished">2019-02-20</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>红包系统本质上是高并发资金秒杀系统。</p>
+<h2 id="架构一览"><a href="#架构一览" class="headerlink" title="架构一览"></a>架构一览</h2><p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-arch.png" alt="红包系统架构"></p>
+<h2 id="系统演进之路"><a href="#系统演进之路" class="headerlink" title="系统演进之路"></a>系统演进之路</h2><ol>
+<li>满足业务需求，快速迭代上线</li>
+<li>出现超卖现象，启用事务锁</li>
+<li>流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍</li>
+<li>流量继续增加，乐观锁也扛不住了，上缓存</li>
+<li>分布式MQ解决异步写</li>
+<li>数据分片来解决DB横向拓展</li>
+</ol>
+<h1 id="业务场景需求分析"><a href="#业务场景需求分析" class="headerlink" title="业务场景需求分析"></a>业务场景需求分析</h1><p>红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样活着不一样），之后将红包商品赠送出去（对象是红包接受人群），收红包本质上是对红包商品的秒杀活动。存在B2B和B2C两个过程。</p>
+<p>红包是小额金融产品：充值卡、购物卡</p>
+<p>发红包：从中间商购买和发布<br>发红包：秒杀、兑换</p>
+<p>红包资金账户满足用于红包业务资金账户的交易和记账</p>
+<h1 id="业务模型分析和设计"><a href="#业务模型分析和设计" class="headerlink" title="业务模型分析和设计"></a>业务模型分析和设计</h1><p><a href="https://www.infoq.cn/article/xh-four-color-modeling" target="_blank" rel="noopener">四色建模法</a></p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/send-redpacket.png" alt="追踪事件和痕迹-发红包"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/get-redpacket.png" alt="追踪事件和痕迹-收红包"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-expiret.png" alt="追踪事件和痕迹-红包过期"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-core-model.png" alt="骨干模型构建-建立联系"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-actors.png" alt="寻找和添加参与者-人&amp;事&amp;物"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redpacket-system/redpacket-roles.png" alt="添加角色"></p>
+<h1 id="红包算法概述"><a href="#红包算法概述" class="headerlink" title="红包算法概述"></a>红包算法概述</h1><ul>
+<li>简单随机法</li>
+<li>2次随机算法：先随机再洗牌、先洗牌再随机</li>
+<li>2倍均值法：微信红包算法</li>
+</ul>
+<p>红包序列是按照红包金额和数量通过算法进行拆分得到的子红包集合，红包序列可以在发红包时生成，也可以在抢红包时计算。</p>
+<p>发红包时计算：红包可以预置，可以以商品交易系统的思路来进行构建，红包数量就是库存，抢红包的时候只需要从库存中扣除一个即可。缺点是会产生大量数据，造成大量DB读写操作。<br>抢红包时计算：发红包时只需要确定红包的几个基本属性，不需要生成实际的红包序列，在抢红包的时候动态构建和计算库存。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.003Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/02/20/redpacket-system/" target="_blank" rel="external">https://consoles.fun/2019/02/20/redpacket-system/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/秒杀/">秒杀</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高并发/">高并发</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/02/20/redpacket-system/&title=《红包业务系统的构建》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/02/20/redpacket-system/&title=《红包业务系统的构建》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/02/20/redpacket-system/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《红包业务系统的构建》 — 雨碎江南&url=https://consoles.fun/2019/02/20/redpacket-system/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/02/20/redpacket-system/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/08/22/深入理解HashMap/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">深入理解HashMap</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/02/14/about-love/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">情人节有感</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/02/20/redpacket-system/&title=《红包业务系统的构建》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/02/20/redpacket-system/&title=《红包业务系统的构建》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/02/20/redpacket-system/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《红包业务系统的构建》 — 雨碎江南&url=https://consoles.fun/2019/02/20/redpacket-system/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/02/20/redpacket-system/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNUlEQVR42u3aQW7DMAxE0dz/0i6QbSr7D+kEMPW1Chqn0euC5Yh6vfA63it98lisz3dXP7l5yZAh47GM43StnjlHfn62Tz3fgwwZMnZg8NJ5/idIS+fqs3xvMmTIkMFbQ16USZGVIUOGjA4jDaLnG+XFV4YMGTJ4ESRfn4bbn2ZxGTJkPJBRO+7/zesvzjdkyJDxEMYRrtpv68RgtCsZMmSMZpC2rHargbSGndKPOlwZMmSMYJBiyoeX5IifH8ORcv/P/w0ZMmSMY5CWjmN4AK5dGruIuzJkyBjK4EWNx9raFbFOWZchQ8Y+jHQYeV4uyRiyFqQvUrgMGTJGM3goJaROaSZDzeJ8Q4YMGY9l9C9VpDA+KkDHeTJkyBjNSJs/HjLJhnhpDr5LhgwZoxnpJYk4aoYXwmpDBRkyZExldEJmeohGnieFeDkekCFDxlBGv4ySWs63XnstQ4aMqYzalSxeNGsjz3jMIEOGjO0ZvHSSUMqjLD/gkyFDxmwGD5zpIVpauPmh20VxlyFDxjhGevj1jaO0tFgvQ6wMGTI2YKRXHPqXJ2pFXIYMGbsxakf8ndVpN4PnZciQMYhxhOuuKNuJuCjEypAhYxCjU+ZIKE03XQvPMmTI2IGRRtO7rmX0xwYyZMjYjZEG2rSB61zdQO2gDBkyZICxIh9SdkabyydlyJAhAyfgTvtIDtFuaA1lyJDxWEZ6hSJtATvDTnT5TIYMGaMZnWFkrYlME+gNABkyZDyV8QdMcx3z6d5yqwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

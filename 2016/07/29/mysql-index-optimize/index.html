@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>MySQL索引优化 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="MySQL,性能优化">
+    <meta name="description" content="索引的主要作用就是告诉存储引擎如何快速找到我们所需要的数据,它是一种数据结构。MySQL的索引是在存储引擎层实现的，而不是在服务器层实现的，这就决定了不同的存储引擎的工作方式可能是不同的，同时也不是所有的存储引擎都支持所有的索引类型。即使是同一种索引在不同的存储引擎上其底层实现也不一定相同。 BTree索引Btree索引以B+树这种数据结构">
+<meta name="keywords" content="MySQL,性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL索引优化">
+<meta property="og:url" content="https://consoles.fun/2016/07/29/mysql-index-optimize/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="索引的主要作用就是告诉存储引擎如何快速找到我们所需要的数据,它是一种数据结构。MySQL的索引是在存储引擎层实现的，而不是在服务器层实现的，这就决定了不同的存储引擎的工作方式可能是不同的，同时也不是所有的存储引擎都支持所有的索引类型。即使是同一种索引在不同的存储引擎上其底层实现也不一定相同。 BTree索引Btree索引以B+树这种数据结构">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-Btree-index.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/6d743320-9350-11ea-8ed4-bf514abbd811.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/3afffb30-9351-11ea-8ed4-bf514abbd811.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/cb1b4ee0-9351-11ea-8ed4-bf514abbd811.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-optimize1.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-sort.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-sort1.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-lock.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-lock.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-optimize1.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.987Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL索引优化">
+<meta name="twitter:description" content="索引的主要作用就是告诉存储引擎如何快速找到我们所需要的数据,它是一种数据结构。MySQL的索引是在存储引擎层实现的，而不是在服务器层实现的，这就决定了不同的存储引擎的工作方式可能是不同的，同时也不是所有的存储引擎都支持所有的索引类型。即使是同一种索引在不同的存储引擎上其底层实现也不一定相同。 BTree索引Btree索引以B+树这种数据结构">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-Btree-index.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MySQL索引优化</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MySQL索引优化</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-07-29T14:27:43.000Z" itemprop="datePublished" class="page-time">
+  2016-07-29
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#BTree索引"><span class="post-toc-text">BTree索引</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#为什么使用BTree"><span class="post-toc-text">为什么使用BTree</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#主存存取原理"><span class="post-toc-text">主存存取原理</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#磁盘存取原理"><span class="post-toc-text">磁盘存取原理</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#局部性原理和磁盘预读"><span class="post-toc-text">局部性原理和磁盘预读</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#适用范围"><span class="post-toc-text">适用范围</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用限制"><span class="post-toc-text">使用限制</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Hash索引"><span class="post-toc-text">Hash索引</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装演示DB"><span class="post-toc-text">安装演示DB</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#索引优化策略"><span class="post-toc-text">索引优化策略</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用索引来优化排序"><span class="post-toc-text">使用索引来优化排序</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用Btree索引模拟hash索引"><span class="post-toc-text">使用Btree索引模拟hash索引</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#利用索引优化锁"><span class="post-toc-text">利用索引优化锁</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#索引的维护和优化"><span class="post-toc-text">索引的维护和优化</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#参考资料"><span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-mysql-index-optimize"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MySQL索引优化</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-07-29 22:27:43" datetime="2016-07-29T14:27:43.000Z"  itemprop="datePublished">2016-07-29</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>索引的主要作用就是告诉存储引擎如何快速找到我们所需要的数据,它是一种数据结构。MySQL的索引是在<em>存储引擎层</em>实现的，而不是在服务器层实现的，这就决定了不同的存储引擎的工作方式可能是不同的，同时也不是所有的存储引擎都支持所有的索引类型。即使是同一种索引在不同的存储引擎上其底层实现也不一定相同。</p>
+<h2 id="BTree索引"><a href="#BTree索引" class="headerlink" title="BTree索引"></a>BTree索引</h2><p>Btree索引以<a href="http://baike.baidu.com/link?url=zpWnyU-KY1FbA2f2V2HItCW-7CqrdSt6iZ1k1eb2pdZkqQhgkt0GUYqHVZAFjcdaNMprBZgSX_-0_eihPEt41_" target="_blank" rel="noopener">B+树</a>这种数据结构<br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-Btree-index.png" alt="B+树数据结构" title>
+                </div>
+                <div class="image-caption">B+树数据结构</div>
+            </figure></p>
+<p>只有叶子节点才保存真正的信息（相关表的行位置），在索引的根节点中存放了指向下层子节点的指针，存储引擎根据指针向下层进行查找。通过比较节点的值和要查找的值就可以得到合适的指针进入到下层子节点，而这些指针实际上是定义了子节点中值得上下限。叶子节点的指针指向的是被索引的数据而不是其他的叶子节点。在InnoDB中，叶子节点指向的是主键，在MyISAM中，叶子节点指向数据的物理地址。</p>
+<p>在DB中增加或者删除一行会导致B+树改变，B+树需要自我整理和自我平衡。B+树中插入和删除操作都是O(log(N))，所以添加过多索引减缓了快速插入、更新或者删除表中的某一行的操作，因为数据库要以昂贵的代价(O(log(N)))来更新索引</p>
+<p>BTree索引可以帮助我们进行排序以避免使用磁盘临时表带来的IO消耗。</p>
+<p>能够把随机IO变为顺序IO。</p>
+<h3 id="为什么使用BTree"><a href="#为什么使用BTree" class="headerlink" title="为什么使用BTree"></a>为什么使用BTree</h3><p>红黑树其实也是能实现索引的，但是文件系统和DBMS普遍采用BTree作为索引结构的主要原因如下：</p>
+<p>一般来说，索引本身也很大，不可能全部存储在内存中，因此索引往往<strong>以索引文件的形式存储的磁盘上</strong>。这样的话，<strong>索引查找过程中就要产生磁盘I/O消耗</strong>，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度。换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。下面先介绍内存和磁盘存取原理，然后再结合这些原理分析B-/+Tree作为索引的效率。</p>
+<h4 id="主存存取原理"><a href="#主存存取原理" class="headerlink" title="主存存取原理"></a>主存存取原理</h4><p>目前计算机使用的主存基本都是随机读写存储器（RAM），现代RAM的结构和存取原理比较复杂，这里本文抛却具体差别，抽象出一个十分简单的存取模型来说明RAM的工作原理。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/6d743320-9350-11ea-8ed4-bf514abbd811.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>从抽象角度看，主存是一系列的存储单元组成的矩阵，每个存储单元存储固定大小的数据。每个存储单元有唯一的地址，现代主存的编址规则比较复杂，这里将其简化成一个二维地址：通过一个行地址和一个列地址可以唯一定位到一个存储单元。上图展示了一个4 x 4的主存模型。</p>
+<p>主存的存取过程如下：</p>
+<p>当系统需要读取主存时，则将地址信号放到地址总线上传给主存，主存读到地址信号后，解析信号并定位到指定存储单元，然后将此存储单元数据放到数据总线上，供其它部件读取。写主存的过程类似，系统将要写入单元地址和数据分别放在地址总线和数据总线上，主存读取两个总线的内容，做相应的写操作。</p>
+<p>这里可以看出，主存存取的时间仅与存取次数呈线性关系，因为不存在机械操作，两次存取的数据的“距离”不会对时间有任何影响，例如，先取A0再取A1和先取A0再取D3的时间消耗是一样的。</p>
+<h4 id="磁盘存取原理"><a href="#磁盘存取原理" class="headerlink" title="磁盘存取原理"></a>磁盘存取原理</h4><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/3afffb30-9351-11ea-8ed4-bf514abbd811.png" alt="磁盘整体结构" title>
+                </div>
+                <div class="image-caption">磁盘整体结构</div>
+            </figure>
+<p>一个磁盘由大小相同且同轴的圆形盘片组成，磁盘可以转动（各个磁盘必须同步转动）。在磁盘的一侧有磁头支架，磁头支架固定了一组磁头，每个磁头负责存取一个磁盘的内容。磁头不能转动，但是可以沿磁盘半径方向运动（实际是斜切向运动），每个磁头同一时刻也必须是同轴的，即从正上方向下看，所有磁头任何时候都是重叠的（不过目前已经有多磁头独立技术，可不受此限制）</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/05/11/cb1b4ee0-9351-11ea-8ed4-bf514abbd811.png" alt="磁盘结构" title>
+                </div>
+                <div class="image-caption">磁盘结构</div>
+            </figure>
+<p>盘片被划分成一系列同心环，圆心是盘片中心，每个同心环叫做一个磁道，所有半径相同的磁道组成一个柱面。磁道被沿半径线划分成一个个小的段，每个段叫做一个扇区，每个扇区是磁盘的最小存储单元。为了简单起见，我们下面假设磁盘只有一个盘片和一个磁头。</p>
+<p>当需要从磁盘读取数据时，系统会将数据逻辑地址传给磁盘，磁盘的控制电路按照寻址逻辑将逻辑地址翻译成物理地址，即确定要读的数据在哪个磁道，哪个扇区。为了读取这个扇区的数据，需要将磁头放到这个扇区上方，为了实现这一点，磁头需要移动对准相应磁道，这个过程叫做寻道，所耗费时间叫做寻道时间，然后磁盘旋转将目标扇区旋转到磁头下，这个过程耗费的时间叫做旋转时间。</p>
+<h4 id="局部性原理和磁盘预读"><a href="#局部性原理和磁盘预读" class="headerlink" title="局部性原理和磁盘预读"></a>局部性原理和磁盘预读</h4><p>由于存储介质的特性，磁盘本身存取就比主存慢很多，再加上机械运动耗费，磁盘的存取速度往往是主存的几百分分之一，因此为了提高效率，要尽量减少磁盘I/O。为了达到这个目的，磁盘往往不是严格按需读取，而是每次都会预读，即使只需要一个字节，磁盘也会从这个位置开始，顺序向后读取一定长度的数据放入内存。这样做的理论依据是计算机科学中著名的局部性原理：<strong>当一个数据被用到时，其附近的数据也通常会马上被使用。</strong>程序运行期间所需要的数据通常比较集中。由于磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），因此对于具有局部性的程序来说，预读可以提高I/O效率。</p>
+<p>预读的长度一般为页（page）的整倍数。页是计算机管理存储器的逻辑块，硬件及操作系统往往将主存和磁盘存储区分割为连续的大小相等的块，每个存储块称为一页（在许多操作系统中，页得大小通常为4k），主存和磁盘以页为单位交换数据。当程序要读取的数据不在主存中时，会触发一个缺页异常，此时系统会向磁盘发出读盘信号，磁盘会找到数据的起始位置并向后连续读取一页或几页载入内存中，然后异常返回，程序继续运行。</p>
+<p>一般使用磁盘I/O次数评价索引结构的优劣。先从B-Tree分析，根据B-Tree的定义，可知检索一次最多需要访问h个节点。数据库系统的设计者巧妙利用了磁盘预读原理，将一个节点的大小设为等于一个页，这样每个节点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：</p>
+<p>每次新建节点时，直接申请一个页的空间，这样就保证一个节点物理上也存储在一个页里，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。</p>
+<p>B-Tree中一次检索最多需要h-1次I/O（根节点常驻内存），渐进复杂度为O(h)=O(logdN)。一般实际应用中，出度d是非常大的数字，通常超过100，因此h非常小（通常不超过3）。</p>
+<p>综上所述，用B-Tree作为索引结构效率是非常高的。</p>
+<p>而红黑树这种结构，h明显要深的多。由于逻辑上很近的节点（父子）物理上可能很远，无法利用局部性，所以红黑树的I/O渐进复杂度也为O(h)，效率明显比B-Tree差很多。</p>
+<p>上文还说过，B+Tree更适合外存索引，原因和内节点出度d有关。从上面分析可以看到，d越大索引的性能越好，而出度的上限取决于节点内key和data的大小</p>
+<h3 id="适用范围"><a href="#适用范围" class="headerlink" title="适用范围"></a>适用范围</h3><p><strong>BTree索引适合范围查找</strong>，因此它的使用场景如下：</p>
+<ol>
+<li>全值匹配的查询。例如：我们在订单号order_sn上建立的索引，然后查询编号为98763478976的订单记录。</li>
+<li>匹配最左前缀的查询。如果我们在order_sn上并没有建立索引，而是建立了order_sn和order_date两个字段上的联合索引，对于查询订单编号为98763478976的记录，我们同样可以利用这个联合索引，也就是说<em>如果联合索引的第一列符合查询条件，这个索引就会被用到，但是如果只是这个联合索引的第二列符合条件就无法利用索引</em>，例如：查询order_date为2016-07-08的记录就无法利用到索引。</li>
+<li>匹配列前缀的查询。例如：<code>order_sn like 9876%</code>匹配列前缀的查询。</li>
+<li>匹配范围值得查询。<code>order_sn&gt;9888343243 and order_sn &lt; 9999999999</code>。</li>
+<li>精确匹配左前列并范围匹配另外一列。例如联合索引order_sn和order_date。精确匹配order_sn并范围匹配order_date。</li>
+<li>只访问索引的查询。也称为覆盖索引，查询只需要访问索引不需访问数据行。</li>
+</ol>
+<h3 id="使用限制"><a href="#使用限制" class="headerlink" title="使用限制"></a>使用限制</h3><ol>
+<li>如果不是按照索引的最左列开始查找的，则无法使用索引。联合索引order_sn和order_date，如果我们只把订单日期作为查询条件，就无法使用这个联合索引。</li>
+<li>使用索引的时候不能跳过索引中的列。例如：order_date,name,tel 3列组成的联合索引，如果我们在查找中只包含order_date和tel,那么对于这个查询来说就只能使用到order_date这一列来进行查询过滤而无法使用到tel，因为我们在查询条件中跳过了name这一列。</li>
+<li><code>NOT IN</code>和<code>&lt;&gt;</code>无法使用索引。</li>
+<li>如果查询中有某个列的范围查询，则其右边的所有列都无法使用索引。</li>
+</ol>
+<h2 id="Hash索引"><a href="#Hash索引" class="headerlink" title="Hash索引"></a>Hash索引</h2><p>Hash索引基于hash表，只有查询条件精确匹配hash索引中的所有列时，才能够使用到hash索引。也就是说<strong>hash索引只能用在等值查询中</strong>。对于hash索引中的每一列，存储引擎都会为每一行计算出一个hash码，hash索引中存储的就是hash码</p>
+<p>使用hash索引需要进行2次查找，无法用于排序，不支持部分索引，不支持范围查找，有可能产生hash冲突（不同列产生的hash码是相同的），例如性别列就不能使用hash索引，身份证号列上建立hash索引比较合适。</p>
+<blockquote>
+<p>Q:为什么索引能够减少存储引擎需要扫描的数据量？<br>A:索引列的大小通常会远小于数据列的大小。以InnoDB来说：InnoDB发生一次IO，最小的单位是页（默认16K），一页内存储的信息越多，效率越高。相比存储数据，一页内能够存储更多的索引。通过索引进行查询需要读取的页的数量少，减少需要扫描的数据量。</p>
+</blockquote>
+<p><em>索引并不是越多越好</em>。索引会增加写操作的成本，为了解决这个问题InnoDB采用了<a href="http://blog.163.com/ji_1006/blog/static/1061234120138277177253/" target="_blank" rel="noopener">插入缓存</a>能够将多次插入合并为1次插入。太多的索引也会增加查询优化器的选择时间。</p>
+<h2 id="安装演示DB"><a href="#安装演示DB" class="headerlink" title="安装演示DB"></a>安装演示DB</h2><p><a href="http://downloads.mysql.com/docs/sakila-db.tar.gz" target="_blank" rel="noopener">MySQL演示数据库sakila</a></p>
+<pre><code class="lang-bash">$ mysql -uroot -p123456 &lt; sakila-schema.sql
+$ mysql -uroot -p123456 &lt; sakila-data.sql
+</code></pre>
+<h2 id="索引优化策略"><a href="#索引优化策略" class="headerlink" title="索引优化策略"></a>索引优化策略</h2><p>索引的选择性指的是不重复的索引值和表的记录数的比值，由此可见主键和唯一索引的选择性最高。选择性越高，效率越高。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-optimize1.png" alt="索引列上不能使用表达式或者函数" title>
+                </div>
+                <div class="image-caption">索引列上不能使用表达式或者函数</div>
+            </figure>
+<p>使用索引的一个常见误区就是对表的每一列都建立索引。我们可以使用联合索引，联合索引列的顺序至关重要：</p>
+<ol>
+<li>经常被用到的列优先</li>
+<li>选择性高的列优先</li>
+<li>宽度小的列优先</li>
+</ol>
+<p>包含了查询字段的全部值得索引被称为覆盖索引。覆盖索引可以避免对InnoDB主键索引的二次查询，避免对MyISAM表进行系统调用。覆盖索引也有以下的限制：查询中使用了太多的列(select * 无法使用覆盖索引)；存储引擎不支持覆盖索引；使用了双%的like查询。</p>
+<p>使用演示数据库sakila进行以下的查询计划：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index.png" alt="MySQL覆盖索引" title>
+                </div>
+                <div class="image-caption">MySQL覆盖索引</div>
+            </figure>
+<p>注意到在上图中，select * 无法使用到覆盖索引。</p>
+<h3 id="使用索引来优化排序"><a href="#使用索引来优化排序" class="headerlink" title="使用索引来优化排序"></a>使用索引来优化排序</h3><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-sort.png" alt="使用索引优化排序" title>
+                </div>
+                <div class="image-caption">使用索引优化排序</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-sort1.png" alt="使用索引排序" title>
+                </div>
+                <div class="image-caption">使用索引排序</div>
+            </figure>
+<p>在上面的右图中如果我们将查询计划改为：<code>explain select * from rental where rental_date=&#39;2005-01-01&#39; order by inventory_id desc,customer_id\G;</code>那么在Extra将会变为：“Extra: Using index condition; Using filesort”，因为它违反了使用索引进行优化的第二条规则。</p>
+<h3 id="使用Btree索引模拟hash索引"><a href="#使用Btree索引模拟hash索引" class="headerlink" title="使用Btree索引模拟hash索引"></a>使用Btree索引模拟hash索引</h3><pre><code class="lang-bash">mysql&gt; alter table film add title_md5 char(32);
+mysql&gt; update film set title_md5=md5(title);
+mysql&gt; create index idx_md5 on film(title_md5);
+mysql&gt; explain select * from film where title_md5=md5(&#39;EGG IGBY&#39;) and title=&#39;EGG IGBY&#39;\G; -- 由于MD5可能hash冲突，所以还需要使用title=&#39;EGG IGBY&#39;进行过滤
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: ref
+possible_keys: idx_title,idx_md5
+          key: idx_title
+      key_len: 767
+          ref: const
+         rows: 1
+     filtered: 5.00
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<h3 id="利用索引优化锁"><a href="#利用索引优化锁" class="headerlink" title="利用索引优化锁"></a>利用索引优化锁</h3><p>索引可以减少锁定的行数和加快数据的处理速度，同时加快锁的释放。</p>
+<pre><code class="lang-bash">mysql&gt; drop index idx_actor_last_name on actor;
+</code></pre>
+<p>开2个session，使用事务，发现session2被阻塞了：<br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-lock.png" alt="MySQL锁" title>
+                </div>
+                <div class="image-caption">MySQL锁</div>
+            </figure><br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-lock.png" alt="使用索引优化锁" title>
+                </div>
+                <div class="image-caption">使用索引优化锁</div>
+            </figure></p>
+<h3 id="索引的维护和优化"><a href="#索引的维护和优化" class="headerlink" title="索引的维护和优化"></a>索引的维护和优化</h3><p>MySQL允许在同一列上创建多个索引，但是过多的索引将会冗余，例如：<br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mysql-index-optimize1.png" alt="冗余索引" title>
+                </div>
+                <div class="image-caption">冗余索引</div>
+            </figure></p>
+<p>一种常见的误区就是认为<code>UNIQUE KEY</code>是唯一约束，很多人错误地为它建立了索引。</p>
+<p>确定冗余和重复的索引可以采用<a href="https://www.percona.com/doc/percona-toolkit/2.2/index.html" target="_blank" rel="noopener">pt-duplicate-key-checker</a></p>
+<p>MySQL查询优化器可以通过索引的统计信息来制定合适的查询策略。如果索引的统计信息不当就会影响查询的性能。可以通过<code>analyze table table_name</code>。BTree索引进行更新的是偶可能会产生大量的碎片，碎片化的索引可能会以无序的方式存储在磁盘上，除了索引，表也会产生碎片，我们需要定期对表进行维护（<code>optimize table table_name</code>,需要注意的是使用不当会锁表）。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://blog.jobbole.com/100349/" target="_blank" rel="noopener">数据库的底层原理</a></li>
+<li><a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="noopener">MySQL索引背后的数据结构和算法原理</a></li>
+<li><a href="https://blog.ouyangsihai.cn/mian-shi-guan-wen-ni-b-shu-he-b-shu-jiu-ba-zhe-pian-wen-zhang-diu-gei-ta.html" target="_blank" rel="noopener">B树和B+树</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.987Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/07/29/mysql-index-optimize/" target="_blank" rel="external">https://consoles.fun/2016/07/29/mysql-index-optimize/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能优化/">性能优化</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/07/29/mysql-index-optimize/&title=《MySQL索引优化》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/07/29/mysql-index-optimize/&title=《MySQL索引优化》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/07/29/mysql-index-optimize/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL索引优化》 — 雨碎江南&url=https://consoles.fun/2016/07/29/mysql-index-optimize/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/07/29/mysql-index-optimize/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/08/02/mysql-query-optimize/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL查询优化和数据库监控</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/07/22/mysql-best-practice/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">搭建高可用MySQL架构</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/07/29/mysql-index-optimize/&title=《MySQL索引优化》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/07/29/mysql-index-optimize/&title=《MySQL索引优化》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/07/29/mysql-index-optimize/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL索引优化》 — 雨碎江南&url=https://consoles.fun/2016/07/29/mysql-index-optimize/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/07/29/mysql-index-optimize/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIklEQVR42u3aQW7DMAwEwPz/0+61QBB1SboBLI1PhevEHh82IqnXKz6uX8enM8mV7+fX19x8YGBgPJZxLY/3W+bfsOatvyF/NgwMjHMYn756HY7rMwkgCev1s2FgYGDky7jCLZf/xcDAwJgwJsu+5PovBS4GBsZjGUkRW71BHqZfrcUxMDAeyMi77t//+1/mGxgYGI9iXMUjD8deyPYODAyMvRm9EeZk20R1eVcojzEwMA5g9DaEreM1HwDkmzYwMDDOZORbIqojgSRqq0GPgYFxJiO5dBKjNyz7qr8bGBgYGzGqAZcvHPPSd7JkxMDAOIExafQ32/eDcvePZSgGBsamjOp4shqpvWvKy0cMDIwDGNUI7g0187uMGm0YGBibMnpF7LxNVn30j5/FwMA4jLEO07zp39uW0WzJYWBgbM3ojR7zsrb62eRnAAMD4zRG3mhLNnJVhwT5mfIbxcDA2Igxb41NonNSxGJgYJzGSB56MiqYb+PIR6EYGBi7MvKiMdn60HuUycvCwMA4jVENzXwA0IvgvG7FwMDYm5FfVB1DJq/mroEoBgbGrox7G/rzRl6ztYeBgbE1oxd2SbD2Rgt5ydqLbAwMjOcy7grZahDnRe8NA0sMDIwtGPmmscln89jNox8DAwOjV1hWl4zVTWM3BC4GBsYBjHnhWo1gDAwMjOrosTeq7G3miBaIGBgYWzOqvazesi9/iN5LwcDA2JTxA3eYPOIzrL/OAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

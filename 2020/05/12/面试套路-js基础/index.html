@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>面试套路—js基础 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js,javascript">
+    <meta name="description" content="夫大人者，与天地合其德，与日月合其明，与四时合其序，与鬼神合其吉凶。——《周易》  在 JavaScript 中， (a == 1 &amp;amp;&amp;amp; a == 2 &amp;amp;&amp;amp; a == 3) 是否有可能为 true 参考解决思路：a是一个对象或函数，每次调用取值都不一样，以有序的规律变化就能实现多等  方案1：使用getterlet temp = 1; Object.defineP">
+<meta name="keywords" content="node.js,javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试套路—js基础">
+<meta property="og:url" content="https://consoles.fun/2020/05/12/面试套路-js基础/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="夫大人者，与天地合其德，与日月合其明，与四时合其序，与鬼神合其吉凶。——《周易》  在 JavaScript 中， (a == 1 &amp;amp;&amp;amp; a == 2 &amp;amp;&amp;amp; a == 3) 是否有可能为 true 参考解决思路：a是一个对象或函数，每次调用取值都不一样，以有序的规律变化就能实现多等  方案1：使用getterlet temp = 1; Object.defineP">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/56cce1d9-800c-4f0e-9042-b869bc02ed34.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/d7675956-1394-4431-bb7b-9a7070676839.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/2abac139-937e-4416-a48c-e1582866083e.png">
+<meta property="og:updated_time" content="2020-10-06T09:52:56.336Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="面试套路—js基础">
+<meta name="twitter:description" content="夫大人者，与天地合其德，与日月合其明，与四时合其序，与鬼神合其吉凶。——《周易》  在 JavaScript 中， (a == 1 &amp;amp;&amp;amp; a == 2 &amp;amp;&amp;amp; a == 3) 是否有可能为 true 参考解决思路：a是一个对象或函数，每次调用取值都不一样，以有序的规律变化就能实现多等  方案1：使用getterlet temp = 1; Object.defineP">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/56cce1d9-800c-4f0e-9042-b869bc02ed34.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">面试套路—js基础</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">面试套路—js基础</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-05-12T09:01:28.000Z" itemprop="datePublished" class="page-time">
+  2020-05-12
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#在-JavaScript-中，-a-1-amp-amp-a-2-amp-amp-a-3-是否有可能为-true"><span class="post-toc-text">在 JavaScript 中， (a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) 是否有可能为 true</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方案1：使用getter"><span class="post-toc-text">方案1：使用getter</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方案2：重写valueOf-toString"><span class="post-toc-text">方案2：重写valueOf/toString</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方案3：ES6-Proxy"><span class="post-toc-text">方案3：ES6 Proxy</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方案4：数字变量名"><span class="post-toc-text">方案4：数字变量名</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#方案5：join-shift"><span class="post-toc-text">方案5：join+shift</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#js类型的坑"><span class="post-toc-text">js类型的坑</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#原型链的坑"><span class="post-toc-text">原型链的坑</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#作用域的坑"><span class="post-toc-text">作用域的坑</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#跨域"><span class="post-toc-text">跨域</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#为什么js要放在body最下面二css要放在head中？"><span class="post-toc-text">为什么js要放在body最下面二css要放在head中？</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#window-onload和DomContentLoaded有什么区别"><span class="post-toc-text">window.onload和DomContentLoaded有什么区别</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#图片懒加载的实现原理"><span class="post-toc-text">图片懒加载的实现原理</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#实现new运算符"><span class="post-toc-text">实现new运算符</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#实现call"><span class="post-toc-text">实现call</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#实现apply"><span class="post-toc-text">实现apply</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#实现bind"><span class="post-toc-text">实现bind</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#实现函数重载"><span class="post-toc-text">实现函数重载</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Promise相关"><span class="post-toc-text">Promise相关</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#怎样控制Promise的并发"><span class="post-toc-text">怎样控制Promise的并发</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何取消Promise"><span class="post-toc-text">如何取消Promise</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#编程风格"><span class="post-toc-text">编程风格</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#node-js源码"><span class="post-toc-text">node.js源码</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#nodejs中的global对象什么时候初始化"><span class="post-toc-text">nodejs中的global对象什么时候初始化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为什么cluster开启多个worker的时候可以监听同一个端口不会报错"><span class="post-toc-text">为什么cluster开启多个worker的时候可以监听同一个端口不会报错</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事件循环"><span class="post-toc-text">事件循环</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考资料"><span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-面试套路-js基础"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">面试套路—js基础</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-05-12 17:01:28" datetime="2020-05-12T09:01:28.000Z"  itemprop="datePublished">2020-05-12</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>夫大人者，与天地合其德，与日月合其明，与四时合其序，与鬼神合其吉凶。——《周易》</p>
+</blockquote>
+<h1 id="在-JavaScript-中，-a-1-amp-amp-a-2-amp-amp-a-3-是否有可能为-true"><a href="#在-JavaScript-中，-a-1-amp-amp-a-2-amp-amp-a-3-是否有可能为-true" class="headerlink" title="在 JavaScript 中， (a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) 是否有可能为 true"></a>在 JavaScript 中， (a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) 是否有可能为 true</h1><blockquote>
+<p>参考解决思路：a是一个对象或函数，每次调用取值都不一样，以有序的规律变化就能实现多等</p>
+</blockquote>
+<h2 id="方案1：使用getter"><a href="#方案1：使用getter" class="headerlink" title="方案1：使用getter"></a>方案1：使用getter</h2><pre><code class="lang-js">let temp = 1;
+Object.defineProperty(global, &#39;a&#39;, {
+  get() {
+    return temp++;
+  }
+});
+console.log(a === 1 &amp;&amp; a === 2 &amp;&amp; a === 3); // true
+</code></pre>
+<h2 id="方案2：重写valueOf-toString"><a href="#方案2：重写valueOf-toString" class="headerlink" title="方案2：重写valueOf/toString"></a>方案2：重写valueOf/toString</h2><pre><code class="lang-js">const a = {
+  value: 1,
+  valueOf() {
+    return this.value++;
+  }
+};
+console.log(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3); // true
+</code></pre>
+<p>从表面看，应该是valueOf()每次都被调用了，但是为什么会这样？我们又没有调用它。这里的valueOf为什么会被调用？这主要是<code>==</code>转换规则</p>
+<ul>
+<li>如果一个是null，一个是undefined，则它们相等</li>
+<li>如果一个是数字，一个是字符串，先将字符串转换成数字，然后使用转换后的值进行比较</li>
+<li>如果其中的一个值为true，则转换成1再进行比较；如果其中一个值为false，这转换成0再进行比较</li>
+<li>如果一个值是对象，另一个值是数字或者字符串，则将对象转换成原始值再进行比较。转换成字符串时，会先调用toString()，如果没有toString()方法或者返回的不是一个原始值，则再调用valueOf()，如果还是不存在或者返回不是原始值，则会抛出一个类型错误的异常。返回的原始值会被转换成字符串；如果转换成数字时，也是类似的，不过是会先调用valueOf()，再调用toString()，返回的原始值会被转换成数字</li>
+<li>其他不同类型之间的比较均不相等</li>
+</ul>
+<blockquote>
+<p>所以在这里使用a与这些字符进行比较时会被转换成数字，此时会默认调用字符串的valueOf()方法，我们将这个方法进行重写，用于拦截处理a的值</p>
+</blockquote>
+<p>同理可以使用toString方法处理，因为字符串转数字类型时会涉及到valueOf()和toString()，道理一样,只要符合递增规则的，a就可以实现多等，因为此a非彼a</p>
+<h2 id="方案3：ES6-Proxy"><a href="#方案3：ES6-Proxy" class="headerlink" title="方案3：ES6 Proxy"></a>方案3：ES6 Proxy</h2><pre><code class="lang-js">const a = new Proxy({i: 0}, {
+  get: (target, name) =&gt; name === Symbol.toPrimitive ? () =&gt; ++target.i : target[name]
+});
+console.log(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3);    // true
+</code></pre>
+<h2 id="方案4：数字变量名"><a href="#方案4：数字变量名" class="headerlink" title="方案4：数字变量名"></a>方案4：数字变量名</h2><pre><code class="lang-js">var  a = 1;
+var ﾠ1 = a;
+var ﾠ2 = a;
+var ﾠ3 = a;
+console.log( a ===ﾠ1 &amp;&amp; a ===ﾠ2 &amp;&amp; a ===ﾠ3 );
+</code></pre>
+<h2 id="方案5：join-shift"><a href="#方案5：join-shift" class="headerlink" title="方案5：join+shift"></a>方案5：join+shift</h2><ul>
+<li>对于对象数组进行比较时，这里数组a每次比较的时候都会默认调用toString()，然后toString()又会默认调用join()，这里将join()改为shift()，意思是删除第一个数组元素值并返回</li>
+<li>所以这样调用每次都会导致a数组删除第一个值并且返回删除掉的那个值，结合这样的规律，每次比较都取出对应位置的值</li>
+<li>这里是1、2、3，只要符合规律返回的值就行</li>
+</ul>
+<pre><code class="lang-js">var a = [1, 2, 3];
+a.join = a.shift;
+console.log(a);                // [ 1, 2, 3, join: [Function: shift] ]
+// console.log(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3); // true
+console.log(a == 1);        // true
+console.log(a);                // [ 2, 3, join: [Function: shift] ]
+console.log(a == 2);        // true
+console.log(a);                // [ 3, join: [Function: shift] ]
+console.log(a == 3);        // true
+console.log(a);                // [ join: [Function: shift] ]
+</code></pre>
+<h1 id="js类型的坑"><a href="#js类型的坑" class="headerlink" title="js类型的坑"></a>js类型的坑</h1><pre><code class="lang-js">0 == &#39;&#39;
+0 == []
+0 == [&#39;&#39;]
+</code></pre>
+<h1 id="原型链的坑"><a href="#原型链的坑" class="headerlink" title="原型链的坑"></a>原型链的坑</h1><p>所有的数组，对象，函数都有一个<code>__proto__</code>，被称为隐式原型。所有的<strong>函数</strong>都有一个<code>prototype</code>属性，被称为显式原型。<code>prototype</code>是函数的一个属性而已，它和原型没有绝对的关系，每个对象都有一个原型，但是只有函数才会有<code>prototype</code>属性。</p>
+<pre><code class="lang-js">var a = function(){};
+var b=[1,2,3];
+
+//函数才有prototype属性
+console.log(a.prototype);//&gt;&gt; function(){}
+//非函数，没有prototype属性
+console.log(b.prototype);//&gt;&gt; undefined
+</code></pre>
+<p>每个对象(实例)都有一个属性<strong>proto</strong>，指向他的构造函数（constructor）的prototype属性，一个对象的原型就是它的构造函数的prototype属性的值。</p>
+<pre><code class="lang-js">// 隐式原型等于其构造函数上的显式原型
+const obj = {}
+obj.__proto__ === Object.prototype
+const arr = []
+arr.__proto__ === Array.prototype
+</code></pre>
+<p>当一个对象的属性不存在的时候会向<strong>其构造函数的显式原型</strong>中查找（即该对象本身的隐式原型）。</p>
+<p>对象的<strong>proto</strong>也有自己的<strong>proto</strong>，层层向上，直到<strong>proto</strong>为null。换句话说，原型本身也有自己的原型。这种由原型层层链接起来的数据结构成为原型链。因为null不再有原型，所以原型链的末端是null。</p>
+<blockquote>
+<p>使用<strong>proto</strong>是有争议的，也不鼓励使用它。因为它从来没有被包括在EcmaScript语言规范中，但是现代浏览器都实现了它。<strong>proto</strong>属性已在ECMAScript 6语言规范中标准化，用于确保Web浏览器的兼容性，因此它未来将被支持。但是，它已被不推荐使用，现在更推荐使用<code>Object.getPrototypeOf/Reflect.getPrototypeOf</code>和<code>Object.setPrototypeOf/Reflect.setPrototypeOf</code>（尽管如此，设置对象的原型是一个缓慢的操作，如果性能要求很高，应该避免设置对象的原型）。</p>
+</blockquote>
+<p>使用最新的方法Object.setPrototypeOf（类似Reflect.setPrototypeOf）可以很方便地给对象设置原型，这个对象会继承该原型所有属性和方法。但是，setPrototypeOf的性能很差，我们应该尽量使用 Object.create()来为某个对象设置原型。</p>
+<pre><code class="lang-js">//obj的原型是Object.prototype
+var obj={
+    methodA(){
+        console.log(&quot;coffe&quot;);
+    }
+}
+
+var newObj = Object.create(obj);//以obj为原型创建一个新的对象
+
+//methodA实际上是newObj原型对象obj上的方法。也即newObj继承了它的原型对象obj的属性和方法。
+newObj.methodA();//&gt;&gt; coffe
+</code></pre>
+<h1 id="作用域的坑"><a href="#作用域的坑" class="headerlink" title="作用域的坑"></a>作用域的坑</h1><pre><code class="lang-js">fn1() // 不会报错，因为函数会声明前置
+function fn1(){}
+fn2() // 会报错，var声明前置的时候是undefined
+var fn2 = function {}
+</code></pre>
+<pre><code class="lang-js">// 闭包，函数作为参数，函数作为返回值
+function F1() {
+    var a = 100
+    return function () {
+        console.log(a) // 自由变量，去父作用域寻找
+    }
+}
+
+var f1 = F1()
+
+function F2(fn) {
+    var a = 200
+    fn()
+}
+
+F2(f1) // 100
+</code></pre>
+<p>面试题：在页面中创建10个a标签，点击的时候弹出对应的序号，一种常见的错误写法如下：</p>
+<pre><code class="lang-js">var i, a;
+for (i = 0; i &lt; 10; i++) {
+    a = document.createElement(&#39;a&#39;);
+    a.innerHTML = i + &#39;&lt;br&gt;&#39;;
+    a.addEventListener(&#39;click&#39;, function (e) {
+        e.preventDefault();
+        alert(i);
+    });
+    document.body.appendChild(a);
+}
+</code></pre>
+<p>事件监听函数中的i是自由变量，需要去父作用域去寻找，这个时候i已经是10了。</p>
+<p>解决方案一：在原来的函数外面包一层函数，将变量作为参数传递进去：</p>
+<pre><code class="lang-js">var i, a;
+for (i = 0; i &lt; 10; i++) {
+    (function (i) {
+        a = document.createElement(&#39;a&#39;);
+        a.innerHTML = i + &#39;&lt;br&gt;&#39;;
+        a.addEventListener(&#39;click&#39;, function (e) {
+            e.preventDefault();
+            alert(i);
+        });
+        document.body.appendChild(a)
+    })(i)
+}
+</code></pre>
+<p>解决方案二：使用ES6中let的块作用域：</p>
+<pre><code class="lang-js">for (let i = 0; i &lt; 10; i++) {
+    const a = document.createElement(&#39;a&#39;);
+    a.innerHTML = i + &#39;&lt;br&gt;&#39;;
+    a.addEventListener(&#39;click&#39;, function (e) {
+        e.preventDefault();
+        alert(i);
+    });
+    document.body.appendChild(a)
+}
+</code></pre>
+<p>闭包在实际开发中重要用于封装变量，收敛权限</p>
+<h1 id="跨域"><a href="#跨域" class="headerlink" title="跨域"></a>跨域</h1><p>可以跨域的3个标签：</p>
+<ul>
+<li>img:可以用于打点统计，统计网站可能是其他域，使用img标签有一个好处：没有浏览器兼容性问题</li>
+<li>link：可以使用CDN</li>
+<li>script:可以使用CDN,可以JSONP</li>
+</ul>
+<p>本地3000端口开启了一个服务：</p>
+<pre><code class="lang-js">const http = require(&#39;http&#39;)
+
+http.createServer((req, res) =&gt; {
+    res.end(JSON.stringify({
+        now: new Date().toString()
+    }))
+}).listen(3000)
+console.log(&#39;api server started at 3000&#39;)
+</code></pre>
+<p>编写页面如下：</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;跨域&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;script src=&quot;https://unpkg.com/axios/dist/axios.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+        axios.get(&#39;http://127.0.0.1:3000&#39;)
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/56cce1d9-800c-4f0e-9042-b869bc02ed34.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>使用JSONP实现跨域，服务端和客户端都进行一个很小的改造：</p>
+<pre><code class="lang-js">const http = require(&#39;http&#39;)
+
+http.createServer((req, res) =&gt; {
+    const data = `callback(${JSON.stringify({ now: new Date().toString() })})`
+    res.end(data)
+}).listen(3000)
+console.log(&#39;api server started at 3000&#39;)
+</code></pre>
+<p>客户端：</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;跨域&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;script&gt;
+        function callback(data) {
+            console.log(&#39;get data&#39;, data)
+        }
+    &lt;/script&gt;
+    &lt;script src=&quot;http://127.0.0.1:3000&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/d7675956-1394-4431-bb7b-9a7070676839.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>以上是原理部分，就是服务器返回的数据包了一层函数，客户端有个同样名字的函数去接收。实际的开发中有很多现成的库。 </p>
+<h1 id="为什么js要放在body最下面二css要放在head中？"><a href="#为什么js要放在body最下面二css要放在head中？" class="headerlink" title="为什么js要放在body最下面二css要放在head中？"></a>为什么js要放在body最下面二css要放在head中？</h1><p>浏览器拿到css就知道该怎么渲染HTML了，如果把css放在body下面则会先<strong>按照默认样式进行渲染</strong>，当css加载完成的时候会按照css的样式再渲染一遍，即发生了reflow。由于js会阻塞代码执行，所以js一般放在body最下面，还有一个原因：js放在最下面的时候就可以取得页面中所有的元素了。</p>
+<h1 id="window-onload和DomContentLoaded有什么区别"><a href="#window-onload和DomContentLoaded有什么区别" class="headerlink" title="window.onload和DomContentLoaded有什么区别"></a>window.onload和DomContentLoaded有什么区别</h1><p>前者是页面的资源加载完成（包括图片、视频），后者是DOM渲染完即可，此时图片、视频可能还没加载完。</p>
+<h1 id="图片懒加载的实现原理"><a href="#图片懒加载的实现原理" class="headerlink" title="图片懒加载的实现原理"></a>图片懒加载的实现原理</h1><p>先用一张默认的图片代替（这张默认的图片因为使用太频繁，浏览器可能缓存了）然后再更改img的src属性。<br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/12/2abac139-937e-4416-a48c-e1582866083e.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure></p>
+<h1 id="实现new运算符"><a href="#实现new运算符" class="headerlink" title="实现new运算符"></a>实现new运算符</h1><pre><code class="lang-js">function myNew() {
+  const constr = Array.prototype.shift.call(arguments) // 第一个参数是构造函数
+  const obj = Object.create(constr.prototype) // 创新一个新对象，该对象的原型是constr
+  const result = constr.apply(obj, arguments) // 改变this的指向，让this指向刚才传创建的obj
+  return result instanceof Object ? result : obj // 判断返回值是不是对象，如果是返回，如果不是返回刚才创建的新对象
+}
+
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+Person.prototype.sayHello = function () {
+  console.log(`I am ${this.name},is ${this.age} years old!`)
+}
+
+const p = myNew(Person, &#39;张三&#39;, 18)
+console.log(p) // Person { name: &#39;张三&#39;, age: 18 }
+p.sayHello() // I am 张三,is 18 years old!
+</code></pre>
+<h1 id="实现call"><a href="#实现call" class="headerlink" title="实现call"></a>实现call</h1><p>思路：</p>
+<ol>
+<li>参考call的语法规则，需要设置一个参数thisArg，也就是this的指向；</li>
+<li>将thisArg封装为一个Object；</li>
+<li>通过为thisArg创建一个临时方法，这样thisArg就是调用该临时方法的对象了，会将该临时方法的this隐式指向到thisArg上</li>
+<li>执行thisArg的临时方法，并传递参数；</li>
+<li>删除临时方法，返回方法的执行结果。</li>
+</ol>
+<pre><code class="lang-js">/**
+ * 用原生JavaScript实现call
+ */
+Function.prototype.myCall = function(thisArg, ...arr) {
+
+  //1.判断参数合法性/////////////////////////
+  if (thisArg === null || thisArg === undefined) {
+    //指定为 null 和 undefined 的 this 值会自动指向全局对象(浏览器中为window)
+    thisArg = window;
+  } else {
+    // 当以非构造函数形式被调用时，Object 等同于 new Object()。
+    thisArg = Object(thisArg);//创建一个可包含数字/字符串/布尔值的对象，
+                              //thisArg 会指向一个包含该原始值的对象。
+  }
+
+  //2.搞定this的指向/////////////////////////
+  const specialMethod = Symbol(&quot;anything&quot;); //创建一个不重复的常量
+  //如果调用myCall的函数名是func，也即以func.myCall()形式调用；
+  //根据上篇文章介绍，则myCall函数体内的this指向func
+  thisArg[specialMethod] = this; //给thisArg对象建一个临时属性来储存this（也即func函数）
+  //进一步地，根据上篇文章介绍，func作为thisArg对象的一个方法被调用，那么func中的this便
+  //指向thisArg对象。由此，巧妙地完成将this隐式地指向到thisArg！
+  let result = thisArg[specialMethod](...arr);
+
+  //3.收尾
+  delete thisArg[specialMethod]; //删除临时方法
+  return result; //返回临时方法的执行结果
+};
+
+let obj = {
+  name: &quot;coffe1891&quot;
+};
+
+function func() {
+  console.log(this.name);
+}
+
+func.myCall(obj);//&gt;&gt; coffe1891
+</code></pre>
+<h1 id="实现apply"><a href="#实现apply" class="headerlink" title="实现apply"></a>实现apply</h1><ol>
+<li>传递给函数的参数处理，不太一样，其他部分跟call一样；</li>
+<li>apply接受第二个参数为类数组对象, 这里用了《JavaScript权威指南》一书中判断是否为类数组对象的方法。</li>
+</ol>
+<pre><code class="lang-js">/**
+ * 用原生JavaScript实现apply
+ */
+Function.prototype.myApply = function(thisArg) {
+  if (thisArg === null || thisArg === undefined) {
+    thisArg = window;
+  } else {
+    thisArg = Object(thisArg);
+  }
+
+  //判断是否为【类数组对象】
+  function isArrayLike(o) {
+    if (
+      o &amp;&amp; // o不是null、undefined等
+      typeof o === &quot;object&quot; &amp;&amp; // o是对象
+      isFinite(o.length) &amp;&amp; // o.length是有限数值
+      o.length &gt;= 0 &amp;&amp; // o.length为非负值
+      o.length === Math.floor(o.length) &amp;&amp; // o.length是整数
+      o.length &lt; 4294967296
+    )
+      // o.length &lt; 2^32
+      return true;
+    else return false;
+  }
+
+  const specialMethod = Symbol(&quot;anything&quot;);
+  thisArg[specialMethod] = this;
+
+  let args = arguments[1]; // 获取参数数组
+  let result;
+
+  // 处理传进来的第二个参数
+  if (args) {
+    // 是否传递第二个参数
+    if (!Array.isArray(args) &amp;&amp; !isArrayLike(args)) {
+      throw new TypeError(
+        &quot;第二个参数既不为数组，也不为类数组对象。抛出错误&quot;
+      );
+    } else {
+      args = Array.from(args); // 转为数组
+      result = thisArg[specialMethod](...args); // 执行函数并展开数组，传递函数参数
+    }
+  } else {
+    result = thisArg[specialMethod]();
+  }
+
+  delete thisArg[specialMethod];
+  return result; // 返回函数执行结果
+};
+</code></pre>
+<h1 id="实现bind"><a href="#实现bind" class="headerlink" title="实现bind"></a>实现bind</h1><pre><code class="lang-js"> * 用原生JavaScript实现bind
+ */
+Function.prototype.myBind = function(objThis, ...params) {
+  const thisFn = this;//存储调用函数，以及上方的params(函数参数)
+  //对返回的函数 secondParams 二次传参
+  let funcForBind = function(...secondParams) {
+    //检查this是否是funcForBind的实例？也就是检查funcForBind是否通过new调用
+    const isNew = this instanceof funcForBind;
+
+    //new调用就绑定到this上,否则就绑定到传入的objThis上
+    const thisArg = isNew ? this : Object(objThis);
+
+    //用call执行调用函数，绑定this的指向，并传递参数。返回执行结果
+    return thisFn.call(thisArg, ...params, ...secondParams);
+  };
+
+  //复制调用函数的prototype给funcForBind
+  funcForBind.prototype = Object.create(thisFn.prototype);
+  return funcForBind;//返回拷贝的函数
+};
+</code></pre>
+<pre><code class="lang-js">let func = function(p,secondParams){//其实测试用的func其参数可以是任意多个
+    console.log(p.name);
+    console.log(this.name);
+    console.log(secondParams);
+}
+let obj={
+    name:&quot;1891&quot;
+}
+func.myBind(obj,{name:&quot;coffe&quot;})(&quot;二次传参&quot;);
+//&gt;&gt; coffe
+//&gt;&gt; 1891
+//&gt;&gt; 二次传参
+</code></pre>
+<h1 id="实现函数重载"><a href="#实现函数重载" class="headerlink" title="实现函数重载"></a>实现函数重载</h1><p>重载是面向对象编程语言（比如Java、C#）里的特性，JavaScript语言并不支持该特性。所谓重载(overload)，就是函数名称一样，但是随着传入的参数个数不一样，调用的逻辑或返回的结果会不一样。jQuery之父John Resig曾经提供了一个非常巧妙的思路实现重载，代码如下：</p>
+<pre><code class="lang-js">(() =&gt; {//IIFE+箭头函数，把要写的代码包起来，避免影响外界，这是个好习惯
+
+  // 当函数成为对象的一个属性的时候，可以称之为该对象的方法。
+
+  /**
+   * @param {object}  一个对象，以便接下来给这个对象添加重载的函数(方法)
+   * @param {name}    object被重载的函数(方法)名
+   * @param {fn}      被添加进object参与重载的函数逻辑
+   */
+  function overload(object, name, fn) {
+    var oldMethod = object[name];//存放旧函数，本办法灵魂所在，将多个fn串联起来
+    object[name] = function () {
+      // fn.length为fn定义时的参数个数,arguments.length为重载方法被&quot;调用&quot;时的参数个数
+      if (fn.length === arguments.length) {//若参数个数匹配上
+        return fn.apply(this, arguments);//就调用指定的函数fn
+      } else if (typeof oldMethod === &quot;function&quot;) {//若参数个数不匹配
+        return oldMethod.apply(this, arguments);//就调旧函数
+                                                //注意：当多次调用overload()时，旧函数中
+                                                //又有旧函数,层层嵌套,递归地执行if..else
+                                                //判断,直到找到参数个数匹配的fn
+      }
+    };
+  }
+
+  // 不传参数时
+  function fn0() {
+    return &quot;no param&quot;;
+  }
+
+  // 传1个参数
+  function fn1(param1) {
+    return &quot;1 param:&quot; + param1;
+  }
+
+  // 传两个参数时，返回param1和param2都匹配的name
+  function fn2(param1, param2) {
+    return &quot;2 param:&quot; + [param1, param2];
+  }
+
+  let obj = {};//定义一个对象，以便接下来给它的方法进行重载
+
+  overload(obj, &quot;fn&quot;, fn0);//给obj添加第1个重载的函数
+  overload(obj, &quot;fn&quot;, fn1);//给obj添加第2个重载的函数
+  overload(obj, &quot;fn&quot;, fn2);//给obj添加第3个重载的函数
+
+  console.log(obj.fn());//&gt;&gt; no param
+  console.log(obj.fn(1));//&gt;&gt; 1 param:1
+  console.log(obj.fn(1, 2));//&gt;&gt; 2 param:1,2
+})();
+</code></pre>
+<h1 id="Promise相关"><a href="#Promise相关" class="headerlink" title="Promise相关"></a>Promise相关</h1><h2 id="怎样控制Promise的并发"><a href="#怎样控制Promise的并发" class="headerlink" title="怎样控制Promise的并发"></a>怎样控制Promise的并发</h2><p>我们知道Promise.all可以让Promise并发执行，但是这些Promise是<strong>创建的时候就开始执行了</strong>，所有数组中的Promise可以理解为同时执行，如何限制并发执行的个数呢？只能从Promise创建的时候开始考虑了。维护一个正在执行的Promise的队列记为executing,并发数记为poolLimit，当正在执行的Promise数量大于等于poolLimit就需要等待executing中<strong>一个</strong>Promise执行完腾出位置了，<strong>Promise.race</strong>提供了这样一组api：接收一个Promise数组，当第一个Promise执行完的时候，整个Promise.race执行结束。我们正好可以利用这个特性，<strong>及时</strong>腾出位置加入其它的Promise到executing中!</p>
+<pre><code class="lang-js">function asyncPool(poolLimit, array, iteratorFn) {
+  let i = 0;
+  const ret = [];
+  const executing = new Set();
+  const enqueue = function () {
+    // 边界处理，array为空数组
+    if (i === array.length) {
+      return Promise.resolve();
+    }
+    // 每调一次enqueue，初始化一个promise(使用Promise.resolve.then包装一下，这样返回的都是promise了)
+    const item = array[i++];
+    const p = Promise.resolve().then(() =&gt; iteratorFn(item, array));
+    // 放入promises数组
+    ret.push(p);
+    executing.add(p);
+    // promise执行完成后，从执行队列中删除
+    p.then(() =&gt; {
+      executing.delete(p);
+    });
+
+    // 使用Promise.race，每当executing队列中promise数量低于poolLimit，就实例化新的promise并执行
+    let r = Promise.resolve();
+    if (executing.size &gt;= poolLimit) {
+      r = Promise.race(executing);
+    }
+    // 递归，直到遍历完array
+    return r.then(() =&gt; enqueue());
+  };
+  return enqueue().then(() =&gt; Promise.all(ret));
+}
+</code></pre>
+<pre><code class="lang-js">const timeout = i =&gt; new Promise(resolve =&gt; setTimeout(() =&gt; resolve(i), i));
+require(&#39;util&#39;).log(&#39;start&#39;);
+asyncPool(2, [1000, 5000, 3000, 2000], timeout).then(results =&gt; {
+  require(&#39;util&#39;).log(results);
+});
+// 8 Sep 17:20:07 - start
+// 8 Sep 17:20:13 - [ 1000, 5000, 3000, 2000 ]
+</code></pre>
+<p>其实所谓的Promise并发控制，就是<strong>控制Promise实例化的个数</strong>。然而这样的实现效果本质上来说已经摈弃了<code>Promise.all</code>，期待标准库中可以提供这个功能。</p>
+<h2 id="如何取消Promise"><a href="#如何取消Promise" class="headerlink" title="如何取消Promise"></a>如何取消Promise</h2><p>promise一旦创建是不能取消的，我们只能对其进行包装：</p>
+<pre><code class="lang-js">const makeCancelable = (promise) =&gt; {
+  let hasCanceled_ = false;
+  const wrappedPromise = new Promise((resolve, reject) =&gt; {
+    promise.then((val) =&gt;
+      hasCanceled_ ? reject({isCanceled: true}) : resolve(val)
+    );
+    promise.catch((error) =&gt;
+      hasCanceled_ ? reject({isCanceled: true}) : reject(error)
+    );
+  });
+  return {
+    promise: wrappedPromise,
+    cancel() {
+      hasCanceled_ = true;
+    },
+  };
+};
+
+const somePromise = new Promise(r =&gt; setTimeout(r, 1000));//创建一个异步操作
+const cancelable = makeCancelable(somePromise);//为异步操作添加可取消的功能
+cancelable
+  .promise
+  .then(() =&gt; console.log(&#39;resolved&#39;))
+  .catch(({isCanceled, ...error}) =&gt; console.log(&#39;isCanceled&#39;, isCanceled));
+// 取消异步操作
+cancelable.cancel();
+</code></pre>
+<p>出处：<a href="https://github.com/crazycodeboy/RNStudyNotes/tree/master/React%20Native%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/React%20Native%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B9%8B%E5%8F%AF%E5%8F%96%E6%B6%88%E7%9A%84%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C" target="_blank" rel="noopener">https://github.com/crazycodeboy/RNStudyNotes/tree/master/React%20Native%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/React%20Native%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B9%8B%E5%8F%AF%E5%8F%96%E6%B6%88%E7%9A%84%E5%BC%82%E6%AD%A5%E6%93%8D%E4%BD%9C</a></p>
+<h1 id="编程风格"><a href="#编程风格" class="headerlink" title="编程风格"></a>编程风格</h1><p>不要混用同步和异步，容易给debug造成比较大的困惑，下面的代码是反面教材：</p>
+<pre><code class="lang-js">const cache = {};
+function readFile(fileName, callback) {
+  if (cache[filename]) {
+    return callback(null, cache[filename])
+  }
+
+  fs.readFile(fileName, (err, fileContent) =&gt; {
+    if (err) return callback(err);
+
+    cache[fileName] = fileContent;
+    callback(null, fileContent);
+  });
+}
+</code></pre>
+<p>改成这样是更优秀的：</p>
+<pre><code class="lang-js">const cache = {};
+function readFile(fileName, callback) {
+  if (cache[filename]) {
+    return process.nextTick(() =&gt; callback(null, cache[filename]));
+  }
+
+  fs.readFile(fileName, (err, fileContent) =&gt; {
+    if (err) return callback(err);
+
+    cache[fileName] = fileContent;
+    callback(null, fileContent);
+  });
+}
+</code></pre>
+<h1 id="node-js源码"><a href="#node-js源码" class="headerlink" title="node.js源码"></a>node.js源码</h1><h2 id="nodejs中的global对象什么时候初始化"><a href="#nodejs中的global对象什么时候初始化" class="headerlink" title="nodejs中的global对象什么时候初始化"></a>nodejs中的global对象什么时候初始化</h2><p>global对象在src/node.cc中的被创建，在bootstrap/node.js中被初始化。在src/node.cc的LoadEnvironment方法中，有以下几行代码是用来创建global对象的。</p>
+<pre><code class="lang-c++">// Add a reference to the global object
+Local&lt;Object&gt; global = env-&gt;context()-&gt;Global();
+
+// Expose the global object as a property on itself
+// (Allows you to set stuff on `global` from anywhere in JavaScript.)
+global-&gt;Set(FIXED_ONE_BYTE_STRING(env-&gt;isolate(), &quot;global&quot;), global);
+</code></pre>
+<p>其中env-&gt;context()-&gt;Global()获取了当前context中的Global全局对象，global-&gt;Set(FIXED_ONE_BYTE_STRING(env-&gt;isolate(), “global”), global)将全局对象本身挂载在其global对象上，这样全局对象中有了一个global对象指向了全局对象本身，我们在该context中可以直接使用global对全局对象的引用进行访问。以上程序之后，这样我们就可以在context的任何地方对全局对象进行操作。</p>
+<p>初始化在bootstrap/node.js中的setupGlobalVariables进行，其在上述逻辑执行后被执行，所以可以直接操作全局对象。这个函数中将process、Buffer直接放在global对象上，因此我们可以直接访问这些全局对象了。进一步地，setTimeout等定时器通过setupGlobalTimeouts方法放在global上。</p>
+<h2 id="为什么cluster开启多个worker的时候可以监听同一个端口不会报错"><a href="#为什么cluster开启多个worker的时候可以监听同一个端口不会报错" class="headerlink" title="为什么cluster开启多个worker的时候可以监听同一个端口不会报错"></a>为什么cluster开启多个worker的时候可以监听同一个端口不会报错</h2><p>master进程内部启动了一个TCP服务器，真正监听端口的只有这个服务器，当来自前端的请求触发服务器的connection事件后，master会将对应的socket句柄发送给worker子进程。cluster内部的负载均衡均衡算法是Round-robin。master进程监听端口，将请求分发给下面的worker进程。</p>
+<h2 id="事件循环"><a href="#事件循环" class="headerlink" title="事件循环"></a>事件循环</h2><p>参考<a href="https://blog.insiderattack.net/event-loop-and-the-big-picture-nodejs-event-loop-part-1-1cb67a182810" target="_blank" rel="noopener">国外大神写的一系列文章</a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzUxNzk1MjQ0Ng==&amp;mid=2247483725&amp;idx=1&amp;sn=bde0ecb991c7b3f43cf2ac1a51ff2719&amp;chksm=f991079ccee68e8addc32955997acef2119cb064ea9dc8ce172f1cc9985c8febd54abc904504&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">一道面试题引发的事件循环深入思考</a></li>
+<li><a href="https://developer.aliyun.com/article/592878" target="_blank" rel="noopener">解读V8 gc log</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-06T09:52:56.336Z" itemprop="dateUpdated">2020-10-06 17:52:56</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2020/05/12/面试套路-js基础/" target="_blank" rel="external">https://consoles.fun/2020/05/12/面试套路-js基础/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/05/12/面试套路-js基础/&title=《面试套路—js基础》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/05/12/面试套路-js基础/&title=《面试套路—js基础》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/05/12/面试套路-js基础/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路—js基础》 — 雨碎江南&url=https://consoles.fun/2020/05/12/面试套路-js基础/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/05/12/面试套路-js基础/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/06/15/面试套路-Redis/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">面试套路——Redis</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/05/12/面试套路-Linux/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">面试套路—Linux</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/05/12/面试套路-js基础/&title=《面试套路—js基础》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/05/12/面试套路-js基础/&title=《面试套路—js基础》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/05/12/面试套路-js基础/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路—js基础》 — 雨碎江南&url=https://consoles.fun/2020/05/12/面试套路-js基础/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/05/12/面试套路-js基础/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKklEQVR42u3aS27DMAwFwNz/0i7QXRHYeSTjApZGq8CNY48WrPh5veJ1/K6zK8fJev/++11nv/C6Y2FgYDyWcVyus5fI2de/mXxOtgkDA2MHRvIqSay7Zl9/85r64Z0xMDAwio/vbQoGBgbGdxm9I2MCw8DAwJgksZPgmxTs/ikXx8DAeCDjjuD4rc839jcwMDAewjgGaxIo82ZndC8GBsbSjOrQQ/LIKOEMWpvJlXLXFAMD44GM6gMSzLw5mgP+/N/AwMDYhjEZsLhjO6JQjoGBsQGjN6pVDovF0YpCsMbAwFiaUU0s88Q1bzBURz0wMDB2Y0wOZ/NENE+GC3uDgYGxNKP34F6ToNrs/LBxGBgY2zCqV/LgWG0bVPEYGBj7MO47/PWCb372w8DAWJsxOSBeH+PyJmi1JHe6NRgYGBswqqWuvOfQHKEolgUxMDBWZVQHGo7W6hX9C0EcAwNjG0Y+kRFNbcRpcG/47EO5DQMDY1FG79jXe8Vk4wolPAwMjKUZd09b5QMT8+YBBgbGqozkWJYH2STR/dYeY2Bg7MMo/zkuwFWPd/MyHAYGxqqMSYk/L+L3UuVyLo6BgbEoI195A6AXvqvJbXNhYGA8llFNO5PgW8UkgfhDEMfAwNiAkSereQtzkiqXs3AMDAyM1mDEJASX78LAwMCIy17VEtu8VYCBgbEPo9eMzMNrMuSaB9xylwMDA+PhjGpQ/tagah58C6ksBgbGaowfJtu3PbYCiJIAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

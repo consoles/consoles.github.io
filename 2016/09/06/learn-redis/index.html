@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>redis入门 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="redis">
+    <meta name="description" content="MYSQL QPS：8000读，4000写，redis 10W读写。memcached的瓶颈在于libevent，而redis用了epoll。  使用RANDOMKEY可以随机取得一个key。TYPE命令可以得到key的数据类型。redis默认使用0号数据库（配置文件），可以使用SELECT命令改变数据库,MOVE DB_INDEX可以将数据移动到其他数据库（有一个key我们不想删除，但是留在这里">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis入门">
+<meta property="og:url" content="https://consoles.fun/2016/09/06/learn-redis/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="MYSQL QPS：8000读，4000写，redis 10W读写。memcached的瓶颈在于libevent，而redis用了epoll。  使用RANDOMKEY可以随机取得一个key。TYPE命令可以得到key的数据类型。redis默认使用0号数据库（配置文件），可以使用SELECT命令改变数据库,MOVE DB_INDEX可以将数据移动到其他数据库（有一个key我们不想删除，但是留在这里">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redis-master-salve.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.968Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis入门">
+<meta name="twitter:description" content="MYSQL QPS：8000读，4000写，redis 10W读写。memcached的瓶颈在于libevent，而redis用了epoll。  使用RANDOMKEY可以随机取得一个key。TYPE命令可以得到key的数据类型。redis默认使用0号数据库（配置文件），可以使用SELECT命令改变数据库,MOVE DB_INDEX可以将数据移动到其他数据库（有一个key我们不想删除，但是留在这里">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redis-master-salve.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">redis入门</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">redis入门</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-09-06T15:53:44.000Z" itemprop="datePublished" class="page-time">
+  2016-09-06
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用场景"><span class="post-toc-text">使用场景</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据结构"><span class="post-toc-text">数据结构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#String"><span class="post-toc-text">String</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Hash（字典）"><span class="post-toc-text">Hash（字典）</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#List-列表"><span class="post-toc-text">List(列表)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Set（集合）"><span class="post-toc-text">Set（集合）</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Sorted-Set-有序集"><span class="post-toc-text">Sorted Set(有序集)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Pub-Sub"><span class="post-toc-text">Pub-Sub</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Transaction"><span class="post-toc-text">Transaction</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#配置文件"><span class="post-toc-text">配置文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#持久化和测试"><span class="post-toc-text">持久化和测试</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#主从复制"><span class="post-toc-text">主从复制</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#运维常用命令"><span class="post-toc-text">运维常用命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#最佳实践"><span class="post-toc-text">最佳实践</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-learn-redis"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">redis入门</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-09-06 23:53:44" datetime="2016-09-06T15:53:44.000Z"  itemprop="datePublished">2016-09-06</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>MYSQL QPS：8000读，4000写，redis 10W读写。memcached的瓶颈在于<a href="http://libevent.org/" target="_blank" rel="noopener">libevent</a>，而redis用了epoll。</p>
+<blockquote>
+<p>使用<code>RANDOMKEY</code>可以随机取得一个key。<code>TYPE</code>命令可以得到key的数据类型。redis默认使用0号数据库（配置文件），可以使用<code>SELECT</code>命令改变数据库,<code>MOVE DB_INDEX</code>可以将数据移动到其他数据库（有一个key我们不想删除，但是留在这里又碍眼）。查询key的有效期可以使用<code>TTL</code>命令。<code>EXPIRE</code>和<code>PERSIST</code>可以让key在易失状态和持久状态之间转化。<code>FLUSHDB</code>命令将清空redis中的所有缓存，请务必谨慎使用。</p>
+<p><code>SETBIT</code>可以对字符串进行位操作。例如将大写字母转化为小写字母。A-65(0100 0001),a-97(0110 0001)，大写和小写之间差32，只需要将offset为2上的字节设置为1即可。<code>SET key A; SETBIT key 2 1;GET key;</code>,同理小写变为大写只需要将offset=2的字节设置为0.</p>
+</blockquote>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
+<li>最新N个数据的操作。例如取网站的最新文章，我们可以将最新的5000条评论的id放入到redis的<code>list</code>集合中，并将超出集合的部分从DB获取。</li>
+<li>取TOP N的操作。排行榜应用。这个需求与上面的需求不同之处在于，前面的操作以时间为权重，这个是以某个条件为权重，例如按顶的次数进行排序，使用<code>sorted set</code>，将需要排序的字段设置为<code>sorted set</code>的<code>score</code>，将具体的值设置成相应的<code>value</code>，每次只执行一次<code>ZADD</code>命令即可。</li>
+<li>需要精确设置过期时间的应用。例如可以将上面的<code>sorted score</code>的<code>score</code>值设置成过期时间的时间戳，那么就可以简单通过过期时间进行排序，定时清除过期数据了，不仅是清除redis中的过期数据，完全可以将redis中的过期时间当成是对数据库中数据的索引，用redis找出哪些数据需要过期删除，然后从DB中精确删除相关记录。</li>
+<li>计数器应用。命令都是原子性的，可方便使用<code>INCR</code>,<code>DECR</code></li>
+<li>uniq，获取某段时间所有数据重排值。使用<code>set</code>结构，不断将数据向set中扔，会自动去重。</li>
+<li>pub/sub构建实时消息系统。</li>
+<li>构建队列系统。使用<code>list</code>可构建队列，使用<code>sorted set</code>可以构建优先级队列。</li>
+</ol>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><h3 id="String"><a href="#String" class="headerlink" title="String"></a>String</h3><p>k-v类型，其中value不仅可以是字符串，也可以是数字。可以享受定时持久化（RDB模式和AOF模式）。是二进制安全的，也就是说redis的string可以包含任何数据，例如jpg图片或者序列化的对象，内部实现可以看做byte数组，上限为1GB，定义如下：</p>
+<pre><code class="lang-c">struct{
+    long len;
+    long free;
+    char buf[];
+}
+</code></pre>
+<p>部分命令可以按照int处理，例如<code>INCR</code>,如果只使用该种类型，相当于带有持久化功能的memcached。</p>
+<h3 id="Hash（字典）"><a href="#Hash（字典）" class="headerlink" title="Hash（字典）"></a>Hash（字典）</h3><p>在memcached中，我们经常将一些结构化的信息打包成hashmap，在客户端序列化后存储为一个字符串的值（一般是JSON）,例如用户的昵称、年龄、性别、积分等。这时候需要修改其中的某一项时需要将字符串(JSON)取出来，然后进行反序列化，修改某一项的值，再序列化成JSON存储回去，消耗太大，不适合用于一些可能并发操作的场合（例如2个并发操作都需要修改积分），而redis的hash可以像在DB中UPDATE一个属性一样只修改某个属性的值。</p>
+<h3 id="List-列表"><a href="#List-列表" class="headerlink" title="List(列表)"></a>List(列表)</h3><p>说白了就是链表（redis使用双向链表实现的List）。使用该结构可以轻松实现最新消息排行榜等功能（sina微博的timeline）。另外一个作用就是消息队列，利用<code>PUSH</code>操作将任务存在List中，然后工作线程用<code>POP</code>操作将任务取出并执行。提供了操作List某一段元素的API，可直接查询、删除List中某一段元素。</p>
+<h3 id="Set（集合）"><a href="#Set（集合）" class="headerlink" title="Set（集合）"></a>Set（集合）</h3><p>例如在weibo应用中，将一个用户所有关注的人存储在一个集合中，将其粉丝存在一个集合中。redis针对集合提供了方便的求交集、并集、补集等操作，可以非常方便实现共同关注、共同喜好、二度好友等功能，集合也可以存储在一个新的集合中。使用<code>SPOP</code>命令可以方便实现抽签功能（已经抽过签的人不能再次抽签），使用<code>SINTER</code>可以方便实现张三选了课，李四选了课，求张三和李四的公共选课这样的需求。</p>
+<h3 id="Sorted-Set-有序集"><a href="#Sorted-Set-有序集" class="headerlink" title="Sorted Set(有序集)"></a>Sorted Set(有序集)</h3><p>有序集将Set中的元素增加了一个权重参数score，使得集合中的元素能够按照score进行升序排列，例如一个存储全班成绩的Sorted Set，其集合value可以是同学的学号，而score就可以是其考试得分，这样在数据插入集合的时候就已经进行了天然的排序（游戏用户得分排行榜）。另外还可以使用有序集来做带权重的队列，例如普通消息的score为1，重要消息的score为2，然后工作线程可以按照score的逆序来获取工作任务。让重要的任务先执行。</p>
+<h3 id="Pub-Sub"><a href="#Pub-Sub" class="headerlink" title="Pub-Sub"></a>Pub-Sub</h3><p>微信群，拉到一个群相当于每个人订阅了这个信道，当有一个人向群里发消息的时候相当于在这个频道发布消息，所有订阅该信道的用户都将收到消息。</p>
+<h3 id="Transaction"><a href="#Transaction" class="headerlink" title="Transaction"></a>Transaction</h3><p>提供了Watch功能，对key进行watch，然后再执行transaction，在这个过程中，如果这个watched的值进行了修改，那么这个transaction会发现并拒绝执行。例如：以下的命令在多客户端连接的时候可能出现数据一致性问题：</p>
+<pre><code class="lang-bash">set age 10
+incr age
+incr age # 此时有一个客户端进行get age，将得到11
+get age
+</code></pre>
+<p>以上的命令打包成一个原子操作即可解决。</p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件中有一项<code>databases 16</code>，redis默认有16个DB，默认使用的是0号DB。我们可以使用<code>SELECT 0-15</code>的方式切换DB，各个DB是相互隔离的。多个应用可以共用一个物理redis server。</p>
+<p><code>rename-command CONFIG &quot;&quot;</code>,命令重命名，在共享环境下可以重命名相对危险的命令，例如把<code>CONFIG</code>重命名为一个不容易猜测的字符。<code>rename-command CONFIG dsfd8324kndskdksfjdfdsjnfdsdfjsl</code>，如果想要删除这个别名直接重命名为空字符串即可。 </p>
+<h2 id="持久化和测试"><a href="#持久化和测试" class="headerlink" title="持久化和测试"></a>持久化和测试</h2><ul>
+<li>RDB，默认为dump.rdb，内存快照，导出快照的时候回开启一个子进程专门处理。</li>
+<li>AOF，(append only file)记录每一次操作，生成日志文件,更加精细的持久化方案(文件更大)。当我们对一个key进行反复操作时，就会产生多条记录，AOF重写指的是在某一瞬间将内存中的数据直接逆化到文件中(<code>BGREWRITEAOF</code>命令)。</li>
+</ul>
+<p><em>如果AOF和RDB同时存在，将会以AOF为准。</em></p>
+<p>以上2种方式可同时配置。</p>
+<h2 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/redis-master-salve.png" alt="redis主从复制原理" title>
+                </div>
+                <div class="image-caption">redis主从复制原理</div>
+            </figure>
+<p>以6379为master节点，6380和6381为slave节点(需要配置slaveof)。</p>
+<p>现在master down掉，6380将会变成新的master（<code>SLAVEOF no one</code>;<code>CONFIG SET slave-read-only no</code>），6381作为6380的slave(<code>SLAVEOF 127.0.0.1 6380</code>)。我们可以使用redis自带的<a href="https://segmentfault.com/a/1190000002680804" target="_blank" rel="noopener">sentinel</a>自动完成上述操作。</p>
+<p>主从复制的缺陷：</p>
+<p>每次slave断开后再连接master都要全部dump出来rdb，再aof，即：同步的过程需要重新执行一遍。所以一定要记住：多台slave不要一下子都启动起来，否则master可能IO飙升。</p>
+<h2 id="运维常用命令"><a href="#运维常用命令" class="headerlink" title="运维常用命令"></a>运维常用命令</h2><p>time,服务器时间；dbsize，查看有多少个键;<code>config get/config set</code>查看或者设置redis的配置;<code>SLOWLOG get</code>查看慢日志。</p>
+<blockquote>
+<p>如果不小心运行了<code>flushall</code>命令清空了redis中的数据怎么办？必须马上运行<code>shutdown nosave</code>命令，然后编辑AOF文件，删除掉最后一条命令(<code>flushall</code>),因为别的进程可能向redis中写入数据导致AOF重写了，重写后的AOF被清空了。复制rdb文件需要在redis进程处于杀掉状态的时候进行，进程处于活动状态的时候复制的是<em>同样的句柄</em>。</p>
+</blockquote>
+<p>redis数据迁移只需要dump出rdb，然后从此文件恢复即可。</p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ol>
+<li>批量处理。将一次处理一条数据改善为1次处理多条数据性能可成倍提高。网络IO。</li>
+<li>最好在本机部署，性能提高10~20倍。</li>
+<li>少用get/set，多用hset。主要是为了内存考虑。假设一个k-v单元最少占用512bytes，即使只存储了一个字节也占用了512bytes。这时候有一个设计模式，可以将key复用，几个k-v对放在一个key中，将value作为一个set存入，同样512bytes可存储10~100倍的容量。</li>
+<li><a href="https://my.oschina.net/u/1458120/blog/545224" target="_blank" rel="noopener">setbit位图法统计活跃用户</a>和《编程珠玑》中的<a href="http://blog.csdn.net/yangtrees/article/details/8000653" target="_blank" rel="noopener">位图排序</a>有异曲同工之妙。</li>
+</ol>
+<p><a href="http://redisdoc.com/" target="_blank" rel="noopener">命令参考</a></p>
+<p>linux的<a href="http://init7.blog.51cto.com/860934/180474" target="_blank" rel="noopener">pkill命令</a>可以根据进程名杀掉进程，例如：<code>pkill redis</code>。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.968Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/09/06/learn-redis/" target="_blank" rel="external">https://consoles.fun/2016/09/06/learn-redis/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/09/06/learn-redis/&title=《redis入门》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/09/06/learn-redis/&title=《redis入门》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/09/06/learn-redis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis入门》 — 雨碎江南&url=https://consoles.fun/2016/09/06/learn-redis/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/09/06/learn-redis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/09/10/machine-learning/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">大话机器学习</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/08/02/high-availability-mysql/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">高可用MySQL架构</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/09/06/learn-redis/&title=《redis入门》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/09/06/learn-redis/&title=《redis入门》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/09/06/learn-redis/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《redis入门》 — 雨碎江南&url=https://consoles.fun/2016/09/06/learn-redis/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/09/06/learn-redis/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACI0lEQVR42u3aS46DQAwFwLn/pZltpEng2Q4j0V2sIgSha2P59/MTX8fL9ffO6/3z58/f/fRvX7swMDAeyzhOr+SZ5MNz2MUXMTAwNmB8+vD57+S4vSCenw0DAwOjd/RJwoeBgYHxrYCbF67VVA8DAwNjUsRWGdHn/78Wx8DAeCBjkq7d/fuW+QYGBsajGEfxmowTeuOB6FQYGBhLM/IAl6SMSehM0rveUAEDA2NVRvWTeYHaa6idB/ePdzAwMDZgJC/f90ye/H38ZwwMjG0YeZBNStM8EZwsW2BgYOzAyAeNk9bbJEwnaSIGBsY+jGqKlofR3vOFwIqBgbE0I2/N56Gz2gGbrJq9GQxgYGAsx5iXkZN/6CWpzUCMgYHxWEa+sJU32vJh5+TrF5NYDAyMRRn5ksQEPE9AL3ZGMDAwlmNUU7TJOle+HDa5g4GBsR4jCaC9hn5ypworTx4wMDCWYPQ+0GvM5cXtpM2HgYGxKuMYX/P2XHWQ+QaDgYGxDeOOyjhfyJgskGFgYOzA6BW61Xfz1n95ZwQDA2MDRrVwnYfI/K1mEYuBgbEEo1es3vcP1XEFBgbGDozeskX1uNWRQ3L0XrDGwMB4LmPS9O8tVfRWQEYJIgYGxhKMakN/kt7NkYXBAAYGxpaMiwb9oJ1XXcsYBVwMDIylGflq13z9qzCKwMDA2ICRFLHVttp9yxwYGBi7MXqlY4/aO2J1HQQDA2Mhxi8SjvoISv0THQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

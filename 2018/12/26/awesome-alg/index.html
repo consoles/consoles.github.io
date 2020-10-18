@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>有趣的算法 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,数学归纳法,概率论">
+    <meta name="description" content="爬虫底层的算法是广度优先搜索。  二项分布和递归问题来源于算法第四版问题1.1.27。 let count = 0; const binomial = (N, k, p) =&amp;gt; {     count++;     if (count % 10000000 === 0) console.log(count);     // 因为每次递归都是N-1，并且k-1，因此这种情况很难出现">
+<meta name="keywords" content="算法,数学归纳法,概率论">
+<meta property="og:type" content="article">
+<meta property="og:title" content="有趣的算法">
+<meta property="og:url" content="https://consoles.fun/2018/12/26/awesome-alg/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="爬虫底层的算法是广度优先搜索。  二项分布和递归问题来源于算法第四版问题1.1.27。 let count = 0; const binomial = (N, k, p) =&amp;gt; {     count++;     if (count % 10000000 === 0) console.log(count);     // 因为每次递归都是N-1，并且k-1，因此这种情况很难出现">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/binomial.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/josephus-ring.webp">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/josephus-ring-solve.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20160612142247684">
+<meta property="og:image" content="https://alg4.ikesnowy.com/1-4-34/1.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.937Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="有趣的算法">
+<meta name="twitter:description" content="爬虫底层的算法是广度优先搜索。  二项分布和递归问题来源于算法第四版问题1.1.27。 let count = 0; const binomial = (N, k, p) =&amp;gt; {     count++;     if (count % 10000000 === 0) console.log(count);     // 因为每次递归都是N-1，并且k-1，因此这种情况很难出现">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/binomial.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">有趣的算法</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">有趣的算法</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-12-26T07:15:42.000Z" itemprop="datePublished" class="page-time">
+  2018-12-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#二项分布和递归"><span class="post-toc-text">二项分布和递归</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#欧几里得算法及其证明"><span class="post-toc-text">欧几里得算法及其证明</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#字符串的回环变位"><span class="post-toc-text">字符串的回环变位</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#方差和标准差"><span class="post-toc-text">方差和标准差</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#洗牌算法的正确性证明"><span class="post-toc-text">洗牌算法的正确性证明</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#动态数组"><span class="post-toc-text">动态数组</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#出栈顺序和卡塔兰数"><span class="post-toc-text">出栈顺序和卡塔兰数</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#约瑟夫环"><span class="post-toc-text">约瑟夫环</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#链表中虚拟头结点的应用"><span class="post-toc-text">链表中虚拟头结点的应用</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#环形队列和缓冲区"><span class="post-toc-text">环形队列和缓冲区</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#前移编码、缓存和数据压缩"><span class="post-toc-text">前移编码、缓存和数据压缩</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#目录遍历"><span class="post-toc-text">目录遍历</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#栈与文件编辑器的缓冲区"><span class="post-toc-text">栈与文件编辑器的缓冲区</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#使用栈实现队列"><span class="post-toc-text">使用栈实现队列</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#排列组合"><span class="post-toc-text">排列组合</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#幂次法则和倍率实验"><span class="post-toc-text">幂次法则和倍率实验</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#二项式定理及其证明"><span class="post-toc-text">二项式定理及其证明</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#二分查找的思想及其应用"><span class="post-toc-text">二分查找的思想及其应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#局部最小元素"><span class="post-toc-text">局部最小元素</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#斐波那契查找"><span class="post-toc-text">斐波那契查找</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#扔鸡蛋问题"><span class="post-toc-text">扔鸡蛋问题</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#冷还是热问题"><span class="post-toc-text">冷还是热问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考资料"><span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-awesome-alg"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">有趣的算法</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-12-26 15:15:42" datetime="2018-12-26T07:15:42.000Z"  itemprop="datePublished">2018-12-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>爬虫底层的算法是广度优先搜索。</p>
+</blockquote>
+<h1 id="二项分布和递归"><a href="#二项分布和递归" class="headerlink" title="二项分布和递归"></a>二项分布和递归</h1><p>问题来源于算法第四版问题1.1.27。</p>
+<pre><code class="lang-js">let count = 0;
+const binomial = (N, k, p) =&gt; {
+    count++;
+    if (count % 10000000 === 0) console.log(count);
+    // 因为每次递归都是N-1，并且k-1，因此这种情况很难出现
+    if (N === 0 &amp;&amp; k === 0) return 1;
+    // 最终应该会调用这个if
+    if (N &lt; 0 || k &lt; 0) return 0;
+    return (1 - p) * binomial(N - 1, k, p) + p * binomial(N - 1, k - 1, p);
+};
+
+// 5分钟算不出来，舍弃
+console.time(&#39;二项分布-递归&#39;);
+const ret = binomial(10, 50, .25);
+console.timeEnd(&#39;二项分布-递归&#39;);
+console.log(ret);
+</code></pre>
+<p>估计上面函数的调用次数。</p>
+<p><strong> 伯努利试验（独立重复试验）</strong></p>
+<p>伯努利试验（Bernoulli experiment）是在同样的条件下重复地、相互独立地进行的一种随机试验，其特点是该随机试验只有两种可能结果：发生或者不发生。我们假设该项试验独立重复地进行了n次，那么就称这一系列重复独立的随机试验为n重伯努利试验，或称为伯努利概型。单个伯努利试验是没有多大意义的，然而，当我们反复进行伯努利试验，去观察这些试验有多少是成功的，多少是失败的，事情就变得有意义了，这些累计记录包含了很多潜在的非常有用的信息。<br>设在一次试验中，事件A发生的概率为p(0&lt;p&lt;1)，则在n重伯努利试验中，事件A恰好发生 k次的概率为：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/binomial.png" alt="伯努利试验" title>
+                </div>
+                <div class="image-caption">伯努利试验</div>
+            </figure>
+<p>试了一下，直接将N传入100，5分钟算不出来，舍弃。将n从10开始到大规模开始测试</p>
+<p>N k time count<br>10 5 0.280ms 2467<br>20 10 25.045ms 2433071<br>30 15 24871.999ms 2438328997</p>
+<p>当N到30的时候发现速度已经非常慢了，基本上是几何级数增长。</p>
+<p>改进的算法，使用容器缓存已经计算过的结果</p>
+<pre><code class="lang-js">const cache = {};
+const binomial2 = (N, k, p) =&gt; {
+    let key = `${N}-${k}`;
+    count++;
+    if (cache[key] !== void 0) return cache[key];
+    if (N === 0 &amp;&amp; k === 0) return cache[key] = 1;
+    if (N &lt; 0 || k &lt; 0) return cache[key] = 0;
+    return cache[key] = (1 - p) * binomial2(N - 1, k, p) + p * binomial2(N - 1, k - 1, p);
+};
+</code></pre>
+<p>传入参数100和50，调用次数为7751，耗时4.903ms。</p>
+<h1 id="欧几里得算法及其证明"><a href="#欧几里得算法及其证明" class="headerlink" title="欧几里得算法及其证明"></a>欧几里得算法及其证明</h1><pre><code class="lang-js">// 递归
+const gcd = (p, q) =&gt; {
+    if (q == 0) return p;
+    const r = p % q;
+    return gcd(q, r);
+}
+
+// 迭代
+const gcd2 = (p, q) =&gt; {
+    while (q !== 0) {
+        let r = p % q;
+        p = q;
+        q = r;
+    }
+    return p;
+}
+</code></pre>
+<p>欧几里德的算法关键在于证明等式gcd(a,b)=gcd(b,a mod b)的正确性。</p>
+<p>定理：a，b为正整数，则gcd(a,b)=gcd(b,a mod b)<br>证明：</p>
+<p>k,r为整数，设r = a mod b,则a可以表示成a=kb+r。</p>
+<p>假设d是{a,b}的一个公约数，<br>则 </p>
+<p>a = md<br>b = nd</p>
+<p>r = a - kb = md - knd = (m - kn)d</p>
+<p>则d整除r，即d也是b和r的公约数</p>
+<p>同理，假设d是{b,r}的一个公约数，则d整除b,d整除r，因此d整除a, d也是a和b的公约数。</p>
+<p>因此{a,b}和{b,r}的公因子集合是一样的。特别地，{a,b}的最大共因子和{b,r}的最大公因子是一样的，即gcd(a,b)=gcd(b,a mod b)。</p>
+<h1 id="字符串的回环变位"><a href="#字符串的回环变位" class="headerlink" title="字符串的回环变位"></a>字符串的回环变位</h1><p>算法1.2.6。如果字符串 s 中的字符循环移动任意位置之后能够得到另一个字符串 t，那么 s 就被称为 t 的回环变位（circular rotation）。例如，ACTGACG就是TGACGAC的一个回环变位，反之亦然。判定这个条件在基因组序列的研究中是很重要的。编写一个程序检查两个给定的字符串 s 和 t 是否互为回环变位。提示：答案只需要一行用到indexOf() ，length() 和字符串连接的代码。</p>
+<p>思路1：将字符串分成左右2部分，检查左右两边字符串互换之后可否得到原来的字符串<br>思路2：模拟回环变位的过程，不断将字符串的首字符移动到字符串末尾<br>思路3：比较巧妙。将原字符串重复2次，相当于字符串首尾相连了，然后判断字符串是否是这个首尾相连的字符串的子串。这个解法简直酷毙了！</p>
+<pre><code class="lang-js">const fn1 = (s, t) =&gt; {
+    for (let i = 0; i &lt; s.length; i++) {
+        const left = s.substring(0, i);
+        const right = s.substring(i);
+        if (right + left === t) {
+            return true;
+        }
+    }
+    return false;
+};
+
+const fn2 = (s, t) =&gt; {
+    for (let i = 0; i &lt; s.length; i++) {
+        if (s === t) {
+            return true;
+        }
+        s = s.substring(1) + s.charAt(0);
+    }
+    return false;
+};
+
+const fn3 = (s, t) =&gt; s.length === t.length &amp;&amp; s.repeat(2).includes(t);
+</code></pre>
+<h1 id="方差和标准差"><a href="#方差和标准差" class="headerlink" title="方差和标准差"></a>方差和标准差</h1><p>下面的代码中平均数和方差的计算采用了每向累加器中添加一个数后根据已有的方差和标准差实时计算，而不是要取值的时候，求和、求均值，然后求平方和，求方差，思路比较清奇。这种方式和直接对所有数据平方求和的方式相比较能够很好避免四舍五入带来的误差。记录如下，证明过程参见<a href="https://www.zhihu.com/question/59252399" target="_blank" rel="noopener">知乎</a></p>
+<pre><code class="lang-js">class Accumulator {
+    constructor() {
+        this.m = 0;
+        this.s = 0;
+        this.n = 0;
+    }
+    addDataValue(x) {
+        const n = ++this.n;
+        const m = this.m;
+        this.s = this.s + (n - 1) / n * (x - m) * (x - m);
+        this.m = m + (x - m) / n;
+    }
+    get mean() {
+        return this.m;
+    }
+    get var() {
+        return this.s / (this.n - 1);
+    }
+    get stddev() {
+        return Math.sqrt(this.var);
+    }
+}
+</code></pre>
+<h1 id="洗牌算法的正确性证明"><a href="#洗牌算法的正确性证明" class="headerlink" title="洗牌算法的正确性证明"></a>洗牌算法的正确性证明</h1><p>洗牌也就是排列，把这n张牌任意排列，总共有n!种。为了保证随机，那么我的洗牌策略，不管怎么洗，都应该是1/n!。</p>
+<p>Fisher–Yates shuffle算法的正确性：</p>
+<p>第一张牌抽取的概率为1/n,第二张牌是1/(n-1),….，第i张牌概率是1/(n-i),..。那么这种洗牌策略的概率是1/n<em>1/(n-1)</em>1/(n-2)<em>…</em>1/1，即1/n!</p>
+<p>下面这种经常被写错的算法：</p>
+<pre><code class="lang-js">function worseShuffle(arr) {
+    const n = arr.length;
+    for (let i = 0; i &lt; n; i++) {
+        let r = _.random(0, n - 1);
+        [arr[i], arr[r]] = [arr[r], arr[i]];
+    }
+    return arr;
+}
+// 正确版本
+const shuffle = arr =&gt; {
+    for (let i = arr.length - 1; i &gt; 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+};
+</code></pre>
+<p>这种算法相当于放回取样，概率为 1 / n ^ n,并不能保证真正的公平。</p>
+<h1 id="动态数组"><a href="#动态数组" class="headerlink" title="动态数组"></a>动态数组</h1><p>为什么数组缩容的的时候检测条件是是否已经占用了1/4的空间将其调整为1/2的空间而不是检测1/2的空间将其调整为1/2的空间。</p>
+<p>假设动态数组的size为1/2的capacity，当取出一个元素的时候容量变为1/2 capacity，再放入一个元素的时候数组满了，接着再放一个元素的时候容量不够会触发扩容，接着取出2个元素会触发缩容。即如果检测条件为1/2会频繁触发数组的扩容和缩容，开销太大。检测条件为1/2则多了很大一部分缓冲，在这个实现中数组最多有3/4的空间浪费。</p>
+<h1 id="出栈顺序和卡塔兰数"><a href="#出栈顺序和卡塔兰数" class="headerlink" title="出栈顺序和卡塔兰数"></a>出栈顺序和卡塔兰数</h1><p>算法4习题1.3.3。假设某个用例程序会进行一系列入栈和出栈操作。入栈操作会将整数0到9按顺序压入栈；出栈操作会打印返回值。下面哪种顺序是不可能产生的？</p>
+<pre><code class="lang-bash">(a)  4 3 2 1 0 9 8 7 6 5
+(b)  4 6 8 7 5 3 2 9 0 1
+(c)  2 5 6 7 4 8 9 3 1 0
+(d)  4 3 2 1 0 5 6 7 8 9
+(e)  1 2 3 4 5 6 9 8 7 0
+(f)  0 4 6 5 3 8 1 7 2 9
+(g)  1 4 7 9 8 6 5 3 0 2
+(h)  2 1 4 3 6 5 8 7 9 0
+</code></pre>
+<p>分析3个数时的入栈与出栈操作，所有的顺序有3!种。分别为：</p>
+<pre><code class="lang-bash">1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+</code></pre>
+<p>可以知道只有 3 1 2 这种顺序不可能的，将其推广就可以得到这种的规律:”大 小 中”这种顺序是不能出现的。如上述中(b)中的9 0 1，(f)中的8 1 7，(g)中的3 0 2。所以b, f, g是不能产生的。</p>
+<blockquote>
+<p>算法1.3.46中给出一个结论。如果有三元组(a,b,c)满足a &lt; b &lt; c，弹出相对顺序为c,a,b(c,a,b之间可以间隔其他整数)。当且仅当不存在这样的三元组的时候栈才可以生成它。</p>
+<p>解答：反证法。假设c会在a和b之前被弹出，但a和b会在c之前被压入。因此，当c被压入的时候，a和b已经在栈中了，所以a不可能在b之前被弹出。</p>
+</blockquote>
+<p>①对于出栈序列中的每一个数字，在它后面的、比它小的所有数字，一定是按递减顺序排列的。</p>
+<p>比如入栈顺序为：1 2 3 4。</p>
+<p>出栈顺序：4 3 2 1是合法的，对于数字 4 而言，比它小的后面的数字是：3 2 1，且这个顺序是递减顺序。同样地，对于数字 3 而言，比它小的后面的数字是： 2 1，且这个顺序是递减的。….</p>
+<p>出栈顺序：1 2 3 4 也是合法的，对于数字 1 而言，它后面没有比它更小的数字。同样地，对于数字 2 而言，它后面也没有比它更小的数字。</p>
+<p>出栈顺序：3 2 4 1 也是合法的，对于数字 3 而言，它后面比 3 小的数字有： 2 1，这个顺序是递减的；对于数字 2 而言，它后面的比它 小的数字只有 1，也算符合递减顺序；对于数字 4 而言，它后面的比它小的数字也只有1，因此也符合递减顺序。</p>
+<p>出栈顺序：3 1 4 2 是不合法的，因为对于数字 3 而言，在3后面的比3小的数字有：1 2，这个顺序是一个递增的顺序(1—&gt;2)。</p>
+<p>因此，当给定一个序列时，通过这个规律 可以轻松地判断 哪些序列是合法的，哪些序列是非法的。</p>
+<p>②给定一个入栈顺序：1  2  3 …. n，一共有多少种合法的出栈顺序？参考：<a href="https://blog.csdn.net/doc_sgl/article/details/8880468" target="_blank" rel="noopener">卡特兰数</a></p>
+<p>答案是 卡特兰数。即一共有：h(n)=c(2n,n)/(n+1) 种合法的出栈顺序。</p>
+<p>方法1：模拟入栈和出栈的过程。终止条件是所有元素已经入栈，并且栈为空。对于每一步操作有2种，入栈和出栈。</p>
+<pre><code class="lang-js">const getAllSeq = nums =&gt; {
+
+    const len = nums.length;
+    const res = [];
+
+    const dfs = (index, part, stack) =&gt; {
+        if (index === len &amp;&amp; stack.length === 0) {
+            res.push(part);
+            return;
+        }
+        // 入栈
+        if (index &lt; len) {
+            let newStack = stack.concat(nums[index]);
+            dfs(index + 1, part, newStack);
+        }
+        // 出栈
+        if (stack.length &gt; 0) {
+            let top = stack[stack.length - 1];
+            let newStack = stack.slice(0, -1);
+            dfs(index, part.concat(top), newStack);
+        }
+    };
+
+    dfs(0, [], []);
+
+    return res;
+};
+
+const ret = getAllSeq([1, 2, 3]).map(arr =&gt; arr.join(&#39;&#39;));
+console.log(ret);
+</code></pre>
+<p>注意上述对栈的操作先进行了<em>保护性复制</em>，不需要对元素进行还原了,另一种比较容易出错的写法如下：</p>
+<pre><code class="lang-js">const dfs = (index, part, stack) =&gt; {
+    if (index === len &amp;&amp; stack.length === 0) {
+        res.push(part.slice()); // 保护性复制
+        return;
+    }
+    // 入栈
+    if (index &lt; len) {
+        stack.push(nums[index]);
+        dfs(index + 1, part, stack);
+        stack.pop(); // 还原
+    }
+    // 出栈
+    if (stack.length &gt; 0) {
+        const top = stack.pop();
+        part.push(top);
+        dfs(index, part, stack);
+        stack.push(top); // 还原
+        part.pop(); // 还原
+    }
+};
+</code></pre>
+<p>方案2：对数字进行全排列，验证序列的合法性。</p>
+<pre><code class="lang-js">// 全排列
+// 123 =&gt; 123,132,231,213,312,321 一共6个
+const permutation = nums =&gt; {
+
+    const res = [];
+    const len = nums.length;
+
+    // 1 + {2,3}的全排列 2 + {1,3}的全排列 3 + {1,3}的全排列
+    const dfs = (index, part) =&gt; {
+        if (index === len) {
+            res.push(part.slice());
+            return;
+        }
+        for (let i = index; i &lt; len; i++) {
+            // 将当前索引和index交换
+            swap(part, i, index);
+            dfs(index + 1, part);
+            // 再交换回来
+            swap(part, index, i);
+        }
+    };
+
+    dfs(0, nums);
+
+    return res;
+};
+
+const checkIsValidSeq = seq =&gt; {
+    // 合法序列：出栈序列中的每一个数字，比它小的数字，一定是按照递减顺序排列的
+    const check = index =&gt; {
+        const cur = seq[index];
+        const afterLessThan = seq.slice(index).filter(x =&gt; x &lt; cur);
+        for (let i = 0; i &lt; afterLessThan.length - 1; i++) {
+            let c = afterLessThan[i];
+            let n = afterLessThan[i + 1];
+            if (c &lt; n) {
+                return false;
+            }
+        }
+        return true;
+    }
+    for (let i = 0; i &lt; seq.length - 1; i++) {
+        if (!check(i)) {
+            return false;
+        }
+    }
+    return true;
+};
+
+const getAllSeq2 = nums =&gt; permutation(nums).filter(seq =&gt; checkIsValidSeq(seq));
+</code></pre>
+<p>算法1.3.45.假设我们的栈测试用例会进行一系列的入栈和出栈操作，序列中的整数 0, 1, … , N - 1 （按此先后顺序排列）表示入栈操作，N个减号表示出栈操作。设计一个算法，判定给定的混合序列是否会使数组向下溢出（你使用的空间量与 N 无关，即不能用某种数据结构存储所有整数）。设计一个线性时间算法判定我们的测试用例能否产生某个给定的排列（这取决于出栈操作指令的出现位置）。</p>
+<pre><code class="lang-js">// 线性时间判断入列出列顺序的合法性
+const solve1 = nums =&gt; {
+    let cnt = 0;
+    for (const num of nums) {
+        cnt += num == &#39;-&#39; ? -1 : 1;
+        if (cnt &lt; 0) return false;
+    }
+    return true;
+}
+
+// 给定指定出栈顺序，求出对应的入栈和出栈操作
+// 对于某个整数k，前k次出栈操作会在前k次入栈操作之前完成，否则栈不会向下移除。
+// 如果某个排列可以产生，那么产生它的方式一定是唯一的：如果输出排列中的下一个整数在栈顶，则将它弹出，否则将其压入栈中。
+const solve2 = nums =&gt; {
+    const Stack = require(&#39;../../LinkedStack&#39;);
+    const stack = new Stack();
+    const ops = [];
+    let n = 0;
+    stack.push(n);
+    ops.push(n);
+    n++;
+    for (let i = 0; i &lt; nums.length; i++) {
+        while (n &lt; nums.length &amp;&amp; stack.peek() != nums[i]) {
+            stack.push(n);
+            ops.push(n);
+            n++;
+        }
+        if (stack.peek() != nums[i]) {
+            return null;
+        }
+        stack.pop();
+        ops.push(&#39;-&#39;);
+    }
+    return ops;
+}
+
+console.log(solve1([0, 1, &#39;-&#39;, &#39;-&#39;, 3, &#39;-&#39;, &#39;-&#39;]));
+console.log(solve2([2, 5, 6, 7, 4, 8, 9, 3, 1, 0]));
+console.log(solve2([4, 6, 8, 7, 5, 3, 2, 9, 0, 1]));
+</code></pre>
+<p><a href="http://ceeji.net/blog/forbidden-triple-for-stack-generability/" target="_blank" rel="noopener">合法栈输出顺序的充要条件</a></p>
+<blockquote>
+<p>不同于Stack，对于Queue来说，如果是执行一系列的入列出列的混合操作，则合法的顺序只有入列的顺序，因为队列的顺序一定是先进先出的。</p>
+</blockquote>
+<h1 id="约瑟夫环"><a href="#约瑟夫环" class="headerlink" title="约瑟夫环"></a>约瑟夫环</h1><p>n个人围城一个圈，按照1，2，3…n开始报数，报k的被杀掉，下一个从1开始重新报数，如此往复直到剩下一个人，如何确定自己的序号从而不被杀掉。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/josephus-ring.webp" alt="一共5人，数到3被杀，序号为4" title>
+                </div>
+                <div class="image-caption">一共5人，数到3被杀，序号为4</div>
+            </figure>
+<p>使用队列模拟上述过程：</p>
+<pre><code class="lang-js">const q = new Queue();
+const n = 5;
+const k = 3;
+for (let i = 1; i &lt;= n; i++) {
+    q.enqueue(i);
+}
+let count = 0;
+while (!q.isEmpty()) {
+    const item = q.dequeue();
+    count++;
+    if (count === k) {
+        count = 0;
+        console.log(&#39;kill&#39;, item);
+    } else {
+        q.enqueue(item);
+    }
+}
+</code></pre>
+<p>位置4就是我们最后不被杀死的位置。可以将上述模型抽象为：</p>
+<blockquote>
+<p>已知：总共有n个人，数到m的人将被杀死，并重新从1计数；求位置p使得该位置最后被杀死。</p>
+</blockquote>
+<p>现在考虑一种泛化情形：总共有 n 个人，数到 k 的人被杀掉，其中 n &gt;= k。幸存者的位置为 p<sub>n</sub> 。<br>显而易见，初始位置为 k 的人将会第一个被杀掉。此时，经过重新排序之后，问题变成了 n-1 个人的情形。幸存者的位置为 p<sub>n-1</sub> 。如果能够找到从 p<sub>n-1</sub> 到 p<sub>n</sub> 的递推关系，那么问题就解决了。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/alg/josephus-ring-solve.png" alt="约瑟夫环的推理求解" title>
+                </div>
+                <div class="image-caption">约瑟夫环的推理求解</div>
+            </figure>
+<p>重新排序之后，每个人的位置发生了下面这些变化：</p>
+<ul>
+<li>1 -&gt; n-k+1</li>
+<li>2 -&gt; n-k+2</li>
+<li>…</li>
+<li>k-1 -&gt; n-1</li>
+<li>k 被杀死</li>
+<li>k+1 -&gt; 1</li>
+<li>…</li>
+<li>p<sub>n</sub> -&gt; p<sub>n-1</sub></li>
+<li>…</li>
+<li>n-1 -&gt; n-k+1</li>
+<li>n -&gt; n-k</li>
+</ul>
+<p>从右边的式子反推左边的式子，可以得到：p<sub>n</sub> = (p<sub>n-1</sub> + k) % n。只有一个人的情况则：p<sub>1</sub> = 0</p>
+<pre><code class="lang-js">// 利用递推式，求出正确的位置 fn = (fn-1 + k) % n;
+const solve = (n, k) =&gt; {
+    if (n === 1) return 0;
+    const a = solve(n - 1, k);
+    const ret = (a + k) % n;
+    return ret;
+}
+
+const index = solve(n, m);
+console.log(&#39;num = &#39;, index + 1);
+
+// DP
+const solve2 = (n, k) =&gt; {
+    let index = 0;
+    for (let i = 2; i &lt;= n; i++) {
+        index = (index + k) % i;
+    }
+    return index;
+};
+</code></pre>
+<ul>
+<li>参考：<a href="https://blog.csdn.net/wusuopubupt/article/details/18214999" target="_blank" rel="noopener">约瑟夫环递推方程的推导</a></li>
+</ul>
+<h1 id="链表中虚拟头结点的应用"><a href="#链表中虚拟头结点的应用" class="headerlink" title="链表中虚拟头结点的应用"></a>链表中虚拟头结点的应用</h1><ul>
+<li>删除第k个节点</li>
+</ul>
+<h1 id="环形队列和缓冲区"><a href="#环形队列和缓冲区" class="headerlink" title="环形队列和缓冲区"></a>环形队列和缓冲区</h1><p>RingBuffer一种固定尺寸的、头尾相连的缓冲区数据结构，又称为环形队列，拥有读写指针，在进程间异步数据传输或者记录日志文件的时候非常有用。当缓冲区空的时候不能读取数据，在缓冲区满的时候不能写数据.</p>
+<pre><code class="lang-js">class RingBuffer {
+    constructor(capacity) {
+        capacity += 1; // 多分配一个，最后一个空间不存储数据，这样判断缓冲区满和缓冲区空就很方便了
+        this.readPos = 0; // 下一次读的位置
+        this.writePos = 0; // 下一次写的位置
+        this.capacity = capacity;
+        this.data = new Array(capacity);
+    }
+    isEmpty() {
+        return this.readPos === this.writePos;
+    }
+    isFull() {
+        return (this.writePos + 1) % this.capacity === this.readPos;
+    }
+    put(item) {
+        if (this.isFull()) {
+            return false;
+        }
+        this.data[this.writePos] = item;
+        this.writePos = (this.writePos + 1) % this.capacity;
+        return true;
+    }
+    take() {
+        if (this.isEmpty()) {
+            return null;
+        }
+        const item = this.data[this.readPos];
+        this.readPos = (this.readPos + 1) % this.capacity;
+        return item;
+    }
+}
+
+class RingBuffer2 {
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.writePos = 0; // 下一个要写的位置
+        this.avaiable = 0; // 有效元素个数
+        this.data = new Array(capacity);
+    }
+    put(item) {
+        if (this.avaiable &gt;= this.capacity) return false;
+        this.writePos = (this.writePos + 1) % this.capacity;
+        this.data[this.writePos] = item;
+        this.avaiable++;
+        return true;
+    }
+    take() {
+        if (this.avaiable &lt;= 0) return null;
+        let readPos = this.writePos - this.avaiable;
+        if (readPos &lt; 0) {
+            readPos += this.capacity;
+        }
+        const item = this.data[readPos];
+        this.avaiable--;
+        return item;
+    }
+}
+
+// 使用一个flip标记写指针是否到了读指针之前
+class RingBuffer3 {
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.writePos = 0; // 下一个要写的位置
+        this.readPos = 0; // 下一个要读的位置
+        this.flipped = false; // 写指针是否到了读指针之前 
+        this.data = [];
+    }
+    put(item) {
+        if (!this.flipped) {
+            if (this.writePos === this.capacity) {
+                this.writePos = 0;
+                this.flipped = true;
+                if (this.writePos &gt;= this.readPos) {
+                    return false;
+                }
+            }
+            this.data[this.writePos++] = item;
+            return true;
+        }
+        if (this.writePos &gt;= this.readPos) {
+            return false;
+        }
+        this.data[this.writePos++] = item;
+        return true;
+    }
+    take() {
+        if (!this.flipped) {
+            return this.readPos &lt; this.writePos ? this.data[this.readPos++] : null;
+        }
+        if (this.readPos === this.capacity) {
+            this.readPos = 0;
+            this.flipped = false;
+            return this.readPos &lt; this.writePos ? this.data[this.readPos++] : null;
+        }
+        return this.data[this.readPos++];
+    }
+}
+</code></pre>
+<p>参考：<a href="http://tutorials.jenkov.com/java-performance/ring-buffer.html" target="_blank" rel="noopener">环形队列的实现</a></p>
+<h1 id="前移编码、缓存和数据压缩"><a href="#前移编码、缓存和数据压缩" class="headerlink" title="前移编码、缓存和数据压缩"></a>前移编码、缓存和数据压缩</h1><p>问题来源：算法1.3.40。使用链表保存一系列字符并删除重复字符。当你读取了一个从未见过的字符时，将它插入表头。当你读取了一个重复的字符时，将它从链表中删去并再次插入表头。它实现了<em>前移编码策略</em>。这种策略假设最近访问过的元素很可能会再次访问，因此可以用于缓存、数据压缩等许多场景。</p>
+<pre><code class="lang-js">class MoveToFront {
+    constructor() {
+        this.head = null;
+    }
+    add(char) {
+        this.head = new Node(char, this.head);
+        let cur = this.head;
+        while (cur) {
+            const next = cur.next;
+            if (!next) {
+                return;
+            }
+            if (next.value == char) {
+                cur.next = next.next;
+                return;
+            }
+            cur = next;
+        }
+    }
+    get data() {
+        const data = [];
+        let cur = this.head;
+        while (cur) {
+            data.push(cur.value);
+            cur = cur.next;
+        }
+        return data;
+    }
+}
+</code></pre>
+<h1 id="目录遍历"><a href="#目录遍历" class="headerlink" title="目录遍历"></a>目录遍历</h1><p>算法1.3.43。第一反应是用DFS来实现：</p>
+<pre><code class="lang-js">const listFiles = (dir, depth) =&gt; {
+    const absolutePath = path.resolve(dir);
+    const stat = fs.statSync(absolutePath);
+    if (stat.isDirectory()) {
+        const files = fs.readdirSync(absolutePath);
+        for (let file of files) {
+            listFiles(path.join(absolutePath, file), depth + 1);
+        }
+    } else {
+        console.log(&#39;-&#39;.repeat(depth), absolutePath);
+    }
+}
+</code></pre>
+<p>但是题目中说要使用队列来做,怎么感觉还是用的DFS的思想：</p>
+<pre><code class="lang-js">const listFiles2 = (dir, depth, queue) =&gt; {
+    const absolutePath = path.resolve(dir);
+    const stat = fs.statSync(absolutePath);
+    if (stat.isFile()) {
+        queue.enqueue({ file: dir, depth });
+    } else {
+        const files = fs.readdirSync(absolutePath);
+        for (const file of files) {
+            listFiles2(path.join(absolutePath, file), depth + 1, queue);
+        }
+    }
+};
+
+const Queue = require(&#39;../../LinkedQueue&#39;);
+const q = new Queue();
+listFiles2(&#39;/Users/yiihua-013/consoles-projects/dsa4js/test&#39;, 0, q);
+for (const item of q) {
+    console.log(&#39;-&#39;.repeat(item.depth), item.file);
+}
+</code></pre>
+<h1 id="栈与文件编辑器的缓冲区"><a href="#栈与文件编辑器的缓冲区" class="headerlink" title="栈与文件编辑器的缓冲区"></a>栈与文件编辑器的缓冲区</h1><p>问题来源算法1.3.44。思路：建立两个栈，一个左栈，一个右栈，输入时将数据压入左栈，其实光标位置就是左栈的栈头，向左向右移动就是其中一个栈pop一些元素给另一个栈来模拟光标移动。</p>
+<pre><code class="lang-js">const Stack = require(&#39;../../LinkedStack&#39;);
+
+class EditorBuffer {
+    constructor() {
+        this.leftStack = new Stack();
+        this.rightStack = new Stack();
+    }
+    /**
+     * 在光标位置插入字符
+     */
+    insert(char) {
+        this.leftStack.push(char);
+    }
+    /**
+     * 删除并返回光标位置的字符
+     */
+    delete() {
+        return this.leftStack.pop();
+    }
+    /**
+     * 将光标左移k个位置
+     */
+    left(k) {
+        if (k &gt; this.leftStack.size) {
+            return;
+        }
+        for (let i = 0; i &lt; k; i++) {
+            this.rightStack.push(this.leftStack.pop());
+        }
+    }
+    /**
+     * 将光标右移k个位置
+     */
+    right(k) {
+        if (k &gt; this.rightStack.size) {
+            return;
+        }
+        for (let i = 0; i &lt; k; i++) {
+            this.leftStack.push(this.rightStack.pop());
+        }
+    }
+    /**
+     * 缓冲区中的字符数量
+     */
+    size() {
+        return this.leftStack.size + this.rightStack.size;
+    }
+
+    inspect() {
+        const pos = this.leftStack.size;
+        const tmpStack = new Stack();
+        for (const c of this.leftStack) {
+            tmpStack.push(c);
+        }
+        const left = [];
+        for (const c of tmpStack) {
+            left.push(c);
+        }
+        const right = [];
+        for (const c of this.rightStack) {
+            right.push(c);
+        }
+        return `pos = ${pos},size = ${this.size()},left = ${JSON.stringify(left)},right = ${JSON.stringify(right)}`;
+    }
+}
+
+const buf = new EditorBuffer();
+for (const c of &#39;sfdssemkf&#39;) {
+    buf.insert(c);
+}
+buf.left(4);
+buf.delete();
+buf.right(2);
+buf.insert(&#39;x&#39;);
+buf.right(1);
+console.log(buf);
+</code></pre>
+<h1 id="使用栈实现队列"><a href="#使用栈实现队列" class="headerlink" title="使用栈实现队列"></a>使用栈实现队列</h1><p>问题来源：算法1.3.49.使用有限个栈模拟队列，保证入队和出队操作在最坏情况下只需要常数时间。</p>
+<p>很容易想到使用2个栈模拟队列。入队的时候向enqueStack中push元素，出队的时候从dequeStack中pop元素。dequeStack中的元素来源于dequeStack为空的时候将enqueStack移动到此位置：</p>
+<pre><code class="lang-js">const Stack = require(&#39;../../LinkedStack&#39;);
+
+// 使用2个栈模拟队列
+class Queue1 {
+    constructor() {
+        this.enqueStack = new Stack();
+        this.dequeStack = new Stack();
+    }
+    enqueue(item) {
+        this.enqueStack.push(item);
+    }
+    dequeue() {
+        if (this.dequeStack.isEmpty()) {
+            while (!this.enqueStack.isEmpty()) {
+                this.dequeStack.push(this.enqueStack.pop());
+            }
+        }
+        if (this.dequeStack.isEmpty()) {
+            return null;
+        }
+        return this.dequeStack.pop();
+    }
+}
+</code></pre>
+<p>入队操作为O(1)，出队操作为O(N)，不满足题目要求。使用6个栈均摊复杂度可以保证入队和出队的复杂度为O(1)。</p>
+<p>参考:</p>
+<p><a href="https://www.cnblogs.com/ikesnowy/p/7157813.html" target="_blank" rel="noopener">使用6个栈实现O(1)队列</a></p>
+<h1 id="排列组合"><a href="#排列组合" class="headerlink" title="排列组合"></a>排列组合</h1><p>从n个数中取出3个不同数的组合是C<sub>n</sub><sup>3</sup> = <code>n(n-1)(n-2)/6</code>。</p>
+<p>所以以下代码中cnt的值为10，而不是<code>5*4*3 = 60</code>!</p>
+<pre><code class="lang-js">let cnt = 0;
+let n = 5;
+for (let i = 0; i &lt; n; i++) {
+    for (let j = i + 1; j &lt; n; j++) {
+        for (let k = j + 1; k &lt; n; k++) {
+            cnt++;
+        }
+    }
+}
+</code></pre>
+<p>定性分析：</p>
+<p>i = 0,j = 1,k = 2,3,4 =&gt; 3<br>i = 0,j = 2,k = 3,4   =&gt; 2<br>i = 0,j = 3,k = 4     =&gt; 1</p>
+<p>i = 1,j = 2,k = 3,4   =&gt; 2<br>i = 1,j = 3,k = 4     =&gt; 1</p>
+<p>i = 2,j = 3,k = 4     =&gt; 1 </p>
+<p>总和: (3 + 2 + 1) + (2 + 1) + 1 = 10。</p>
+<p>5 <em> 4 </em> 3之所以错的原因是，没有考虑内循环条件的约束！</p>
+<h1 id="幂次法则和倍率实验"><a href="#幂次法则和倍率实验" class="headerlink" title="幂次法则和倍率实验"></a>幂次法则和倍率实验</h1><p>以three-sum为例，该算法的复杂度为O(N^3):</p>
+<pre><code class="lang-js">const count = nums =&gt; {
+    const n = nums.length;
+    let cnt = 0;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            for (let k = j + 1; k &lt; n; k++) {
+                if (nums[i] + nums[j] + nums[k] === 0) {
+                    cnt++;
+                }
+            }
+        }
+    }
+    return cnt;
+};
+const _ = require(&#39;lodash&#39;);
+
+const test = n =&gt; {
+    const MAX = 1e6;
+    const arr = [];
+    while (n--) {
+        arr.push(_.random(-MAX, MAX));
+    }
+    const start = Date.now();
+    const cnt = count(arr);
+    return {
+        cnt,
+        elapsedTime: Date.now() - start
+    };
+}
+
+let n = 250;
+let prev = test(n);
+while (true) {
+    n += n;
+    const cur = test(n);
+    const { cnt, elapsedTime } = cur;
+    console.log(n, cnt, elapsedTime, elapsedTime / prev.elapsedTime);
+    prev = cur;
+}
+</code></pre>
+<p>运行结果：</p>
+<pre><code class="lang-bash">500 5 33 3.3
+1000 63 225 6.818181818181818
+2000 490 1709 7.595555555555555
+4000 3940 13493 7.895260386190754
+8000 31565 107293 7.951752760690728
+</code></pre>
+<p>可以发现：当数据规模翻倍的时候，运行的时间的翻倍数量为8 = 2^3。实际上对于大多数程序运行的时间可以写成:T(N) ~ aN^b·lgN，因此T(2N)/T(N) ~ 2^b。倍率定理适合于<em>非指数级别的算法</em>，可以用来简单估算程序的运行时间。</p>
+<blockquote>
+<p>实际上，大多数现代计算机系统会使用缓存技术来组织内存（程序的局部性原理），在这种情况下访问大数组中的若干并不相邻的元素可能会比较长。上面的例子中看似运行时间的比例收敛到了8，但是到了后面数组规模变得很大了之后这个比例可能变成一个很大的值。这也是理论上快排和归并排序时间复杂度一样但是快排更快的原因。</p>
+</blockquote>
+<h1 id="二项式定理及其证明"><a href="#二项式定理及其证明" class="headerlink" title="二项式定理及其证明"></a>二项式定理及其证明</h1><p>问题来源：练习1.4.1。使用数学归纳法证明从N个数中取3个数的不同组合的总数为 N(N-1)(N-2)/6。</p>
+<pre><code class="lang-bash">C(N, 3) = N! / [(N - 3)! × 3!]
+        = [(N - 2) * (N - 1) * N] / 3!
+        = N(N - 1)(N - 2) / 6
+</code></pre>
+<p>显然N必须大于等于3，当N = 3时等式成立，只有一种组合，当N=4时等式也成立，4种组合。当拓展到N+1个数的时候可以理解为：<em>前 N 个数中取三个数的所有组合 + 多出的一个数和前 N 个数中的任意取两个数的所有组合</em>。</p>
+<p>即：</p>
+<pre><code class="lang-bash">C(N+1,3) = C(N,3) + C(N,2)
+        = N(N - 1)(N - 2) / 6 + (N!/[(N-2)! * 2!])
+        = N(N - 1)(N - 2) / 6 + N(N - 1) / 2
+        = [N(N-1)(N-2) + N(N-1)*3] / 6
+        = N(N-1)(N-2+3) / 6
+        = (N+1)N(N-1) / 6
+</code></pre>
+<h1 id="二分查找的思想及其应用"><a href="#二分查找的思想及其应用" class="headerlink" title="二分查找的思想及其应用"></a>二分查找的思想及其应用</h1><h2 id="局部最小元素"><a href="#局部最小元素" class="headerlink" title="局部最小元素"></a>局部最小元素</h2><p>二分查找可以使用lgN的复杂度在<em>有序数组</em>中找到指定元素的使用。但是普通数组也可以使用二分查找的思想，例如：习题1.4.18</p>
+<blockquote>
+<p> 数组的局部最小元素。编写一个程序，给定一个含有 N 个不同整数的数组，找到一个局部最小元素：满足 a[i] &lt; a[i-1]，且 a[i] &lt; a[i+1] 的索引 i。程序在最坏情况下所需的比较次数为 ~ 2lgN。</p>
+</blockquote>
+<pre><code class="lang-js">// 暴力法 O(N)
+const localMin1 = nums =&gt; {
+    for (let i = 1; i &lt; nums.length - 1; i++) {
+        if (nums[i] &lt; nums[i - 1] &amp;&amp; nums[i] &lt; nums[i + 1]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// 检查数组中间值a[N/2]以及它相邻的元素a[N/2-1]和a[N/2+1]。如果a[N/2]是一个局部最小值则算法终止；否则在较小的相邻元素的那一侧查找
+// 和二分查找的方式类似，先确认中间的值是否是局部最小，如果不是，则向较小的一侧二分查找。O(lgN)
+const localMin2 = nums =&gt; {
+    let lo = 0, hi = nums.length - 1;
+    while (lo &lt;= hi) {
+        const mid = lo + Math.floor((hi - lo) / 2);
+        if (nums[mid] &lt; nums[mid - 1] &amp;&amp; nums[mid] &lt; nums[mid + 1]) {
+            return mid;
+        }
+        if (nums[mid - 1] &lt; nums[mid + 1]) {
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return -1;
+};
+
+const arr = [1, 2, 1, -2, 3, 5, 6, 5, 3, 7];
+let index = localMin2(arr);
+</code></pre>
+<blockquote>
+<p>习题1.4.19。矩阵的局部最小元素。给定一个含有 N ^ 2 个不同整数的 N×N 数组 a[]。设计一个运送时间和 N 成正比的算法来找出一个局部最小元素：满足 a[i][j] &lt; a[i + 1][j]、a[i][j] &lt; a[i][j + 1]、a[i][j] &lt; a[i - 1][j] 以及 a[i][j] &lt; a[i][j - 1] 的索引 i 和 j。程序运行时间在最坏情况下应该和 N 成正比。</p>
+</blockquote>
+<pre><code class="lang-js">// O(N^2)
+const minMatrix = matrix =&gt; {
+    const len = matrix.length;
+    for (let i = 1; i &lt; len; i++) {
+        for (let j = 1; j &lt; len; i++) {
+            const item = matrix[i][j];
+            if (item &lt; matrix[i + 1][j] &amp;&amp; item &lt; matrix[i][j + 1] &amp;&amp; item &lt; matrix[i - 1][j] &amp;&amp; item &lt; matrix[i][j - 1]) {
+                return [i, j];
+            }
+        }
+    }
+    return null;
+};
+
+// 复杂度为O(N)
+const findMinCol = (matrix, midRow, colStart, colEnd) =&gt; {
+    let min = Number.MAX_SAFE_INTEGER;
+    let colPos = -1;
+    for (let i = colStart; i &lt; colEnd; i++) {
+        if (matrix[midRow][i] &lt; min) {
+            min = matrix[midRow][i];
+            colPos = i;
+        }
+    }
+    return colPos;
+};
+
+// lgN
+const findLocalmin = (matrix, rowStart, rowEnd, colStart, colEnd) =&gt; {
+
+    const midRow = rowStart + Math.floor((rowEnd - rowStart) / 2);
+    const minColPos = findMinCol(matrix, midRow, colStart, colEnd);
+
+    const midRowMin = matrix[midRow][minColPos]; // 中间行中的最小值
+
+    // 只需要和 上一行 &amp; 下一行比较就行
+    if (midRowMin &lt; matrix[midRow + 1][minColPos] &amp;&amp; midRowMin &lt; matrix[midRow - 1][minColPos]) {
+        return [midRow, minColPos];
+    }
+
+    // 中间一行的最小值大于下一行，则说明下一行中间值比较小，在矩阵的下半部分继续寻找
+    if (midRowMin &gt; matrix[midRow + 1][minColPos]) {
+        return findLocalmin(matrix, midRow, rowEnd, colStart, colEnd);
+    }
+    return findLocalmin(matrix, rowStart, midRow, colStart, colEnd);
+};
+
+const minMatrix2 = matrix =&gt; {
+    const end = matrix.length - 1;
+    return findLocalmin(matrix, 0, end, 0, end);
+};
+
+// 迭代解法
+const minMatrix3 = matrix =&gt; {
+    const len = matrix.length;
+    let minRowIndex = 0, maxRowIndex = len - 1;
+    while (minRowIndex &lt;= maxRowIndex) {
+        const midRowIndex = minRowIndex + Math.floor((maxRowIndex - minRowIndex) / 2);
+        let min = Number.MAX_SAFE_INTEGER;
+        let minColPos = -1;
+        for (let i = 0; i &lt; len; i++) {
+            if (matrix[midRowIndex][i] &lt; min) {
+                min = matrix[midRowIndex][i];
+                minColPos = i;
+            }
+        }
+        const item = matrix[midRowIndex][minColPos];
+        if (item &lt; matrix[midRowIndex - 1][minColPos] &amp;&amp; item &lt; matrix[midRowIndex + 1][minColPos]) {
+            return [midRowIndex, minColPos];
+        }
+        if (item &gt; matrix[midRowIndex - 1][minColPos]) {
+            maxRowIndex = midRowIndex - 1;
+        } else {
+            minRowIndex = midRowIndex + 1;
+        }
+    }
+    return null;
+};
+
+const matrix = [
+    [1, 1, 2, 3],
+    [0, -2, 1, 2],
+    [3, 4, 2, 5],
+    [0, 9, -8, 9]
+];
+
+let ret = minMatrix2(matrix);
+</code></pre>
+<p>上面的解法2是一种“滚下山”(roll downhill)的方式。首先找到中间行，并在中间行中找到该行的最小值，然后判断它在该列中是不是局部最小值，如果是的话，那就返回这个值，否则向该列的最小一侧方向移动，如此循环往复。这个过程有点像在群山连绵的地方找到一个水池。</p>
+<p><a href="https://stackoverflow.com/questions/18525179/find-local-minimum-in-n-x-n-matrix-in-on-time/24461101#24461101" target="_blank" rel="noopener">在O(n)的时间内在n*n的方阵中找到局部最小值</a></p>
+<p>习题1.4.20。如果一个数组中的所有元素是先递增后递减的，则称这个数组为双调的。编写一个程序，给定一个含有 N 个不同 int 值的双调数组，判断它是否含有给定的整数。程序在最坏情况下所需的比较次数为 ~3lgN。</p>
+<p>很容易想到的是O(N)的算法，仔细观察数组可以发现：双调数组存在一个最大值，我们可以使用1.4.18中的方法在lgN的时间内取得数组最大元素，这样数组左右两侧都是有序数组了，可以使用二分查找分别在左右两个子数组中进行查找。最坏的复杂度为3lgN。注意：二分查找的算法稍有改动，支持自定义的比较器。</p>
+<pre><code class="lang-js">const localMax = nums =&gt; {
+    if (nums.length &lt; 3) throw new Error(&#39;检查输入&#39;);
+    let lo = 0, hi = nums.length - 1;
+    while (lo &lt;= hi) {
+        const mid = lo + Math.floor((hi - lo) / 2);
+        if (nums[mid] &gt; nums[mid - 1] &amp;&amp; nums[mid] &gt; nums[mid + 1]) {
+            return mid;
+        }
+        if (nums[mid - 1] &gt; nums[mid + 1]) {
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return -1;
+}
+
+/**
+ * 在3lgN时间内判断双调数组中是否有指定元素
+ */
+const find = (nums, num) =&gt; {
+
+    const binarySearch = require(&#39;../../binarySearch&#39;).binarySearch
+
+    const maxIndex = localMax(nums); // lgN得到最大元素
+    const max = nums[maxIndex];
+    if (num &gt; max) return false;
+    if (num === max) return true;
+    const left = nums.slice(0, maxIndex);
+    const right = nums.slice(maxIndex + 1);
+    // 分别向左和向右进行二分搜索
+    const index = binarySearch(left, num, (a, b) =&gt; a - b);
+    if (index !== -1) return true;
+    return binarySearch(right, num, (a, b) =&gt; b - a) !== -1;
+}
+
+const arr = [1, 2, 3, 4, 5, 6, 100, 89, 9, 8, 7];
+const ret = find(arr, 8);
+</code></pre>
+<h2 id="斐波那契查找"><a href="#斐波那契查找" class="headerlink" title="斐波那契查找"></a>斐波那契查找</h2><p>源自算法1.4.22。这种查找的精髓在于<em>采用最接近长度的斐波那契数值来确定拆分点</em>。例如：对于现有长度为9的数组，要对它进行拆分，对应的斐波那契数列（长度先随便取，只要最大数大于9即可）{ 1，1，2，3，5，8，13，21 } ，不难发现，大于9且最接近9的斐波那契数值是f[6] = 13，为了满足所谓的黄金分割，所以它的第一个拆分点应该就是f[6]的前一个值f[5] = 8，即待查找数组array的第8个数，对应到下标就是array[7]，依次类推。</p>
+<p><em>推演到一般情况，假设有待查找数组array[n]和斐波那契数组F[k],并且n满足n&gt;=F[k]-1&amp;&amp;n &lt; F[k+1]-1，则它的第一个拆分点middle=F[k]-1</em>。</p>
+<pre><code class="lang-bash">F(5) - 1 = 7
+F(6) - 1 = 12
+9 &gt;= F(5) - 1 &amp;&amp; 9 &lt; F(6) - 1
+所以切分点为F(5) - 1 = 7
+</code></pre>
+<p>这里得注意，如果n刚好等于F[k]-1,待查找数组刚好拆成F[k-1]和F[k-2]两部分，那万事大吉你好我好；然而大多数情况并不能尽人意，n会小于F[k]-1,这时候可以拆成完整F[k-1]和残疾的F[k-2]两部分，那怎么办呢？聪明的前辈们早已想好了解决办法，对了，就是补齐，用最大的数来填充F[k-2]的残缺部分，如果查找的位置落到补齐的部分，那就可以确定要找的那个数就是最后一个最大的了。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://img-blog.csdn.net/20160612142247684" alt="斐波那契查找-切分" title>
+                </div>
+                <div class="image-caption">斐波那契查找-切分</div>
+            </figure>
+<pre><code class="lang-js">/**
+ * 创建最大值刚好&gt;=待查找数组长度的裴波纳契数组  
+ */
+const makeFibArray = arr =&gt; {
+    const len = arr.length;
+    let first = 1;
+    let second = 1;
+    const a = [first, second];
+    while (true) {
+        const current = first + second;
+        a.push(current);
+        if (current &gt;= len) {
+            break;
+        }
+        first = second;
+        second = current;
+    }
+    return a;
+}
+
+const fibSearch = (nums, num) =&gt; {
+    const fibArr = makeFibArray(nums); // 斐波那契数组
+    const filledLength = fibArr[fibArr.length - 1]; // 填充数组长度
+    // 构建填充数组：填充数组长度为大于等于待查找数组长度向上取整的斐波那契数
+    // 前一部分为待查找数组，后部分用原数组的最后一个元素填充
+    const filledArray = new Array(filledLength);
+    for (let i = 0; i &lt; nums.length; i++) {
+        filledArray[i] = nums[i];
+    }
+    const last = nums[nums.length - 1];
+    for (let i = nums.length; i &lt; filledLength; i++) {
+        filledArray[i] = last;
+    }
+
+    let lo = 0;
+    let hi = arr.length - 1;
+    let k = fibArr.length - 1; // 用来控制子数组的左右边界
+    while (lo &lt;= hi) {
+        const mid = lo + fibArr[k - 1] - 1;
+        if (num &lt; filledArray[mid]) {
+            hi = mid - 1;
+            k = k - 1;
+        } else if (num &gt; filledArray[mid]) {
+            lo = mid + 1;
+            k = k - 2;
+        } else {
+            return mid &gt; hi ? hi : mid;
+        }
+    }
+    return -1;
+}
+</code></pre>
+<h2 id="扔鸡蛋问题"><a href="#扔鸡蛋问题" class="headerlink" title="扔鸡蛋问题"></a>扔鸡蛋问题</h2><p>算法1.4.24。假设你面前有一栋 N 层的大楼和许多鸡蛋，假设将鸡蛋从 F 层或者更高的地方扔下鸡蛋才会摔碎，否则则不会。首先，设计一种策略来确定 F 的值，其中扔 ~lgN 次鸡蛋后摔碎的鸡蛋数量为 ~lgN。然后想办法将成本降低到~2lgF。</p>
+<pre><code class="lang-js">// 二分查找
+const throwEggs = N =&gt; {
+    let lo = 1;
+    let hi = N;
+
+    let count = 0;
+    let brokenCount = 0;
+
+    while (lo &lt;= hi) {
+        const mid = lo + Math.floor((hi - lo) / 2);
+        count++;
+        if (mid &gt; F) {
+            // 鸡蛋可以碎
+            hi = mid - 1;
+            brokenCount++;
+        } else if (mid === F) {
+            brokenCount++;
+            hi = mid;
+            break;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    console.log(&#39;F = &#39;, hi, &#39;一共扔了&#39;, count, &#39;次鸡蛋,碎了&#39;, brokenCount, &#39;个&#39;);
+    return hi;
+}
+
+// 按照第 1, 2, 4, 8,…, 2^k 层顺序查找，一直到 2^k &gt; F,随后在 [2^(k - 1), 2^k] 范围中二分查找
+const throwEggs2 = N =&gt; {
+    let lo = 1;
+    let hi = 1;
+    let count = 0;
+    while (hi &lt; F) {
+        lo = hi;
+        hi *= 2;
+        count++;
+    }
+    if (hi === F) return;
+
+    let brokenCount = 0;
+
+    while (lo &lt;= hi) {
+        const mid = lo + Math.floor((hi - lo) / 2);
+        count++;
+        if (mid &gt; F) {
+            // 鸡蛋可以碎
+            hi = mid - 1;
+            brokenCount++;
+        } else if (mid === F) {
+            brokenCount++;
+            hi = mid;
+            break;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    console.log(&#39;F = &#39;, hi, &#39;一共扔了&#39;, count, &#39;次鸡蛋,碎了&#39;, brokenCount, &#39;个&#39;);
+    return hi;
+}
+
+throwEggs(1000);
+throwEggs2(1000);
+</code></pre>
+<p>算法1.4.25。但现在假设你只有两个鸡蛋，而你的成本模型则是扔鸡蛋的次数。设计一种策略，最多扔 2√(N) 次鸡蛋即可判断出 F 的值， 然后想办法把这个成本降低到 ~c√(F) 次。 这和查找命中（鸡蛋完好无损）比未命中（鸡蛋被摔碎）的成本小得多的情形类似。</p>
+<pre><code class="lang-js">const throwEggs3 = N =&gt; {
+
+    let lo = 1;
+    let hi = 1;
+    let count = 0;
+    let brokenCount = 0;
+
+    // 第一个蛋: 第一个蛋按照 √(N), 2√(N), 3√(N), 4√(N),…, √(N) * √(N) 顺序查找直至碎掉。这里扔了 k 次，k &lt;= √(N)。
+    while (hi &lt; F) {
+        lo = hi;
+        count++;
+        hi += Math.sqrt(N);
+    }
+    // 按照斐波那契递增
+    // for (let i = 0; hi &lt; F; i++) {
+    //     count++;
+    //     lo = hi;
+    //     hi += i;
+    // }
+    brokenCount++;
+    hi = Math.min(hi, N);
+    if (hi === F) return F;
+
+    // 第二个蛋：k-1√(N) ~ k√(N) 顺序查找直至碎掉，F 值就找到了。这里最多扔 √(N) 次    
+    // 不能用二分查找，找到一个比较小的值，然后向右推进
+    while (lo &lt;= hi) {
+        count++;
+        if (lo &gt;= F) {
+            brokenCount++;
+            break;
+        }
+        lo++;
+    }
+    console.log(&#39;一共扔了&#39;, count, &#39;次，碎了&#39;, brokenCount, &#39;个蛋，找到F= &#39;, F);
+};
+</code></pre>
+<h2 id="冷还是热问题"><a href="#冷还是热问题" class="headerlink" title="冷还是热问题"></a>冷还是热问题</h2><p>问题来源：算法1.4.34。你的目标是猜出 1 到 N 之间的一个秘密的整数。每次猜完一个整数后，你会直到你的猜测距离该秘密整数是否相等（如果是则游戏结束）。如果不相等，你会知道你的猜测相比上一次猜测距离秘密整数是比较热（接近），还是比较冷（远离）。设计一个算法在 ~2lgN 之内找到这个秘密整数，然后设计一个算法在 ~1lgN 之内找到这个秘密整数。</p>
+<p>方案一：二分查找。先猜测左边界(lo) ，再猜测右边界(hi) ，如果边界值猜中的话直接返回，否则如果右边界比较热，那么左边界向右边界靠，lo = mid；否则，右边界向左边界靠，hi = mid。其中，mid = lo + (hi – lo) / 2。每次二分查找的时候需要猜测2次lo和hi，复杂度~2LgN。</p>
+<p>方案二:假设上次猜测值为 lastGuess，本次即将要猜测的值为 nowGuess，通过方程：(lastGuess+nowGuess)/2=(lo+hi)/2 可以求得 nowGuess，具体可以查看示意图：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://alg4.ikesnowy.com/1-4-34/1.png" alt="冷还是热" title>
+                </div>
+                <div class="image-caption">冷还是热</div>
+            </figure>
+<p>数字是猜测顺序，黑色范围是猜测值的范围（lastGuess 和 nowGuess），绿色的是实际查找的范围（lo 和 hi）。</p>
+<pre><code class="lang-js">const GUESS_RESULT = {
+    COLD: Symbol(&#39;cold&#39;),
+    HOT: Symbol(&#39;hot&#39;),
+    EQ: Symbol(&#39;eq&#39;),
+    FIRST_GUESS: Symbol(&#39;first_guess&#39;)
+};
+
+class Game {
+    constructor() {
+        this.N = 100000;
+        this.MAGIC = 33;
+        this.lastGuess = -1;
+        this.guessCount = 0;
+    }
+    guess(n) {
+        this.guessCount++;
+        if (n === this.MAGIC) {
+            return GUESS_RESULT.EQ;
+        }
+        if (this.lastGuess === -1) {
+            this.lastGuess = n;
+            return GUESS_RESULT.FIRST_GUESS;
+        }
+        const lastDiff = Math.abs(this.MAGIC - this.lastGuess);
+        this.lastGuess = n;
+        const nowDiff = Math.abs(this.MAGIC - n);
+        return nowDiff &gt; lastDiff ? GUESS_RESULT.COLD : GUESS_RESULT.HOT;
+    }
+}
+
+const task1 = () =&gt; {
+    const game = new Game();
+    let lo = 1, hi = game.N;
+    while (lo &lt;= hi) {
+        // 无法比较大小，所以需要guess两次，最小边界和最大边界
+        let guessRes = game.guess(lo);
+        if (guessRes === GUESS_RESULT.EQ) {
+            return game.guessCount;
+        }
+        guessRes = game.guess(hi);
+        if (guessRes === GUESS_RESULT.EQ) {
+            return game.guessCount;
+        }
+        const mid = lo + Math.floor((hi - lo) / 2);
+        if (guessRes === GUESS_RESULT.HOT) {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+    }
+}
+
+const task2 = () =&gt; {
+    const game = new Game();
+    let lo = 1, hi = game.N;
+    let isRightSide = true;
+    // 第一次猜测
+    let guessRes = game.guess(lo);
+    if (guessRes === GUESS_RESULT.EQ) {
+        return game.guessCount;
+    }
+    while (lo &lt; hi) {
+        const mid = lo + Math.floor((hi - lo) / 2);
+        const nowGuess = (lo + hi) - game.lastGuess;
+        guessRes = game.guess(nowGuess);
+        if (guessRes === GUESS_RESULT.EQ) {
+            return game.guessCount;
+        }
+        if (guessRes === GUESS_RESULT.HOT) {
+            if (isRightSide) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        } else {
+            if (isRightSide) {
+                hi = mid;
+            } else {
+                lo = mid;
+            }
+        }
+        isRightSide = !isRightSide;
+        if (hi - lo &lt;= 1) {
+            if (game.guess(lo) === GUESS_RESULT.EQ) {
+                return game.guessCount;
+            }
+            if (game.guess(hi) === GUESS_RESULT.EQ) {
+                return game.guessCount;
+            }
+        }
+    }
+}
+
+// Math.log2(100000) ~= 17
+console.log(task1()); // 35
+console.log(task2()); // 19
+</code></pre>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://www.jianshu.com/p/7a9ea6ece2af" target="_blank" rel="noopener">蓄水池算法</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.937Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/12/26/awesome-alg/" target="_blank" rel="external">https://consoles.fun/2018/12/26/awesome-alg/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数学归纳法/">数学归纳法</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/概率论/">概率论</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/12/26/awesome-alg/&title=《有趣的算法》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/12/26/awesome-alg/&title=《有趣的算法》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/12/26/awesome-alg/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《有趣的算法》 — 雨碎江南&url=https://consoles.fun/2018/12/26/awesome-alg/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/12/26/awesome-alg/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/01/31/my-2018/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">2018年年度小结</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/12/10/elk/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Elastic Stack入门</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/12/26/awesome-alg/&title=《有趣的算法》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/12/26/awesome-alg/&title=《有趣的算法》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/12/26/awesome-alg/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《有趣的算法》 — 雨碎江南&url=https://consoles.fun/2018/12/26/awesome-alg/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/12/26/awesome-alg/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNUlEQVR42u3awXKrMAwF0P7/T6fbN/MK3CuTBeaw6jQEfLxQZEk/P/H1+ec6+k9y//+f5s+84cLAwHgs43N65cuabUQOO7oHAwPjPYyjF+evbINmu1kXa8bAwMA4XVYeTPMcDwMDA2OdMTuU5mkoBgYGxuwQe35/HpqTWtkXz+IYGBgPZKyka9/++yv9DQwMjEcxPuV1VzuhDeUX78LAwNiasd6AbI+gSXo3Ww8GBsaujPMiWn7sXDnoJi2ECxgGBsbWjHzEoU0Q29RwNnjxx+8GBgbGdoykyN6OeSW8toZ28UYMDIwXMNaXm4fXlW8dBmgMDIwXMFZKZsMXjwJ30cLEwMDYiJGkdC04b3+2h+SLLcbAwNiU0S5rVs/Lj6/DtgQGBsbWjPyAelea2DYMhikmBgbGdox8MCL5Vv6cNkG8CMQYGBibMtoS20pEb4t6ReKIgYHxGkYbUmfBOk8Hi+EMDAyMrRntIMWsoDYbDjsP3BgYGBjtkXKlGLc+WIaBgfEGxl0NgHxcdTbYcbFxGBgYr2EkpbQWkA+KLQ1bYGBgvICRl/WHWWeceg5LhBgYGJsyPuWVb8HsCckzD5NCDAyMTRltmJsF3LzcljcnZsEaAwPjuYz8mNoG3NnO5WF6OBuCgYHxWEY+eNE2I2fthHYcBAMDAyM5oObDYXlSWBxiMTAwMOIlrjcsc94NvxsYGBiPYrTjFG2h/64tuKHchoGB8UDGbMQhb17OFtE2NTEwMDZl/AKrVfoIMAc2ZQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

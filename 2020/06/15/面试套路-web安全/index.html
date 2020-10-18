@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>面试套路-web安全 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="信息安全,网络安全">
+    <meta name="description" content="大纲 XSS CSRF Cookie安全性 点击劫持 传输安全问题 用户密码安全 SQL注入 信息泄露&amp;amp;社会工程学   XSS利用的是用户对网站的信任，CSRF利用的是网站对用户的信任。  XSS跨站脚本攻击(Cross Site Scripting)其简称应该是CSS，但是CSS与前端领域的样式表重叠了，所以改为XSS，这个X其实是Cross的通用英文缩写。XSSg攻击的原理是数据变成了">
+<meta name="keywords" content="信息安全,网络安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试套路-web安全">
+<meta property="og:url" content="https://consoles.fun/2020/06/15/面试套路-web安全/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="大纲 XSS CSRF Cookie安全性 点击劫持 传输安全问题 用户密码安全 SQL注入 信息泄露&amp;amp;社会工程学   XSS利用的是用户对网站的信任，CSRF利用的是网站对用户的信任。  XSS跨站脚本攻击(Cross Site Scripting)其简称应该是CSS，但是CSS与前端领域的样式表重叠了，所以改为XSS，这个X其实是Cross的通用英文缩写。XSSg攻击的原理是数据变成了">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/26/2fd9ed04-f6e7-4915-a5fb-31f711c86af0.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/26/55dbfafa-8ba6-44c2-896e-11051d2b3b47.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/30/6e8836db-9b63-4890-bbf6-435f528dac20.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/01/7ae53dd9-569c-410d-8a37-4ba127721737.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/01/0aa77479-959c-4b34-b701-3d101607f2b0.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/05/f99fcf88-0bcf-443a-a9a5-bef65986b46a.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/05/fb516945-2699-4dff-95b9-e6ed956e2eeb.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.036Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="面试套路-web安全">
+<meta name="twitter:description" content="大纲 XSS CSRF Cookie安全性 点击劫持 传输安全问题 用户密码安全 SQL注入 信息泄露&amp;amp;社会工程学   XSS利用的是用户对网站的信任，CSRF利用的是网站对用户的信任。  XSS跨站脚本攻击(Cross Site Scripting)其简称应该是CSS，但是CSS与前端领域的样式表重叠了，所以改为XSS，这个X其实是Cross的通用英文缩写。XSSg攻击的原理是数据变成了">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/26/2fd9ed04-f6e7-4915-a5fb-31f711c86af0.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">面试套路-web安全</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">面试套路-web安全</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-06-15T15:27:36.000Z" itemprop="datePublished" class="page-time">
+  2020-06-15
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/安全/">安全</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#大纲"><span class="post-toc-text">大纲</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#XSS"><span class="post-toc-text">XSS</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#危害"><span class="post-toc-text">危害</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分类"><span class="post-toc-text">分类</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#防御措施"><span class="post-toc-text">防御措施</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#CSRF"><span class="post-toc-text">CSRF</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Cookies的安全问题"><span class="post-toc-text">Cookies的安全问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#XSS与cookie的关系"><span class="post-toc-text">XSS与cookie的关系</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CSRF和cookie的关系"><span class="post-toc-text">CSRF和cookie的关系</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#点击劫持"><span class="post-toc-text">点击劫持</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#传输安全"><span class="post-toc-text">传输安全</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#密码安全"><span class="post-toc-text">密码安全</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#接入层注入问题"><span class="post-toc-text">接入层注入问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL注入的防御"><span class="post-toc-text">SQL注入的防御</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#NoSQL的注入和防御"><span class="post-toc-text">NoSQL的注入和防御</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#接入层上传问题"><span class="post-toc-text">接入层上传问题</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#OAuth过程"><span class="post-toc-text">OAuth过程</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#其他安全问题"><span class="post-toc-text">其他安全问题</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#DOS"><span class="post-toc-text">DOS</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考链接"><span class="post-toc-text">参考链接</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-面试套路-web安全"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">面试套路-web安全</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-06-15 23:27:36" datetime="2020-06-15T15:27:36.000Z"  itemprop="datePublished">2020-06-15</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/安全/">安全</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="大纲"><a href="#大纲" class="headerlink" title="大纲"></a>大纲</h1><ul>
+<li>XSS</li>
+<li>CSRF</li>
+<li>Cookie安全性</li>
+<li>点击劫持</li>
+<li>传输安全问题</li>
+<li>用户密码安全</li>
+<li>SQL注入</li>
+<li>信息泄露&amp;社会工程学</li>
+</ul>
+<blockquote>
+<p>XSS利用的是用户对网站的信任，CSRF利用的是网站对用户的信任。</p>
+</blockquote>
+<h1 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h1><p>跨站脚本攻击(Cross Site Scripting)其简称应该是CSS，但是CSS与前端领域的样式表重叠了，所以改为XSS，这个X其实是Cross的通用英文缩写<br>。XSSg攻击的原理是数据变成了脚本，常用的探测方法就是<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>这一条如果能注入成功就能以src的方式注入外部脚本。</p>
+<h2 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h2><p>在常用的探测脚本中都是alert(1)，弹个框能有啥用，还能上天不？答案是真的能上天：</p>
+<ul>
+<li>获取页面数据（你看到的东西别人也能看到,偷取网站数据）</li>
+<li>获取Cookies（敏感信息泄露，例如登录态）</li>
+<li>劫持前端逻辑（欺骗用户，本来应该做A操作的，结果点击按钮执行了B）</li>
+<li>发送请求</li>
+</ul>
+<p>因此XSS是比较危险的。</p>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><ul>
+<li>反射型：url参数直接注入</li>
+<li>存储型：存储到DB后读取注入</li>
+</ul>
+<p>反射型的攻击一般危害略小于存储型，因为URL中带了参数容易被用户察觉。为了让URL中的参数不那么明显，攻击者通常会将URL进行短地址编码，这样用户打开的时候就没有多少疑问了。</p>
+<p>如果HTML的属性是用户输入动态构建的，用户就可以通过<code>&quot;</code>进行注入：</p>
+<p><code>&lt;img src = &quot;1&quot; onerror=&quot;alert(1)&quot;&quot; /&gt;</code></p>
+<p>即用户输入<code>1&quot; onerror=&quot;alert(1)&quot;</code>即可完成攻击，这种拼接字符串的方式和SQL注入的一种方式非常类似</p>
+<p>常见的XSS攻击存在于HTML属性和HTML内容，因此富文本编辑器中非常容易出现XSS攻击。</p>
+<h2 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h2><p>概括起来就是以下几种：</p>
+<ul>
+<li>转义</li>
+<li>节点白名单，仅仅保留白名单中的节点</li>
+<li><p>CSP</p>
+</li>
+<li><p>现代浏览器自带拦截，X-XSS-Protection头，可以防止反射型XSS,防止URL中的参数再次出现在HTML内容和属性中，防御非常有限</p>
+</li>
+<li>对输入HTML内容进行转义，将<code>&lt;</code>,<code>&gt;</code>,<code>&quot;</code>,<code>&#39;</code>转义为HTML实体即可,参见<a href="https://www.npmjs.com/package/escape-html" target="_blank" rel="noopener">escape-html</a>的npm模块，其实<strong>比较好的方法是对输入的内容进行JSON序列化</strong>，js中对应的就是<code>JSON.stringify</code></li>
+<li>对于富文本中XSS攻击的防御比较推荐的做法是按照白名单保留部分标签和属性，因为黑名单实在是太多了（各种script标签，onerror,onmouseover,onclick,每当你增加一个新的黑名单规则很容易找到一个方案绕过!白名单的思想是解析HTML文本构造成文档树(<a href="https://github.com/cheeriojs/cheerio" target="_blank" rel="noopener">cheerio</a>)，仅仅保留白名单中指定的那些类型的节点，如下所示：</li>
+</ul>
+<pre><code class="lang-js">function xssFilter(html) {
+    const cheerio = require(&#39;cheerio&#39;);
+    const $ = cheerio.load(html);
+    const whiteList = {
+        &#39;img&#39;: [&#39;src&#39;], // img标签只能有src属性
+        &#39;font&#39;: [&#39;color&#39;, &#39;size&#39;], // font标签只能有color和size
+        &#39;a&#39;: [&#39;href&#39;]
+    };
+    $(&#39;*&#39;).each((index, element) =&gt; {
+        const elementName = element.name;
+        if (!whiteList[elementName]) {
+            $(element).remove();
+            return;
+        }
+        for (const attr in element.attribs) {
+            if (!whiteList[elementName].includes(attr)) {
+                $(element).attr(attr, null);
+            }
+        }
+    });
+    return $.html();
+}
+</code></pre>
+<p>成熟方案<a href="https://github.com/leizongmin/js-xss" target="_blank" rel="noopener">js-xss</a>,这个模块采用的就是白名单的思想。</p>
+<blockquote>
+<p>CSP即<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/default-src" target="_blank" rel="noopener">内容安全策略</a>，这个规范与内容安全有关，主要是用来定义页面可以加载哪些资源，减少 XSS 的发生。XSS之所以是漏洞的原因是“内容被当成了程序”执行了，这样我们只需要将用户输入的内容标记为不可执行，那么注入的内容也不会产生实际的危害。需要服务器设置<code>Content-Security-Policy</code>响应头。</p>
+</blockquote>
+<h1 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h1><p>跨站请求伪造，注意和XSS中的跨站不同，这个主要是<strong>在其他任意网站进行的操作对目标网站造成了影响</strong>。一个可怕的例子是：打开了一个别人发给你的网站，你的钱莫名其妙变少了，csrf也被称为one click attack，一点就爆炸。</p>
+<p>原理是攻击者获取了用户的登陆凭证仿冒了用户（最常用的攻击方式是携带了cookie）。这种攻击可怕的方式在于被攻击用户是<strong>毫不知情</strong>的。因此可以用来盗取用户资金，冒充用户进行发帖（灌水的时候可以加上攻击者的网址链接，用户一点就由发起了CSRF攻击，从而造成CSRF蠕虫，影响非常恶劣，例如微博这种UGC分享平台）</p>
+<p>防御措施：</p>
+<ul>
+<li>get请求应该具有幂等性，不能对数据进行修改</li>
+<li>禁止第三方网站带cookie，<a href="http://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html" target="_blank" rel="noopener">cookie的samesite属性</a>，这种方式防止CSRF非常简单，但是有浏览器兼容性问题。</li>
+<li>CSRF是绕过了网站的前端直接发送带有cookie信息的请求，因此可以在网站前端加入只有前端才能得到的信息。基于这个思想有2种解决方案：验证码和csrf_token。都能很大程度避免CSRF，但是验证码对体验其实是有降低的，csrf_token的原理是后端生成随机字符串放到页面的表单的隐藏域中（不需要实际显示）和cookie中，表单提交的时候校验cookie中的token和表单中的token是否一致。注意：不管是验证码和csrf_token都需要<strong>做空值验证</strong>（注意逻辑陷阱，攻击者可能发送空值绕过验证），在ajax请求中token通常放置在meta标签中。</li>
+<li>验证refer，禁止来自第三方网站的请求，注意refer是一个完整的url，验证的时候需要保证鲁棒性，例如:<a href="http://www.b.com&amp;c=www.a.com，是一个合法refer，如果a.com仅仅用indexOf(&quot;www.a.com&quot;)进行验证可能有安全问题。" target="_blank" rel="noopener">http://www.b.com&amp;c=www.a.com，是一个合法refer，如果a.com仅仅用indexOf(&quot;www.a.com&quot;)进行验证可能有安全问题。</a></li>
+<li>增加验证流程，例如指纹、密码、短信验证码</li>
+</ul>
+<h1 id="Cookies的安全问题"><a href="#Cookies的安全问题" class="headerlink" title="Cookies的安全问题"></a>Cookies的安全问题</h1><p>Cookies遵循同源策略，只有同源才可以读写。HTTP only的cookie对于js是不可见的，path和domain也可以控制cookie的可见性。</p>
+<p>cookie常用来保存用户的登陆凭证，因此直接将uid放在cookie中有巨大的安全隐患（别人可以篡改cookie模仿任意用户），常见的做法是uid+签名。大致流程如下：</p>
+<pre><code class="lang-js">const KEY = &#39;HSD#$#%$6575FDGKJFl&#39;;
+
+const crypto = require(&#39;crypto&#39;);
+
+function signUid(uid) {
+    const hmac = crypto.createHmac(&#39;sha256&#39;, KEY);
+    hmac.update(String(uid));
+    return hmac.digest(&#39;hex&#39;);
+}
+
+/**
+ * @param {*} uid cookie中的uid
+ * @param {*} sign cookie中的签名
+ */
+function checkAuth(uid, sign) {
+    const expectedSign = signUid(uid);
+    return expectedSign === sign;
+}
+
+let uid = 1;
+let sign = signUid(uid);
+// 登陆成功后向cookie中设置uid和uid签名
+console.log(&#39;uid = &#39;, uid, &#39;sign = &#39;, sign);
+
+// 当用户进行其他需要授权的操作的时候验证传入的uid和签名
+console.log(&#39;合法用户，验证结果&#39;, checkAuth(uid, sign));
+uid = 2;
+console.log(&#39;篡改cookie中的uid为2，验证结果&#39;, checkAuth(uid, sign));
+uid = 1;
+sign = &#39;modifyed sign&#39;;
+console.log(&#39;篡改cookie中的签名，验证结果&#39;, checkAuth(uid, sign));
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/26/2fd9ed04-f6e7-4915-a5fb-31f711c86af0.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>除了上述uid+uid签名的方式，有没有不暴露用户信息的方式呢？</p>
+<p>答案是有的，将uid以密文的设置到cookie，服务器每次对cookie中的uid进行解密。</p>
+<p>另外还有一种基于session的方案，校验用户名和密码之后服务器生成一个键值对，其中key为sessionid（随机字符串），value为用户信息，服务器可以将此信息持久化到外部存储，并将sessionid放入客户端cookie中，客户端每次请求的时候带上cookie，这样服务器就知道当前用户了，这样就可以避免暴露uid。</p>
+<h2 id="XSS与cookie的关系"><a href="#XSS与cookie的关系" class="headerlink" title="XSS与cookie的关系"></a>XSS与cookie的关系</h2><p>XSS可能盗取用户cookie，设置http only的cookie不会被盗取</p>
+<h2 id="CSRF和cookie的关系"><a href="#CSRF和cookie的关系" class="headerlink" title="CSRF和cookie的关系"></a>CSRF和cookie的关系</h2><p>csrf则是利用了用户cookie，验证码和csrf token方式有效的原因是无法修改目标网站的cookie，最好是禁用第三方的cookie。</p>
+<p>如果没有cookie，csrf和xss的攻击威力至少少一大半。</p>
+<h1 id="点击劫持"><a href="#点击劫持" class="headerlink" title="点击劫持"></a>点击劫持</h1><p>一个典型的场景是将目标网站放入到iframe中，并将此iframe的透明度设置为0，因此用户实际上是看不到目标网站的，接下来使用一张比较劲爆的背景图吸引用户对用户进行指导按照指定的位置进行点击，这样用户实际上是在和目标网站进行交互。</p>
+<p>解决方案是服务器输出header:X-Frame-Options禁止内嵌。例如支付宝进行这样处理的：</p>
+<pre><code class="lang-html">&lt;body&gt;
+    &lt;h1&gt;sdfds&lt;/h1&gt;
+    &lt;img src=&quot;&quot; alt=&quot;&quot;&gt;
+    &lt;iframe src=&quot;http://www.alipay.com&quot; frameborder=&quot;0&quot;&gt;&lt;/iframe&gt;
+&lt;/body&gt;
+</code></pre>
+<p>当我们试图在自己的网页中内嵌支付宝的时候显示如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/26/55dbfafa-8ba6-44c2-896e-11051d2b3b47.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>值得注意的是这个HTTP头兼容性非常好（从IE8）</p>
+<h1 id="传输安全"><a href="#传输安全" class="headerlink" title="传输安全"></a>传输安全</h1><p>http中的connect方法是实现http代理的一种方法，它实际上是一种TCP代理，因此也可以代理HTTPS，但是HTTPS中的内容是密文无法查看。免费的HTTPS常用let’s encrypt</p>
+<h1 id="密码安全"><a href="#密码安全" class="headerlink" title="密码安全"></a>密码安全</h1><p>足够复杂的密码是对抗彩虹表的有效手段之一，因为彩虹表受限于计算和存储性能。密码的变换次数越多越安全，加密成本几乎不变（生成密码的时候速度慢一些），彩虹表失效（数量太大，无法建立通用性），解密成本增大N倍。</p>
+<p>保证密码传输安全主要有以下几种手段：</p>
+<ol>
+<li>https传输</li>
+<li>登陆频率限制（一定程度上杜绝暴力破解）</li>
+<li>前端加密意义是有限的（因为前端传的是明文中间人就传明文，前端传的密文中间人就传密文，但是中间人至少无法知道明文密码）</li>
+</ol>
+<h1 id="接入层注入问题"><a href="#接入层注入问题" class="headerlink" title="接入层注入问题"></a>接入层注入问题</h1><p>SQL注入和XSS非常类似：一部分数据变成了程序。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/06/30/6e8836db-9b63-4890-bbf6-435f528dac20.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<ol>
+<li>末尾的1=0使得所有条件为假，不会得到任何数据</li>
+<li>末尾的1=1使得所有条件为真，查出所有数据</li>
+<li>可以用于服务器数据库版本探测，比如如果某个版本有漏洞可能被利用</li>
+<li>针对每一条记录都返回1，2，3</li>
+<li>在4的基础上多了最前面的id列</li>
+<li>union可以将结果展示到结果的下方，可以用于探测表有多少个字段（1，2如果不报错则表示有2个字段；1，2，3不报错就表示有3个字段）</li>
+<li>可以对表数据进行探测</li>
+</ol>
+<p>SQL注入有非常多的写法，防不胜防，后果非常严重，一定要引起足够重视！其实SQL注入并不是小公司才有，支付宝、腾讯、微博这种体量的公司也是有这种问题的。</p>
+<h2 id="SQL注入的防御"><a href="#SQL注入的防御" class="headerlink" title="SQL注入的防御"></a>SQL注入的防御</h2><ul>
+<li>关闭错误输出：错误信息对于攻击者有非常大的帮助，黑客可以根据报错决定注入方向是否正确或者向哪个方向改进</li>
+<li>检查参数类型：例如输入的id只能是整数，不能拼接其他字符串</li>
+<li>对数据进行转义：例如node-mysql包中可以对参数进行转义<code>mysql.escape(param)</code>,在使用占位符<code>?</code>的时候会自动调用escape</li>
+<li>参数化查询：查询步骤分2步：①将带参数的SQL发给服务器，但是并不真正执行，因为没有真正的参数，这个时候SQL服务器知道了你的意图，②只发送参数。这种方式在Java中叫做PreparedStatement，<a href="https://github.com/sidorares/node-mysql2#using-prepared-statements" target="_blank" rel="noopener">node-mysql2</a>支持这种方式。使用参数化查询之后<strong>用户无法改变SQL语句的意图</strong>，最简单最彻底的防御。</li>
+<li>使用ORM,安全性好，能提高开发效率</li>
+</ul>
+<h2 id="NoSQL的注入和防御"><a href="#NoSQL的注入和防御" class="headerlink" title="NoSQL的注入和防御"></a>NoSQL的注入和防御</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/01/7ae53dd9-569c-410d-8a37-4ba127721737.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>可以看到在POST模拟的时候不知道用户名和密码的情况下就得到了token，即成功登陆。后端登陆的伪码如下：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/01/0aa77479-959c-4b34-b701-3d101607f2b0.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>主要问题在于password传的不是字符串而是对象，同样的原理我们可以在不知道username的情况下进行相同的注入。</p>
+<p>防御方法：</p>
+<ol>
+<li>入参数据检查和转换</li>
+<li>写完整条件</li>
+</ol>
+<h1 id="接入层上传问题"><a href="#接入层上传问题" class="headerlink" title="接入层上传问题"></a>接入层上传问题</h1><p>上传文件通常分为2步：</p>
+<ol>
+<li>上传文件</li>
+<li>再次访问上传的文件</li>
+</ol>
+<p>一般而言上传是不会有问题的，但是<strong>当上传的文件被当做程序来解析</strong>（例如：服务器是php，上传的是php文件）就有严重问题了。</p>
+<p>解决方案有：</p>
+<ol>
+<li>限制后缀名，例如后端是php的话不能上传php文件，有的时候非常简单有效，但是不一定准确</li>
+<li>检查文件类型，这个依赖浏览器的MIME，攻击者可能绕过浏览器</li>
+<li>文件内容检查，不同类型的文件有不同的内容头，即开头的几个字符都是有一定特征的</li>
+<li>程序输出：不要让用户上传的文件被直接访问。即上传文件的目的就是为了显示，可以程序读取文件内容给到前端，但是会降低性能，一个折中的方法是有读文件请求的时候给NGINX发一个指令</li>
+<li>权限控制：写权限和执行权限是互斥的，这一条是核心安全保障，<strong>无论在什么情况下都是要遵守的</strong>。php文件具有执行权限，但是上传文件的目录有写权限。</li>
+</ol>
+<blockquote>
+<p>部署网站的时候一定要用低权限用户，能满足网站正常需要即可。</p>
+</blockquote>
+<h1 id="OAuth过程"><a href="#OAuth过程" class="headerlink" title="OAuth过程"></a>OAuth过程</h1><ol>
+<li>用户请求使用QQ登陆目标网站</li>
+<li>目标网站重定向到QQ登录页</li>
+<li>用户在QQ登陆页输入自己的用户名和密码</li>
+<li>QQ登陆成功后跳转到目标网站</li>
+<li>目标网站获取access_token</li>
+<li>QQ服务器返回access_token</li>
+<li>用户在目标网站登陆完成</li>
+</ol>
+<p>整个OAuth的过程中用户只是获得了token。这里面有以下几个思想：</p>
+<ol>
+<li>一切行为由用户授权</li>
+<li>授权行为不泄露敏感信息</li>
+<li>授权是会过期的</li>
+</ol>
+<p>其实<strong>在我们自己的业务中也可以利用Oauth的思想防止资料泄露</strong>。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/05/f99fcf88-0bcf-443a-a9a5-bef65986b46a.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>这样的系统有以下几个特点：</p>
+<ol>
+<li>用户需要授权才能读取资料</li>
+<li>不能批量获取数据</li>
+<li>数据接口可以风控审计（例如1分钟内查了1000个用户的资料可以直接把服务停掉排查）</li>
+</ol>
+<h1 id="其他安全问题"><a href="#其他安全问题" class="headerlink" title="其他安全问题"></a>其他安全问题</h1><h2 id="DOS"><a href="#DOS" class="headerlink" title="DOS"></a>DOS</h2><ul>
+<li>TCP半连接</li>
+<li>HTTP连接</li>
+<li>DNS：一般带宽很小，攻击DNS是一种非常有效的方案</li>
+</ul>
+<p>DDOS是大规模分布式拒绝服务攻击，流量可以达到几十或者上百G，用户来源非常广，很难区分正常用户和攻击者，非常难防御。</p>
+<p>更严重的是攻击流量非常大影响到骨干网的时候运营商可能直接把机房流量给你下了，这个时候你的网站自然没人访问了。常见的案例是恶意竞争者攻击别人的游戏服务器。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/07/05/fb516945-2699-4dff-95b9-e6ed956e2eeb.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>虽然难防，但是我们也是可以做一些<strong>有限</strong>事情的：</p>
+<ul>
+<li>防火墙</li>
+<li>交换机，路由器</li>
+<li>流量清洗</li>
+<li>高防IP（把域名解析到高防IP，背后是大规模的流量清洗服务，能提供非常大的带宽）</li>
+</ul>
+<p>开发时候的预防：</p>
+<ol>
+<li>避免重逻辑业务</li>
+<li>快速失败返回（负载越高，越容易失败，重试几率越大，服务越容易崩溃）</li>
+<li>防雪崩机制</li>
+<li>有损服务（保证核心服务可用）</li>
+<li>CDN</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a href="https://imququ.com/post/content-security-policy-reference.html" target="_blank" rel="noopener">CSP介绍</a></li>
+<li><a href="https://www.cnblogs.com/rysinal/p/8350783.html" target="_blank" rel="noopener">node-mysql包对SQL注入的防御</a></li>
+<li><a href="http://consoles.fun/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%A2%84%E7%BC%96%E8%AF%91%E7%9A%84SQL%E8%83%BD%E9%98%B2%E6%AD%A2SQL%E6%B3%A8%E5%85%A5">为什么预编译的SQL能防止SQL注入</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.036Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2020/06/15/面试套路-web安全/" target="_blank" rel="external">https://consoles.fun/2020/06/15/面试套路-web安全/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/信息安全/">信息安全</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络安全/">网络安全</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/06/15/面试套路-web安全/&title=《面试套路-web安全》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/06/15/面试套路-web安全/&title=《面试套路-web安全》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/06/15/面试套路-web安全/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路-web安全》 — 雨碎江南&url=https://consoles.fun/2020/06/15/面试套路-web安全/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/06/15/面试套路-web安全/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/07/28/面试套路-消息队列/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">面试套路-消息队列</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/06/15/面试套路-Redis/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">面试套路——Redis</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/06/15/面试套路-web安全/&title=《面试套路-web安全》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/06/15/面试套路-web安全/&title=《面试套路-web安全》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/06/15/面试套路-web安全/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路-web安全》 — 雨碎江南&url=https://consoles.fun/2020/06/15/面试套路-web安全/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/06/15/面试套路-web安全/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNUlEQVR42u3azU7EMAxF4b7/SxeJHYKWc+1U0PhkNYJMJ18Xln9yHHidn+v+89V/vy+y/3hiyZAh47WM83Zd7bk6Cjkcfz45mwwZMuYwSJDthFoSJ0lAv/y7DBkyZIB0jQRNEkZlyJAhYxXjPkSmryB9fTJkyJjJ4IGvExbTIvmRWlyGDBkvZKwaDDzx+Q/mGzJkyPhnjDNc5Lt8GJAOPi9/UYYMGVszSFqGCkhQ6K4N/SjDlSFDxgBGerha6Uv2ozPIkCFjU0baDls74CTJIkoxZciQMZ5Ra5aliWZtJPClFpchQ8YARidpq7XV+LDzl0AvQ4aM8QxesnbCaAr+Yb4hQ4aMrRk82JHGWXqFojba/CHgypAhY1NGmrSRBtyC9llpCCFDhow5DJK0rQqg6UAiCLgyZMjYjtEfD6SJHW+lBS9FhgwZAxjkwgRp2afXMmoj0iON9DJkyHgtgyR/abKYJpQLgq8MGTK2ZgSbcDm66pnxeFWGDBljGJ2BZdDbK6WS9ztlyJCxK+MEq5bSkYY+acahdpsMGTKGMXjZmbbk0ssci8tXGTJkvJaRlqk8UPZ5qwpjGTJkvJ1xhisdBtSSvzQ9lSFDxt6MWn7Vb72Rq2aPJIsyZMh4LSMNgjVe57sorZQhQ8YARtoI40UpL27TUhY9QoYMGcMYnZKVFKK8YL5MDWXIkCEDt8865SgfLciQIWMao9+s74wQ0rmrDBkypjFqFy/4ACD9lc5IVYYMGdsxPgDvf61jXMnxGwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

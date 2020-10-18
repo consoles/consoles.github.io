@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>vim技巧 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux,vim">
+    <meta name="description" content="一些小技巧 =：一个常用的场景就是粘贴代码后格式乱了，使用v命令进入多选模式，选中几行，然后=。 vi abc.txt +:打开文件abc.txt并定位到最后一行。 vi abc.txt +3:打开abc.txt并定位到第3行(如果行号过大就会定位到最后一行和直接使用+一样)。 vi message-center/chatServer.js +/data，找出chatServer.js中所有的da">
+<meta name="keywords" content="linux,vim">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vim技巧">
+<meta property="og:url" content="https://consoles.fun/2016/10/09/vim-skill/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="一些小技巧 =：一个常用的场景就是粘贴代码后格式乱了，使用v命令进入多选模式，选中几行，然后=。 vi abc.txt +:打开文件abc.txt并定位到最后一行。 vi abc.txt +3:打开abc.txt并定位到第3行(如果行号过大就会定位到最后一行和直接使用+一样)。 vi message-center/chatServer.js +/data，找出chatServer.js中所有的da">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.014Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vim技巧">
+<meta name="twitter:description" content="一些小技巧 =：一个常用的场景就是粘贴代码后格式乱了，使用v命令进入多选模式，选中几行，然后=。 vi abc.txt +:打开文件abc.txt并定位到最后一行。 vi abc.txt +3:打开abc.txt并定位到第3行(如果行号过大就会定位到最后一行和直接使用+一样)。 vi message-center/chatServer.js +/data，找出chatServer.js中所有的da">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">vim技巧</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">vim技巧</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-10-09T15:07:40.000Z" itemprop="datePublished" class="page-time">
+  2016-10-09
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一些小技巧"><span class="post-toc-text">一些小技巧</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一些插件"><span class="post-toc-text">一些插件</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#为什么有时候使用自带的方向键向下左右变成了-A-B-D-C"><span class="post-toc-text">为什么有时候使用自带的方向键向下左右变成了^[[A^[[B^[[D^[[C</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-vim-skill"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">vim技巧</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-10-09 23:07:40" datetime="2016-10-09T15:07:40.000Z"  itemprop="datePublished">2016-10-09</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧"></a>一些小技巧</h1><ul>
+<li><code>=</code>：一个常用的场景就是粘贴代码后格式乱了，使用<code>v</code>命令进入多选模式，选中几行，然后<code>=</code>。</li>
+<li><code>vi abc.txt +</code>:打开文件abc.txt并定位到最后一行。</li>
+<li><code>vi abc.txt +3</code>:打开abc.txt并定位到第3行(如果行号过大就会定位到最后一行和直接使用<code>+</code>一样)。</li>
+<li><code>vi message-center/chatServer.js +/data</code>，找出chatServer.js中所有的data，我们可以使用<code>n</code>（下一个）或者<code>N</code>（上一个）进行切换。</li>
+<li><code>vi a.txt b.txt c.txt</code>,创建或者打开3个文件(可以使用<code>:ls</code>查看打开的所有文件)，我们可以使用<code>:n</code>(向下切换,<code>:next</code>)或者<code>:N</code>（向上切换,<code>:prev</code>）当前文件名。</li>
+<li><code>/xxx</code>（从光标位置向后搜索）,<code>?xxx</code>（从光标位置向前搜索）</li>
+<li><code>ctrl+f</code>(向下翻页，forward)，<code>ctrl+b</code>(上翻页，backward)。</li>
+<li><code>yy</code>复制光标所在行，<code>p</code>在光标所在行下方粘贴(<code>P</code>在所在行上方粘贴)。</li>
+<li><code>w</code>下一个单词(word)，<code>b</code>上一个单词(backword)。</li>
+<li><code>shift+v</code>:选择多行，然后上下左右移动。前面说的是整行选择，我们也可以使用<code>v</code>，然后方向键进行选择。</li>
+<li>删除：一个字母<code>x</code>，一个单词<code>dw</code>，一行<code>dd</code>，多行：<code>shift+v</code>，然后<code>x</code>或者<code>d</code>。</li>
+<li>复制：单词：<code>yw</code>,当前行<code>yy</code>，粘贴<code>p</code>,复制粘贴时格式错乱可以使用<code>set paste</code>进入粘贴模式。重复上次操作<code>.</code></li>
+</ul>
+<h1 id="一些插件"><a href="#一些插件" class="headerlink" title="一些插件"></a>一些插件</h1><ul>
+<li>fuzzy find模糊搜索</li>
+<li>MRU插件（Most Recently used files）</li>
+</ul>
+<h1 id="为什么有时候使用自带的方向键向下左右变成了-A-B-D-C"><a href="#为什么有时候使用自带的方向键向下左右变成了-A-B-D-C" class="headerlink" title="为什么有时候使用自带的方向键向下左右变成了^[[A^[[B^[[D^[[C"></a>为什么有时候使用自带的方向键向下左右变成了<code>^[[A^[[B^[[D^[[C</code></h1><p>readline的问题，详见<a href="https://www.zhihu.com/question/21518507" target="_blank" rel="noopener">知乎</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.014Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/10/09/vim-skill/" target="_blank" rel="external">https://consoles.fun/2016/10/09/vim-skill/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/">vim</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/10/09/vim-skill/&title=《vim技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/10/09/vim-skill/&title=《vim技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/10/09/vim-skill/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《vim技巧》 — 雨碎江南&url=https://consoles.fun/2016/10/09/vim-skill/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/10/09/vim-skill/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/10/18/memcached/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">memcached初窥</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/10/05/js-regexp/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">javascript正则表达式</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/10/09/vim-skill/&title=《vim技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/10/09/vim-skill/&title=《vim技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/10/09/vim-skill/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《vim技巧》 — 雨碎江南&url=https://consoles.fun/2016/10/09/vim-skill/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/10/09/vim-skill/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvElEQVR42u3aQY7CMAwFUO5/6c4BRg3fNglFellVUJFnFlZs5/WK13Wz/r9z97z+5MMLFxd3zL2Wa73l+nlNX39+GxIuLu5B7l3G+Ow7SfBvbLi4uA/mJt9Wj0G4uLi/zt1Xm+Di4j6Hm2yQH1+qyWtLrYaLizvg5ulp3/OW/i4uLm6LexVX0gZd7zLaHRcX9wg3TyjVY0cvgOhNXFzczdwdw5JJE+TNX4OLi3uE+6nGaDV59Q49uLi4J7nr9DH50SSA3hAXFxd3HzdvRlRHHdWkFl3jwMXFPcitlh/rbUbD0bxWw8XF3cadXKTIA5sEGTVHcHFxN3Anx5r1+5OQbo8+uLi4R7jVqxK9sWuCqzZWcHFxv8WdbzAPqTzPwcXFHXPzIqQ6NK0GHIWKi4t7kJv/xBxRPTbh4uJ+lzsvdfImSHLEad4Iw8XFHXCv4kpKlMmVjvL0FRcXdwN3fiUiT229bk0zGFxc3DG3N0zN70ollMJfgIuLe5BbTTRJC7Vch+W1Gi4u7oO585KpWbHh4uI+jFttnuapMBLi4uIe5Fabm72habXxiouL+y1uOZUMfrradhn1d3FxcTvcP4mMKfiUqw0cAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

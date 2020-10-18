@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>游戏编程算法与技巧 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="算法,游戏">
+    <meta name="description" content="游戏编程概述游戏编程中的3个核心概念：游戏循环、游戏时间管理和游戏对象模型。 游戏循环整个程序的核心流程控制称为游戏循环。之所以是一个循环是因为游戏总在不断执行一系列动作直到玩家退出。每迭代一次游戏循环称为1帧。大部分游戏每秒钟更新30~60帧。60FPS即游戏循环每秒钟执行60次。一个传统的游戏循环分成3部分：处理输入、更新游戏世界、生成输出。 while game is running   p">
+<meta name="keywords" content="算法,游戏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="游戏编程算法与技巧">
+<meta property="og:url" content="https://consoles.fun/2018/10/21/game-programming/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="游戏编程概述游戏编程中的3个核心概念：游戏循环、游戏时间管理和游戏对象模型。 游戏循环整个程序的核心流程控制称为游戏循环。之所以是一个循环是因为游戏总在不断执行一系列动作直到玩家退出。每迭代一次游戏循环称为1帧。大部分游戏每秒钟更新30~60帧。60FPS即游戏循环每秒钟执行60次。一个传统的游戏循环分成3部分：处理输入、更新游戏世界、生成输出。 while game is running   p">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.957Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="游戏编程算法与技巧">
+<meta name="twitter:description" content="游戏编程概述游戏编程中的3个核心概念：游戏循环、游戏时间管理和游戏对象模型。 游戏循环整个程序的核心流程控制称为游戏循环。之所以是一个循环是因为游戏总在不断执行一系列动作直到玩家退出。每迭代一次游戏循环称为1帧。大部分游戏每秒钟更新30~60帧。60FPS即游戏循环每秒钟执行60次。一个传统的游戏循环分成3部分：处理输入、更新游戏世界、生成输出。 while game is running   p">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">游戏编程算法与技巧</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">游戏编程算法与技巧</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-10-21T11:46:55.000Z" itemprop="datePublished" class="page-time">
+  2018-10-21
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/游戏开发/">游戏开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#游戏编程概述"><span class="post-toc-text">游戏编程概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#游戏循环"><span class="post-toc-text">游戏循环</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#游戏时间管理"><span class="post-toc-text">游戏时间管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#游戏对象模型"><span class="post-toc-text">游戏对象模型</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#2D图形"><span class="post-toc-text">2D图形</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#像素缓冲区和垂直同步"><span class="post-toc-text">像素缓冲区和垂直同步</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#动画精灵"><span class="post-toc-text">动画精灵</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-game-programming"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">游戏编程算法与技巧</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-10-21 19:46:55" datetime="2018-10-21T11:46:55.000Z"  itemprop="datePublished">2018-10-21</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/游戏开发/">游戏开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="游戏编程概述"><a href="#游戏编程概述" class="headerlink" title="游戏编程概述"></a>游戏编程概述</h1><p>游戏编程中的3个核心概念：游戏循环、游戏时间管理和游戏对象模型。</p>
+<h2 id="游戏循环"><a href="#游戏循环" class="headerlink" title="游戏循环"></a>游戏循环</h2><p>整个程序的核心流程控制称为游戏循环。之所以是一个循环是因为游戏总在不断执行一系列动作直到玩家退出。每迭代一次游戏循环称为1帧。大部分游戏每秒钟更新30~60帧。60FPS即游戏循环每秒钟执行60次。一个传统的游戏循环分成3部分：处理输入、更新游戏世界、生成输出。</p>
+<pre><code class="lang-lua">while game is running
+  process inpus
+  update game world
+  generate outputs
+loop
+</code></pre>
+<h2 id="游戏时间管理"><a href="#游戏时间管理" class="headerlink" title="游戏时间管理"></a>游戏时间管理</h2><p>游戏时间管理使得我们的游戏速度可以在任何机器上得到保证。通过处理时间增量来表示游戏逻辑。如果在8MHz下游戏的FPS为30，则在16MHz下FPS为60。也就是说在30FPS的时候敌人每秒钟移动150px，则在60FPS的时候敌人每秒移动300px。为了解决这个问题，通常需要引入时间增量：从上一帧起流逝的时间。更新逻辑可以写成这样：</p>
+<pre><code class="lang-lua">emeny.position.x += 150 * deltaTime
+</code></pre>
+<p>在30FPS下每帧移动5px，而60FPS下每帧移动2.5px。结果是每秒还是移动150px，但是60FPS的显然更加平滑。但是这也会导致奇怪的角色行为：低帧率下跳的更高。这个问题的简单解决方案是限制帧率。例如一个目标帧率为30的游戏，如果游戏循环本身只用了30ms，则需要再等待3.3ms才能进入下一次游戏循环。如果游戏遇上复杂情形导致某帧比目标帧率时长长，最常见的就是为了跟上目标帧率放弃这一帧的渲染，这就是有名的<em>卡帧</em>。</p>
+<h2 id="游戏对象模型"><a href="#游戏对象模型" class="headerlink" title="游戏对象模型"></a>游戏对象模型</h2><p>游戏对象是每一帧需要更新或者绘制的对象：</p>
+<p>既绘制又更新的对象：玩家、角色、敌人<br>只更新的对象：摄像机和看不见的触发器<br>只绘制的对象：静态网格，例如背景中的树木</p>
+<pre><code class="lang-lua">class GameWorld
+  List updateableObjects
+  List drawableObjects
+end 
+
+while game is running
+  realDeltaTime = time since last frame
+  gameDeltaTime = realDeltaTime * gameTimeFactor
+
+  process inpus
+
+  foreach o in GameWorld.updateableObjects
+    o.Update(gameDeltaTime)
+  loop
+  foreach o in GameWorld.drawableObjects
+    o.Draw()
+  loop 
+
+  // 帧数限制
+  ...
+loop
+</code></pre>
+<p>Q：一个简单的多线程游戏循环是如何提升帧率的？<br>A：如果渲染使用了30ms，游戏世界的更新使用了20ms，传统游戏循环会花费每帧50ms。但是如果将渲染放入一条自己单独的线程就可以和游戏更新并行完成。每帧总花费会降低到30ms。</p>
+<p>Q:什么是输入延迟？多线程游戏循环是如何导致延迟的？<br>A：输入延迟是按下按钮到看见屏幕上按钮产生效果的时间。在多线程游戏循环中输入延迟会增加。因为渲染总是比游戏更新慢一帧，因此多了一帧的延迟。</p>
+<h1 id="2D图形"><a href="#2D图形" class="headerlink" title="2D图形"></a>2D图形</h1><h2 id="像素缓冲区和垂直同步"><a href="#像素缓冲区和垂直同步" class="headerlink" title="像素缓冲区和垂直同步"></a>像素缓冲区和垂直同步</h2><p>将新的一帧向像素缓冲区中写像素的时候，CRT还在上一帧的绘制当中，这就导致了<em>屏幕撕裂</em>，具体表现就是屏幕上同时显示了不同的两帧的各自一半的画面。更糟糕的是，新一帧的数据提交时，上一帧还没开始，这就会导致没有画面。可以采用双缓冲来解决：有两块像素缓冲区，游戏交替地绘制在这两块缓冲区里。为了完全消除屏幕撕裂，缓冲区交换必须在场消隐期进行，这就是垂直同步。游戏游戏确实允许缓冲区交换在绘制完成前尽快进行，这就会导致屏幕撕裂的可能，这种情况通常是玩家想要会的比屏幕刷新速度快的帧率。如果一款显示器有60Hz的刷新频率，则同步缓冲区交换到场消隐期最多只有60Hz,但是玩家为了减少输入延迟，可能选择消除同步以达到更高的帧率。</p>
+<h2 id="动画精灵"><a href="#动画精灵" class="headerlink" title="动画精灵"></a>动画精灵</h2><p>2D动画的原理是快速切换静态图片。为了保证动画的流畅性，帧率至少是24FPS（电影帧率）</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.957Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/10/21/game-programming/" target="_blank" rel="external">https://consoles.fun/2018/10/21/game-programming/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/游戏/">游戏</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/21/game-programming/&title=《游戏编程算法与技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/21/game-programming/&title=《游戏编程算法与技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/21/game-programming/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《游戏编程算法与技巧》 — 雨碎江南&url=https://consoles.fun/2018/10/21/game-programming/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/21/game-programming/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/10/30/spark-streaming/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">大数据基础之SparkStreaming</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/10/15/spark-sql/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">大数据基础之SparkSQL</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/21/game-programming/&title=《游戏编程算法与技巧》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/21/game-programming/&title=《游戏编程算法与技巧》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/21/game-programming/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《游戏编程算法与技巧》 — 雨碎江南&url=https://consoles.fun/2018/10/21/game-programming/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/21/game-programming/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACHklEQVR42u3aQY7DIAwF0N7/0pl1NZPMtyFVA49VFVHgbSyM/XrF4zgZv+ck85PvrzsGBgbGYxnH5Ug2vj7E2fzrM+Rnw8DA2IdxtnQSTPP5eczMz4aBgYGRBM0jGNfH7QVoDAwMjB6jd+37uoCLgYHxlYwkiU2uff+kmnHIvjEXx8DAeCAjf3X//O9b6hsYGBiPYhzFUV0tOdYxPDAwMNZm5AEub4zIr4aFBDVZAQMDYzNG9aGtWoystoVF+2JgYCzKyBfqpZ3Vo+dPfm9fMDAwtmHkJYGkkWLk/a+8AgYGxmaMkeWqKWuvgeOPf2FgYGzJyDdItskbv3qtGxgYGDswek9pybGq6W61VPAWcDEwMBZlJKnpeNmg9/SfFAYwMDB2Y1QT1Gr7V7V4WW7jwMDAWJQxksTmyGoLxVCzBQYGxnKMXqCc8JQ/qfDQvBpiYGA8ltFrEUsS4LubMzAwMPZh5OE1Ty+bJcnewxwGBsYGjFkBN19/pDnjNInFwMBYmjEU7FoPbSMXyigXx8DAWI4xa7Nq4K5mphgYGDszRjaY23jRDOUYGBiLMo7iyJPSHJavf7oaBgbG0oxemfOWqN9qzihjMDAwHsvIg2wVObf5o5CLY2BgLMqoBr6Rq14efAtIDAwMjCIjKY4maWohcGNgYGDEh7tjnWgmBgbGBoxew8T1l2oimpdFMTAwdmOMtFb0HulmJa4YGBgbMH4A5p3bGVdQpZ4AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

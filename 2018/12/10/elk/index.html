@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Elastic Stack入门 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="大数据,数据分析">
+    <meta name="description" content="常见术语 Document：存储在ES中的一些数据，存储的最小单元。表中的一行数据。是JSON object，由field组成，有数据类型，每一个文档有唯一id，拥有meta data标注文档(_source,_id等)的相关信息。 Index:具有相同结构的文档的集合。对应表。拥有自己的mapping定义，定义字段名和类型。一个集群可以有多个索引，例如nginx日志可以按照每天生成一个索引来存储">
+<meta name="keywords" content="大数据,数据分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elastic Stack入门">
+<meta property="og:url" content="https://consoles.fun/2018/12/10/elk/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="常见术语 Document：存储在ES中的一些数据，存储的最小单元。表中的一行数据。是JSON object，由field组成，有数据类型，每一个文档有唯一id，拥有meta data标注文档(_source,_id等)的相关信息。 Index:具有相同结构的文档的集合。对应表。拥有自己的mapping定义，定义字段名和类型。一个集群可以有多个索引，例如nginx日志可以按照每天生成一个索引来存储">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/elasticsearch_term_dict_impl.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/term_dict_posting_list.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/match_query.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-shard.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-shard-replication.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/cluster_yellow.jpg">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/cluster_green.jpg">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/document_shard.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/process_of_create_document.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/process_of_document_read.jpg">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/split_brain.jpg">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/split_brain_solve.jpg">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/deep-paging.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-aggression.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/balance.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-jvm-memory.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/logstash-process.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/logstash-arch.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/08/14/24b88683-bbdc-4493-8164-b9220f2f1a19.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/filebeats-arch.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-visualize.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-visualize2.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-split-chart.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-timelion.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/test_airbana.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%20imooc%20log%20-%20imooc%20overview.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%202016%E5%B9%B4%E7%9A%84%E5%8C%97%E4%BA%AC%E9%9B%BE%E9%9C%BE.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%20%E5%8C%97%E4%BA%AC%E7%9A%84%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E8%BF%99%E4%BA%9B%E5%B9%B4%E6%9C%89%E5%8F%98%E5%A5%BD%E5%90%97%EF%BC%9F.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.950Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elastic Stack入门">
+<meta name="twitter:description" content="常见术语 Document：存储在ES中的一些数据，存储的最小单元。表中的一行数据。是JSON object，由field组成，有数据类型，每一个文档有唯一id，拥有meta data标注文档(_source,_id等)的相关信息。 Index:具有相同结构的文档的集合。对应表。拥有自己的mapping定义，定义字段名和类型。一个集群可以有多个索引，例如nginx日志可以按照每天生成一个索引来存储">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/elasticsearch_term_dict_impl.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Elastic Stack入门</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Elastic Stack入门</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-12-10T13:04:11.000Z" itemprop="datePublished" class="page-time">
+  2018-12-10
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#常见术语"><span class="post-toc-text">常见术语</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#倒排索引和分词"><span class="post-toc-text">倒排索引和分词</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#中文分词的难点"><span class="post-toc-text">中文分词的难点</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Mapping设置"><span class="post-toc-text">Mapping设置</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Search-API"><span class="post-toc-text">Search API</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#URI-Search"><span class="post-toc-text">URI Search</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Query-DSL"><span class="post-toc-text">Query DSL</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Match-Query"><span class="post-toc-text">Match Query</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Term-amp-Terms-Query"><span class="post-toc-text">Term &amp; Terms Query</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Range-Query"><span class="post-toc-text">Range Query</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Bool-Query"><span class="post-toc-text">Bool Query</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#分布式特性"><span class="post-toc-text">分布式特性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#副本和分片"><span class="post-toc-text">副本和分片</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cluster-Health-amp-故障转移"><span class="post-toc-text">Cluster Health &amp; 故障转移</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文档分布式存储"><span class="post-toc-text">文档分布式存储</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#脑裂问题"><span class="post-toc-text">脑裂问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#ES运行机制"><span class="post-toc-text">ES运行机制</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Query-Then-Fetch"><span class="post-toc-text">Query Then Fetch</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#相关性算分"><span class="post-toc-text">相关性算分</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分页和遍历"><span class="post-toc-text">分页和遍历</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#聚合分析"><span class="post-toc-text">聚合分析</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Bucket聚合"><span class="post-toc-text">Bucket聚合</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Metric聚合"><span class="post-toc-text">Metric聚合</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Bucket和Metric聚合分析"><span class="post-toc-text">Bucket和Metric聚合分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#作用范围"><span class="post-toc-text">作用范围</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#排序以及精准度"><span class="post-toc-text">排序以及精准度</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#数据建模"><span class="post-toc-text">数据建模</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关联关系处理"><span class="post-toc-text">关联关系处理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Reindex"><span class="post-toc-text">Reindex</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#集群调优"><span class="post-toc-text">集群调优</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JVM设定"><span class="post-toc-text">JVM设定</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#写性能优化"><span class="post-toc-text">写性能优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#读性能优化"><span class="post-toc-text">读性能优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何设定Shard数"><span class="post-toc-text">如何设定Shard数</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#LogStash"><span class="post-toc-text">LogStash</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#入门-amp-运行机制"><span class="post-toc-text">入门 &amp; 运行机制</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#线程分析"><span class="post-toc-text">线程分析</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Queue"><span class="post-toc-text">Queue</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#线程"><span class="post-toc-text">线程</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#插件"><span class="post-toc-text">插件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Input"><span class="post-toc-text">Input</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Filter"><span class="post-toc-text">Filter</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#调试配置建议"><span class="post-toc-text">调试配置建议</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实战apache日志"><span class="post-toc-text">实战apache日志</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实战CSV文件"><span class="post-toc-text">实战CSV文件</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Beats"><span class="post-toc-text">Beats</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Filebeat"><span class="post-toc-text">Filebeat</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Elasticsearch-Ingest-Node"><span class="post-toc-text">Elasticsearch Ingest Node</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Filebeats-Module"><span class="post-toc-text">Filebeats Module</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Metrics-Beats"><span class="post-toc-text">Metrics Beats</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Packet-Beats"><span class="post-toc-text">Packet Beats</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Kibana"><span class="post-toc-text">Kibana</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#项目实战"><span class="post-toc-text">项目实战</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#房屋搜索项目"><span class="post-toc-text">房屋搜索项目</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建数据模型"><span class="post-toc-text">创建数据模型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#导入数据"><span class="post-toc-text">导入数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置Kibana"><span class="post-toc-text">配置Kibana</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#nginx日志分析"><span class="post-toc-text">nginx日志分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#北京空气质量分析"><span class="post-toc-text">北京空气质量分析</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#常用工具"><span class="post-toc-text">常用工具</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-elk"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Elastic Stack入门</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-12-10 21:04:11" datetime="2018-12-10T13:04:11.000Z"  itemprop="datePublished">2018-12-10</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="常见术语"><a href="#常见术语" class="headerlink" title="常见术语"></a>常见术语</h1><ul>
+<li>Document：存储在ES中的一些数据，存储的最小单元。表中的一行数据。是JSON object，由field组成，有数据类型，每一个文档有唯一id，拥有meta data标注文档(<code>_source</code>,<code>_id</code>等)的相关信息。</li>
+<li>Index:具有相同结构的文档的集合。对应表。拥有自己的mapping定义，定义字段名和类型。一个集群可以有多个索引，例如nginx日志可以按照每天生成一个索引来存储。</li>
+<li>Node：一个es的运行实例，是构成集群的基本单元</li>
+<li>Cluster：由一个或者多个节点组成，对外提供服务</li>
+</ul>
+<h1 id="倒排索引和分词"><a href="#倒排索引和分词" class="headerlink" title="倒排索引和分词"></a>倒排索引和分词</h1><ul>
+<li>正排索引：文档id到文档内容、单词的关联关系</li>
+<li>倒排索引：单词到文档id的关联关系</li>
+</ul>
+<p>查询流程，通过关键字从倒排索引中找到文档id，然后通过文档id使用正排索引返回所有符合条件的文档。</p>
+<p>倒排索引是搜索引擎的核心，主要包含2部分：</p>
+<ul>
+<li>单词词典（Term Dictionary）：记录文档所有单词和单词到倒排列表的关联信息，一般比较大。实现方式一般是B+树</li>
+<li>倒排列表（Posting List）：包含文档id，单词词频（Term Frequency，用于后续相关性算分），位置（position，记录单词在文档中分词的位置，可以是多个，用于做词语搜索Phrase Query），偏移（Offset，记录单词在文档开始和结束的位置，用于做高亮显示）</li>
+</ul>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/elasticsearch_term_dict_impl.png" alt="使用B+树实现单词字典"></p>
+<p>B+树好处：插入和查询性能高，更高效利用磁盘和内存的映射机制。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/term_dict_posting_list.png" alt="单词词典和倒排索引" title>
+                </div>
+                <div class="image-caption">单词词典和倒排索引</div>
+            </figure>
+<p>例如：search 搜索引擎的时候通过term dictionary快速在b+树中定位到搜索引擎，拿到在postion list中的偏移量，从而得到倒排索引项的docid 1和3</p>
+<p>es中分词称为文本分析analysis.自带分词器有standard/simple,whitespace,stop,keyword,pattern,language.</p>
+<pre><code class="lang-js">POST _analyze
+{
+  &quot;analyzer&quot;: &quot;standard&quot;,
+  &quot;text&quot;: &quot;hello world!&quot;
+}
+</code></pre>
+<pre><code class="lang-json">{
+  &quot;tokens&quot;: [
+    {
+      &quot;token&quot;: &quot;hello&quot;,
+      &quot;start_offset&quot;: 0,
+      &quot;end_offset&quot;: 5,
+      &quot;type&quot;: &quot;&lt;ALPHANUM&gt;&quot;,
+      &quot;position&quot;: 0
+    },
+    {
+      &quot;token&quot;: &quot;world&quot;,
+      &quot;start_offset&quot;: 6,
+      &quot;end_offset&quot;: 11,
+      &quot;type&quot;: &quot;&lt;ALPHANUM&gt;&quot;,
+      &quot;position&quot;: 1
+    }
+  ]
+}
+</code></pre>
+<p>自定义分词器，其实是自定义分词器的3个组成部分：Character Filters,Tokenizer和Token Filter实现。</p>
+<pre><code class="lang-js">POST _analyze
+{
+  &quot;analyzer&quot;: &quot;standard&quot;, 
+  &quot;filter&quot;: [&quot;lowercase&quot;], 
+  &quot;text&quot;: &quot;Hello World!&quot;
+}
+</code></pre>
+<pre><code class="lang-json">{
+  &quot;tokens&quot;: [
+    {
+      &quot;token&quot;: &quot;hello&quot;,
+      &quot;start_offset&quot;: 0,
+      &quot;end_offset&quot;: 5,
+      &quot;type&quot;: &quot;&lt;ALPHANUM&gt;&quot;,
+      &quot;position&quot;: 0
+    },
+    {
+      &quot;token&quot;: &quot;world&quot;,
+      &quot;start_offset&quot;: 6,
+      &quot;end_offset&quot;: 11,
+      &quot;type&quot;: &quot;&lt;ALPHANUM&gt;&quot;,
+      &quot;position&quot;: 1
+    }
+  ]
+}
+</code></pre>
+<h2 id="中文分词的难点"><a href="#中文分词的难点" class="headerlink" title="中文分词的难点"></a>中文分词的难点</h2><ul>
+<li>英文可以使用空格作为自然分界符，但是中文没有一个形式上的分界符。</li>
+<li>上下文不同，分词结果迥异，例如交叉歧义问题，例如下面的两种分词结果其实都是合理的：<ul>
+<li>乒乓球拍/卖/完了</li>
+<li>乒乓球/拍卖/完了</li>
+</ul>
+</li>
+</ul>
+<p>常用的中文分词系统有IK和jieba。更高阶的则是基于NLP的分词系统，例如Hanlp，THULAC.  </p>
+<h1 id="Mapping设置"><a href="#Mapping设置" class="headerlink" title="Mapping设置"></a>Mapping设置</h1><p>类似DB中表结构的定义，主要作用：</p>
+<ul>
+<li>定义index下的字段名（field name）</li>
+<li>定义字段类型，例如Number，Text，Boolean</li>
+<li>定义倒排索引相关的配置，例如是否索引，记录position等</li>
+</ul>
+<p>自定义mapping和dynamic的效果</p>
+<pre><code class="lang-bash">PUT test_index
+{
+  &quot;mappings&quot;: {
+    &quot;doc&quot;: {
+      &quot;dynamic&quot;:false,
+      &quot;properties&quot;: {
+        &quot;title&quot;:{
+          &quot;type&quot;: &quot;text&quot;
+        },
+        &quot;name&quot;:{
+          &quot;type&quot;: &quot;text&quot;
+        },
+        &quot;age&quot;:{
+          &quot;type&quot;: &quot;integer&quot;
+        }
+      }
+    }
+  }
+}
+
+GET test_index/_mapping
+
+{
+  &quot;test_index&quot;: {
+    &quot;mappings&quot;: {
+      &quot;doc&quot;: {
+        &quot;dynamic&quot;: &quot;false&quot;,
+        &quot;properties&quot;: {
+          &quot;age&quot;: {
+            &quot;type&quot;: &quot;integer&quot;
+          },
+          &quot;name&quot;: {
+            &quot;type&quot;: &quot;text&quot;
+          },
+          &quot;title&quot;: {
+            &quot;type&quot;: &quot;text&quot;
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT test_index/doc/1
+{
+  &quot;title&quot;:&quot;hello world&quot;,
+  &quot;desc&quot;:&quot;nothing exist.&quot;
+}
+
+# 查询title可以返回结果
+GET test_index/doc/_search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;title&quot;: &quot;hello&quot;
+    }
+  }
+}
+
+{
+  &quot;took&quot;: 84,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: {
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;skipped&quot;: 0,
+    &quot;failed&quot;: 0
+  },
+  &quot;hits&quot;: {
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 0.2876821,
+    &quot;hits&quot;: [
+      {
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;doc&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;_score&quot;: 0.2876821,
+        &quot;_source&quot;: {
+          &quot;title&quot;: &quot;hello world&quot;,
+          &quot;desc&quot;: &quot;nothing exist.&quot;
+        }
+      }
+    ]
+  }
+}
+
+# 查询desc得不到结果
+GET test_index/doc/_search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;desc&quot;: &quot;no&quot;
+    }
+  }
+}
+</code></pre>
+<p>copy_to，将该字段的值复制到目标字段，实现类似_all的作用，一般不会出现在_source中，只用来搜索。</p>
+<pre><code class="lang-bash">PUT my_index
+{
+  &quot;mappings&quot;: {
+    &quot;doc&quot;:{
+      &quot;properties&quot;: {
+        &quot;first_name&quot;:{
+          &quot;type&quot;: &quot;text&quot;,
+          &quot;copy_to&quot;: &quot;full_name&quot;
+        },
+        &quot;last_name&quot;:{
+          &quot;type&quot;: &quot;text&quot;,
+          &quot;copy_to&quot;: &quot;full_name&quot;
+        },
+        &quot;full_name&quot;:{
+          &quot;type&quot;: &quot;text&quot;
+        }
+      }
+    }
+  }   
+}
+
+PUT my_index/doc/1
+{
+  &quot;first_name&quot;:&quot;张&quot;,
+  &quot;last_name&quot;:&quot;三丰&quot;
+}
+
+GET my_index/_search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;full_name&quot;: {
+        &quot;query&quot;: &quot;张三丰&quot;,
+        &quot;operator&quot;: &quot;and&quot;
+      }
+    }
+  }
+}
+{
+  &quot;took&quot;: 117,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: {
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;skipped&quot;: 0,
+    &quot;failed&quot;: 0
+  },
+  &quot;hits&quot;: {
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 0.8630463,
+    &quot;hits&quot;: [
+      {
+        &quot;_index&quot;: &quot;my_index&quot;,
+        &quot;_type&quot;: &quot;doc&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;_score&quot;: 0.8630463,
+        &quot;_source&quot;: {
+          &quot;first_name&quot;: &quot;张&quot;,
+          &quot;last_name&quot;: &quot;三丰&quot;
+        }
+      }
+    ]
+  }
+}
+</code></pre>
+<p>index字段控制当前字段是否索引，默认为true，如果设置为false则不可搜索。</p>
+<pre><code class="lang-bash">PUT my_index
+{
+  &quot;mappings&quot;: {
+    &quot;doc&quot;:{
+      &quot;properties&quot;: {
+        &quot;cookie&quot;:{
+          &quot;type&quot;: &quot;text&quot;,
+          &quot;index&quot;: false
+        }
+      }
+    }
+  }   
+}
+
+PUT my_index/doc/1
+{
+  &quot;cookie&quot;:&quot;name=root&quot;
+}
+
+GET my_index/_search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;cookie&quot;: &quot;name&quot;
+    }
+  }
+}
+# 查询将会报错 Cannot search on field [cookie] since it is not indexed.
+</code></pre>
+<p>索引设置为false的情形主要用于一些敏感信息，例如身份证号、手机号,index_options用于控制倒排索引记录的内容。</p>
+<p>dynamic templates：es默认会为字符串设置text类型，并增加一个keyword子字段。</p>
+<pre><code class="lang-bash">PUT test_index
+{
+  &quot;mappings&quot;: {
+    &quot;doc&quot;: {
+      &quot;dynamic_templates&quot;: [
+        {
+          &quot;strings_as_keywords&quot;:{
+            &quot;match_mapping_type&quot;:&quot;string&quot;,
+            &quot;mapping&quot;:{
+              &quot;type&quot;:&quot;keyword&quot;
+            }
+          }    
+        }
+      ]
+    }
+  }
+}
+
+PUT test_index/doc/1
+{
+  &quot;name&quot;:&quot;hello&quot;
+}
+
+GET test_index/_mapping
+{
+  &quot;test_index&quot;: {
+    &quot;mappings&quot;: {
+      &quot;doc&quot;: {
+        &quot;dynamic_templates&quot;: [
+          {
+            &quot;strings_as_keywords&quot;: {
+              &quot;match_mapping_type&quot;: &quot;string&quot;,
+              &quot;mapping&quot;: {
+                &quot;type&quot;: &quot;keyword&quot;
+              }
+            }
+          }
+        ],
+        &quot;properties&quot;: {
+          &quot;name&quot;: {
+            &quot;type&quot;: &quot;keyword&quot;
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>字段名匹配：以message开头的字段都设置为text类型</p>
+<pre><code class="lang-bash">注意：2个dynamic_templates匹配顺序从上到下，只要匹配一个就结束了
+PUT test_index
+{
+  &quot;mappings&quot;: {
+    &quot;doc&quot;: {
+      &quot;dynamic_templates&quot;: [
+        {
+          &quot;message_as_text&quot;:{
+            &quot;match_mapping_type&quot;:&quot;string&quot;,
+            &quot;match&quot;:&quot;message*&quot;,
+            &quot;mapping&quot;:{
+              &quot;type&quot;:&quot;text&quot;
+            }
+          }
+        },
+        {
+          &quot;strings_as_keywords&quot;:{
+            &quot;match_mapping_type&quot;:&quot;string&quot;,
+            &quot;mapping&quot;:{
+              &quot;type&quot;:&quot;keyword&quot;
+            }
+          }    
+        }
+      ]
+    }
+  }
+}
+
+PUT test_index/doc/1
+{
+  &quot;name&quot;:&quot;hello world&quot;,
+  &quot;message&quot;:&quot;today is suny&quot;
+}
+
+GET test_index/_mapping
+{
+  &quot;test_index&quot;: {
+    &quot;mappings&quot;: {
+      &quot;doc&quot;: {
+        &quot;dynamic_templates&quot;: [
+          {
+            &quot;message_as_text&quot;: {
+              &quot;match&quot;: &quot;message*&quot;,
+              &quot;match_mapping_type&quot;: &quot;string&quot;,
+              &quot;mapping&quot;: {
+                &quot;type&quot;: &quot;text&quot;
+              }
+            }
+          },
+          {
+            &quot;strings_as_keywords&quot;: {
+              &quot;match_mapping_type&quot;: &quot;string&quot;,
+              &quot;mapping&quot;: {
+                &quot;type&quot;: &quot;keyword&quot;
+              }
+            }
+          }
+        ],
+        &quot;properties&quot;: {
+          &quot;message&quot;: {
+            &quot;type&quot;: &quot;text&quot;
+          },
+          &quot;name&quot;: {
+            &quot;type&quot;: &quot;keyword&quot;
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>自定义mapping的操作步骤如下：</p>
+<ol>
+<li>写入一条文档到es的临时索引中，获取es自动生成的mapping</li>
+<li>修改步骤1得到的mapping，自定义相关设置</li>
+<li>使用步骤2的mapping创建实际所需索引</li>
+</ol>
+<pre><code class="lang-bash">DELETE test_index
+PUT test_index/doc/1
+{
+  &quot;referrer&quot;:&quot;-&quot;,
+  &quot;response_code&quot;:200,
+  &quot;remote_ip&quot;:&quot;189,90,89,00&quot;,
+  &quot;method&quot;:&quot;POST&quot;,
+  &quot;username&quot;:&quot;-&quot;,
+  &quot;http_version&quot;:&quot;1.1&quot;,
+  &quot;body_sent&quot;:{
+    &quot;bytes&quot;:0
+  },
+  &quot;url&quot;:&quot;/stat&quot;
+}
+
+GET test_index/_mapping
+拷贝上面的结果然后根据自己的需要进行适当修改即可
+</code></pre>
+<p>可以使用dynamic_templates将所有字段设置为keyword不分词，只将自己需要的字段按照合适的类型进行单独定义。灵活使用这个技术可以减少设置mapping的工作量。</p>
+<p>index template，用于新建索引的时候自动应用预定的设置，简化创建索引的步骤。</p>
+<h1 id="Search-API"><a href="#Search-API" class="headerlink" title="Search API"></a>Search API</h1><p>endpoint为<code>_search</code>，调用如下：</p>
+<pre><code class="lang-bash">GET _search
+GET my_index/_search
+GET my_index,test_index/_search
+GET my_*/_search
+</code></pre>
+<p>查询有两种形式URI(仅包含部分语法)和request body（基于完整的query dsl）</p>
+<pre><code class="lang-bash">GET /my_index/_search?q=username:tom
+
+GET /my_index/_search
+{
+  &quot;query&quot;:{
+    &quot;term&quot;:{
+      &quot;username&quot;:&quot;tom&quot;
+    }
+  }
+}
+</code></pre>
+<h2 id="URI-Search"><a href="#URI-Search" class="headerlink" title="URI Search"></a>URI Search</h2><pre><code class="lang-bash">GET my_index/_seach?q=tom&amp;df=username&amp;sort=age:asc&amp;from=4&amp;size=10&amp;timeout=1s
+{
+  &quot;profile&quot;:true
+}
+</code></pre>
+<p>es提供了查询profile可以进行查询调优。</p>
+<p>注意：term查询，phrase查询和泛查询</p>
+<pre><code class="lang-bash">GET my_index/_search?q=username:tom black # tom为查询username，而black会查询所有字段
+GET my_index/_search?q=username:&quot;tom black&quot; # 查询username完全匹配tom black
+GET my_index/_search?q=username:(tom black) # group query，查询username=tom或者username=black
+
+# + 和 -分别表示must和must not
+GET my_index/_search?q=username:(tom NOT black) # username 包含tom不包含black
+GET my_index/_search?q=username:(tom +black) # username 一定有black，包含tom的文档，注意urisearch的时候加号要替换成%2B
+
+# 范围查询
+GET my_index/_search?q=username:tom and age:&gt;20 # username包含tom并且age&gt;20
+</code></pre>
+<p>通配符查询执行效率低，并且吃内存，不建议使用，千万不要放在最前面可能导致OOM。</p>
+<p>模糊匹配(fuzzy)：<code>roam~1</code>，foam、roams都会匹配<br>近似度查询(proximity):<code>&quot;fox quick&quot;~5</code>，以term为单位进行差异比较，<code>quick fox</code>,<code>quick brown fox</code>都会匹配<br>一般用于用户输入的纠错。</p>
+<h2 id="Query-DSL"><a href="#Query-DSL" class="headerlink" title="Query DSL"></a>Query DSL</h2><h3 id="Match-Query"><a href="#Match-Query" class="headerlink" title="Match Query"></a>Match Query</h3><p>会进行分词处理。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/match_query.png" alt="match query的流程"></p>
+<p>通过operator参数可以控制match中单词的匹配关系，可选值<code>and</code>,<code>or</code>（默认）<br>minimum_should_match参数可以控制需要匹配的单词数</p>
+<pre><code class="lang-bash">GET test_index/_search
+{
+  &quot;explain&quot;:true,
+  &quot;query&quot;:{
+    &quot;match&quot;:{
+      &quot;username&quot;:{
+        &quot;query&quot;:&quot;jack tom&quot;,
+        &quot;operator&quot;:&quot;and&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>5.x之后默认的相关性算分基于BM25,是针对TF-IDF模型的一个优化。BM(Best Match)，迭代25次。一个大的优化是降低了TF在过大的时候的权重，我们可以使用explain参数查看详细的算分过程。</p>
+<p>match_phase则将query看做一个完整的词语，强调顺序，可以使用<code>slop</code>实现和proximity相似的效果。<br>query_string类似于search uri中q参数的查询。</p>
+<h3 id="Term-amp-Terms-Query"><a href="#Term-amp-Terms-Query" class="headerlink" title="Term &amp; Terms Query"></a>Term &amp; Terms Query</h3><p>不对查询语句进行分词处理。</p>
+<p>注意</p>
+<pre><code class="lang-bash">GET test_index/_search
+{
+  &quot;query&quot;:{
+    &quot;term&quot;:{
+      &quot;username&quot;:&quot;jack tom&quot;
+    }
+  }
+}
+</code></pre>
+<p>以上查询将不会返回结果，因为构建倒排索引的时候会分词，倒排索引中不存在”jack tom”这个词语。</p>
+<h3 id="Range-Query"><a href="#Range-Query" class="headerlink" title="Range Query"></a>Range Query</h3><p>针对数值和日期，gt，gte，lt，lte。</p>
+<pre><code class="lang-bash">GET test_index/_search
+{
+  &quot;query&quot;:{
+    &quot;range&quot;:{
+      &quot;age&quot;:{
+        &quot;gte&quot;:10,
+        &quot;lt&quot;:20
+      }
+    }
+  }
+}
+</code></pre>
+<p>针对日期提供了一种更友好的方式Date Math，可以实现类似“最近一个小时”的查询</p>
+<p>now - 1d</p>
+<p><code>now</code>为基准日期，可以是具体的时间（使用双竖线隔离），例如2018-01-01<br><code>-1d</code>为计算公式 <code>+1h</code>表示加一个小时 <code>/d</code>表示将时间舍入到天</p>
+<h3 id="Bool-Query"><a href="#Bool-Query" class="headerlink" title="Bool Query"></a>Bool Query</h3><p>Filter查询只过滤符合条件的文档，不计算相关性得分，es针对filter有智能缓存，因此执行效率很高。做简单匹配且不考虑分数的时候，推荐使用filter代替query。</p>
+<pre><code class="lang-bash">GET test_index/_search
+{
+  &quot;query&quot;:{
+    &quot;bool&quot;:{
+      &quot;filter&quot;:{
+        {
+          &quot;term&quot;:{
+            &quot;username&quot;:&quot;admin&quot;
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<h1 id="分布式特性"><a href="#分布式特性" class="headerlink" title="分布式特性"></a>分布式特性</h1><p><a href="https://github.com/lmenezes/cerebro" target="_blank" rel="noopener">cerebro</a>是一个便捷的针对es集群的web管理工具。</p>
+<pre><code class="lang-bash">./bin/elasticsearch -Ecluster.name=my_cluster -Enode.name=node1 -Epath.data=my_cluster_node1 -Ehttp.port=5200 -d
+./bin/elasticsearch -Ecluster.name=my_cluster -Enode.name=node2 -Epath.data=my_cluster_node2 -Ehttp.port=5300 -d
+./bin/elasticsearch -Ecluster.name=my_cluster -Enode.name=node3 -Epath.data=my_cluster_node3 -Ehttp.port=5400 -d
+</code></pre>
+<ul>
+<li>可以修改cluster state的节点称为master节点，一个集群只能有一个，由集群中所有节点选举产生，可以被选举的节点称为master-eligible节点，相关配置<code>node.master:true</code>。</li>
+<li>处理请求的节点称为coordinating节点，该节点为所有节点的默认您角色，不能取消。</li>
+<li>路由请求到正确的节点处理，例如创建索引的请求到master节点。</li>
+<li>存储数据的节点称为data节点，默认节点都是data类型，相关配置<code>node.data:true</code></li>
+</ul>
+<h2 id="副本和分片"><a href="#副本和分片" class="headerlink" title="副本和分片"></a>副本和分片</h2><p>引入分片（Shard）机制可以将数据均匀分布到所有节点上，从而充分利用集群的存储资源，是ES能够存储PB级别数据的基石。分片数在索引创建的时候指定，<em>后续不可修改</em>，默认为5。分片分为主分片和副本分片，实现数据高可用。副本分片由主分片负责同步，可以有多个，从而提高读取的吞吐量。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-shard.png" alt="ES分片和副本"></p>
+<p>注意：如果磁盘空间不足的时候es不会分片,参考集群设置<code>cluster.routing.allocation.disk.threshold_enabled</code>。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-shard-replication.png" alt="分片"></p>
+<p>上面图中实线是主分片，虚线是副本分片。分片数的设定非常重要，需要提前规划好。过小会导致后续无法通过增加节点实现水平扩容；过大会导致一个节点上分布过多分片，造成资源浪费，同时影响查询性能。</p>
+<h2 id="Cluster-Health-amp-故障转移"><a href="#Cluster-Health-amp-故障转移" class="headerlink" title="Cluster Health &amp; 故障转移"></a>Cluster Health &amp; 故障转移</h2><p>green：所有主副分片都正常分配<br>yellow：所有主分片正常分配，但是又副本分片未正常分配<br>red：有主分片未分配</p>
+<p>GET _cluster/health</p>
+<p>注意：即使集群处于RED状态，并不意味着集群不能提供服务。</p>
+<pre><code class="lang-bash"># 找到node1所在pid并kill
+ps aux | grep -i elasticsearc | grep node1
+</code></pre>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/cluster_yellow.jpg" alt="node1挂掉之后集群变成了yellow"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/cluster_green.jpg" alt="经过一段时间集群重新生成副本变成了green"></p>
+<h2 id="文档分布式存储"><a href="#文档分布式存储" class="headerlink" title="文档分布式存储"></a>文档分布式存储</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/document_shard.png" alt="文档分片存储" title>
+                </div>
+                <div class="image-caption">文档分片存储</div>
+            </figure>
+<p>document 1是如何存储在分片P1上，这取决于文档到分片的映射算法，目的：文档均匀分布在所有分片上，充分利用资源。</p>
+<p>随机选择或者round-robin算法是不可取的，因为文档存储进去之后还需要读取，需要维护文档到分片的映射关系，成本巨大。es采取的做法是根据文档实时算出其所在的分片。</p>
+<pre><code class="lang-bash">shard = hash(routing) % number_of_primary_shards
+</code></pre>
+<p>hash算法可以保证数据分布，routing默认为文档id。该算法和主分片数相关，因此这也是<em>分片数一旦确定之后就不可更改</em>的原因。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/process_of_create_document.png" alt="文档创建流程"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/process_of_document_read.jpg" alt="文档读取流程"></p>
+<h2 id="脑裂问题"><a href="#脑裂问题" class="headerlink" title="脑裂问题"></a>脑裂问题</h2><p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/split_brain.jpg" alt="脑裂问题"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/split_brain_solve.jpg" alt="加入选举法定人数quorum避免脑裂问题"></p>
+<p><em>小技巧</em> :生产环境中设置master-eligible为3，quorum为2即可。</p>
+<h1 id="ES运行机制"><a href="#ES运行机制" class="headerlink" title="ES运行机制"></a>ES运行机制</h1><h2 id="Query-Then-Fetch"><a href="#Query-Then-Fetch" class="headerlink" title="Query Then Fetch"></a>Query Then Fetch</h2><h2 id="相关性算分"><a href="#相关性算分" class="headerlink" title="相关性算分"></a>相关性算分</h2><p>相关性算分在shard和shard之间是独立的（一个shard是一个Lucene Index，是一个完整的相关性算分的单位。），也就意味着同一Term的IDF等值在不同shard上是不同的。文档的相关性算分和它所处的shard相关<br>当文档数量不够多的时候会导致相关性算分严重不准的情况发生。</p>
+<p>解决思路有2个：</p>
+<ul>
+<li>分片数设置为1。可以从根本上解决问题，在文档数量不多的时候可以考虑（百万、千万）</li>
+<li>DFS Query then Fetch。拿到所有文档后重新进行一次相关性算分，耗费更多CPU和内存，性能低，不建议使用。</li>
+</ul>
+<h2 id="分页和遍历"><a href="#分页和遍历" class="headerlink" title="分页和遍历"></a>分页和遍历</h2><p>from/size是最常用的分页解决方案。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/deep-paging.png" alt="深度分页"></p>
+<p>深度分页是所有的分布式搜索引擎和分布式系统都会遇到的问题,例如使用google搜索，调整url中的start</p>
+<pre><code class="lang-bash">对不起，Google 为所有查询的结果数都不会超过 1000 个。 (您所请求的结果在第 28000000 个之后。)
+</code></pre>
+<p>scroll提供了遍历文档集的API，以快照的方式来避免深度分页的问题。</p>
+<ul>
+<li>不能用来做实时搜索，因为数据不是实时的</li>
+<li>尽量不要使用复杂的sort条件，使用<code>_doc</code>最高效</li>
+<li>使用稍微复杂</li>
+<li>过多的scroll调用会占用大量内存，可以使用clear api删除过多快照</li>
+</ul>
+<p>search_after避免了深度分页的性能问题，提供了实时的下一页文档的获取功能。</p>
+<ul>
+<li>不能使用from参数，即：不能指定页数</li>
+<li>只能下一页，不能上一页</li>
+<li>使用简单</li>
+</ul>
+<p>应用场景</p>
+<ul>
+<li>from/size:需要实时获取顶部分不分文档，且需要自由翻页</li>
+<li>scroll：需要全部文档，例如导出所有数据</li>
+<li>search_after:需要全部文档，不需要自由翻页</li>
+</ul>
+<h1 id="聚合分析"><a href="#聚合分析" class="headerlink" title="聚合分析"></a>聚合分析</h1><p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-aggression.png" alt="ES聚合分析示例"></p>
+<p>聚合分析分为以下4类：</p>
+<ul>
+<li>Bucket:类似SQL中的GROUP BY</li>
+<li>Metric：计算最大值、最小值、平均值等</li>
+<li>Pipeline：基于上一级的聚合分析结果再次进行分析</li>
+<li>Matrix：矩阵分析类型</li>
+</ul>
+<p>所有的Kibana图表都是基于ES的Aggression实现的。</p>
+<h2 id="Bucket聚合"><a href="#Bucket聚合" class="headerlink" title="Bucket聚合"></a>Bucket聚合</h2><p>按照一定的规则将分档分配到不同的桶中，达到分类分析的目的。</p>
+<ul>
+<li>terms：直接按照terms来分桶，如果是text类型，则按照分词后的结果进行分桶</li>
+<li>ranges：通过指定数值范围来设定分桶规则</li>
+<li>historgram:直方图。以固定间隔的策略来分割数据</li>
+</ul>
+<h2 id="Metric聚合"><a href="#Metric聚合" class="headerlink" title="Metric聚合"></a>Metric聚合</h2><ul>
+<li>Cardinality意思是集合的势或者基数，是指不同集合的个数，类似SQL中的distinct count的概念。</li>
+<li>使用stats可以一次性返回min,max,count,avg,sum。</li>
+<li>extends_stats是对stats的拓展，包含了方差、标准差等。</li>
+<li>percentile可以实现百分位数的统计。可以查看数据分布，例如：95%的请求在200ms内返回这样的需求。</li>
+<li>top hits一般用于分桶后获取该桶内最匹配的顶部文档列表，即详情数据。</li>
+</ul>
+<h2 id="Bucket和Metric聚合分析"><a href="#Bucket和Metric聚合分析" class="headerlink" title="Bucket和Metric聚合分析"></a>Bucket和Metric聚合分析</h2><p>Bucket聚合分析允许通过添加子分析来进行进一步分析，该子分析可以是Bucket也可以是Metric。这也使得es的聚合分析能力变得异常强大。</p>
+<h2 id="作用范围"><a href="#作用范围" class="headerlink" title="作用范围"></a>作用范围</h2><p>es默认作用范围是<em>query</em>的结果集，可以通过以下的方式改变其作用范围：</p>
+<ul>
+<li>filter</li>
+<li>post_filter</li>
+<li>global</li>
+</ul>
+<h2 id="排序以及精准度"><a href="#排序以及精准度" class="headerlink" title="排序以及精准度"></a>排序以及精准度</h2><p><a href="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/terms-miss-percision.png" target="_blank" rel="noopener">ES Terms排序可能是不准的</a></p>
+<p>不准确的原因在于数据分散在多个Shard上，Coordinating Node无法得悉数据全貌。解决方案：</p>
+<ol>
+<li>设置Shard数为1，可以消除数据分散的问题，但是无法承载大数据量</li>
+<li>合理设置Shard_Size的大小，即每次从Shard上额外多获取数据，以提升准确度</li>
+</ol>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/balance.png" alt="数据规模&amp;准确度&amp;实时性的均衡"></p>
+<p>ES的聚合分析中Cardinality和Percentile分析使用的是近似统计算法。</p>
+<h1 id="数据建模"><a href="#数据建模" class="headerlink" title="数据建模"></a>数据建模</h1><p>一个博客文章的索引可以设置如下：</p>
+<p>// bash<br>{<br>  “mappings”:{<br>    “doc”:{<br>      “source”:{<br>        “enabled”:false<br>      },<br>      “properties”:{<br>        “title”:{<br>          “type”:”text”,<br>          “fields”:{<br>            “keyword”:{<br>              “type”:”keyword”<br>            }<br>          },<br>          “store”:true<br>        },<br>        “publish_date”:{<br>          “type”:”date”,<br>          “store”:true<br>        },<br>        “author”:{<br>          “type”:”keyword”,<br>          “store”:true<br>        },<br>        “abstract”:{<br>          “type”:”text”,<br>          “store”:true<br>        },<br>        “url”:{<br>          “doc_values”:false,<br>          “norms”:false,<br>          “ignore_above”:100<br>          “store”:true<br>        }<br>      }<br>    }<br>  }<br>}</p>
+<p>由于文章内容可能非常大，所以关掉_source避免取过大的原始文档，为每个字段加了<code>store</code>属性专门存储字段原始值</p>
+<ul>
+<li>文章标题是需要进行全文检索和分词的，所以设置为text，keyword子字段可以对博客的标题进行完全匹配</li>
+<li>url只需要做展示并不需要搜索</li>
+</ul>
+<h2 id="关联关系处理"><a href="#关联关系处理" class="headerlink" title="关联关系处理"></a>关联关系处理</h2><p>ES不擅长处理RDBMS中的外键，可以通过Nested Object或者Parent/Child（Join数据类型）变相解决。其中使用Nested Object适用于查询频繁的场景，而Parent/Child父子文档独立更新，为了维护join关系需要占用部分内存并且读取性能差。</p>
+<h2 id="Reindex"><a href="#Reindex" class="headerlink" title="Reindex"></a>Reindex</h2><p>重建所有数据的过程，一般发生在如下的情况：</p>
+<ul>
+<li>mapping设置变更，例如字段类型变化、分词器字典更新等</li>
+<li>index设置变更，例如分片数目更改</li>
+<li>迁移数据</li>
+</ul>
+<p>es提供了<code>_update_by_query</code>(在现有索引上重建)和<code>_reindex</code>（将source中的数据重建到dest中）。数据重建的时间受源索引文档规模的影响，当规模越大的时候所需要的时间越多，此时需要设定url参数<code>wait_for_completion</code>为false启动异步任务来执行，可以通过<code>_task</code>来查看任务的执行进度和相关数据</p>
+<h1 id="集群调优"><a href="#集群调优" class="headerlink" title="集群调优"></a>集群调优</h1><h2 id="JVM设定"><a href="#JVM设定" class="headerlink" title="JVM设定"></a>JVM设定</h2><p>JVM内存的设定不要超过31GB，预留一般内存给OS，用来做文件缓存。具体大小根据node存储的数据量来估算，为了保证性能，在内存和数据量之间有一个建议的比例：</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/es-jvm-memory.png" alt="JVM内存的设定"></p>
+<h2 id="写性能优化"><a href="#写性能优化" class="headerlink" title="写性能优化"></a>写性能优化</h2><p>es写数据存在3个过程：</p>
+<ol>
+<li>refresh:segment写入磁盘的过程非常耗时，可以借助fs缓存的特性先将segment在缓存中创建并开放查询来进一步提升实时性。在refresh之前文档会先存储在一个buffer中，refresh时将buffer中的所有文档清空并猩猩segment。es默认每秒执行一次refresh，这也是es被称为Near Real Time的原因。</li>
+<li>translog：用来避免segment还没有写入磁盘的时候发生了宕机。写入文档到buffer的同时将该操作写入translog。translog会即时写入磁盘(fsync)。es启动会检查translog并从中恢复数据。</li>
+<li>flush：将内存中的segment落盘，主要做如下工作：将translog写入磁盘；将index buffer清空，其中的文档生成一个新的segment，相当于一个refresh操作；更新commit point并写入磁盘；执行fsync操作将内存中的segment落盘；删除旧的translog文件。</li>
+</ol>
+<p>写性能优化的目标是增大EPS(Events Per Second),优化方案：</p>
+<ul>
+<li>客户端：多线程写，批量写</li>
+<li>ES：在高质量数据建模的前提下，主要是在refresh，translog和flush之间做文章</li>
+</ul>
+<p>调优参数:<code>refresh_interval</code>,<code>indices.memory.index_buffer_size</code>，<code>index.translog.durability</code>,<code>index.translog.sync_interval</code>,<code>index.translog.flush_threshold_size</code>。</p>
+<h2 id="读性能优化"><a href="#读性能优化" class="headerlink" title="读性能优化"></a>读性能优化</h2><ul>
+<li>尽量使用filter上下文，减少算分的场景，由于filter有缓存机制，可以极大提高查询性能</li>
+<li>尽量不使用script进行字段计算或者算分排序</li>
+<li>结合profile、explain api分析慢查询语句，然后优化数据模型</li>
+</ul>
+<h2 id="如何设定Shard数"><a href="#如何设定Shard数" class="headerlink" title="如何设定Shard数"></a>如何设定Shard数</h2><p>es的性能基本是线性拓展的，例如单个Shard的eps是1W，而线上eps要求是5W，则需要5个Shard（实际还需要考虑副本）。测试一个shard的流程如下：</p>
+<ol>
+<li>搭建和生产环境相同配置的单节点集群</li>
+<li>设定一个单分片零副本的索引</li>
+<li>写入实际生产数据进行测试，获得写性能指标</li>
+<li>针对数据进行查询请求，获取读性能指标</li>
+</ol>
+<p>压测工具可以使用esrally，x-pack插件可以对es进行监控</p>
+<h1 id="LogStash"><a href="#LogStash" class="headerlink" title="LogStash"></a>LogStash</h1><h2 id="入门-amp-运行机制"><a href="#入门-amp-运行机制" class="headerlink" title="入门 &amp; 运行机制"></a>入门 &amp; 运行机制</h2><p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/logstash-process.png" alt="LogStash流程"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/logstash-arch.png" alt="LogStash架构"></p>
+<blockquote>
+<p>可以使用<code>-r</code>命令行参数启动LogStash，可以热重载配置，便于调试。</p>
+</blockquote>
+<h2 id="线程分析"><a href="#线程分析" class="headerlink" title="线程分析"></a>线程分析</h2><p>LogStash使用不同的线程处理输入、过滤和输出：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/08/14/24b88683-bbdc-4493-8164-b9220f2f1a19.png" alt="LogStash线程" title>
+                </div>
+                <div class="image-caption">LogStash线程</div>
+            </figure>
+<p>可以先使用<code>jps -ml</code>命令获得logstash的pid，再使用<code>top -H -p pid</code>查看线程信息。</p>
+<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>LogStash的Queue分为2种:</p>
+<ul>
+<li>In Memory:无法处理宕机</li>
+<li>Persistent Queue In Disk:保证不丢失数据；保证数据至少消费一次；充当缓冲区，可以替代Kafka</li>
+</ul>
+<p>相比内存中的队列，PQ的EPS下降不是特别严重（5%以内），相关配置</p>
+<pre><code class="lang-bash">queue.type:persisted
+queue.max_bytes:4gb
+</code></pre>
+<h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><ul>
+<li>每个Input Thread对应一个线程(Input-&gt;Codec)</li>
+<li>每个pipeline worker Thread对应一个线程(Batcher-&gt;Filter-&gt;Output)</li>
+</ul>
+<p>相关配置有<code>pipeline.workers</code>,<code>pipeline.batch.size</code>,<code>pipeline.batch.delay</code>。</p>
+<blockquote>
+<p>线程查看工具可以使用visual vm。</p>
+</blockquote>
+<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><h3 id="Input"><a href="#Input" class="headerlink" title="Input"></a>Input</h3><p>file插件用于从文件读取数据。</p>
+<ul>
+<li>通过sincedb解决重启LS时从上次读取的位置开始读取</li>
+<li>定时检查文件是否更新读取文件的新内容</li>
+<li>定时检查新文件来发现新文件</li>
+<li>如果文件发生了rotation操作，则被rotation的文件可以继续被读取（基于inode，和文件名没有关系）</li>
+<li>基于Filewatch的ruby库实现</li>
+</ul>
+<p>调试小技巧：sincedb_path设置为/dev/null，start_position何止为beginning可以每次从头读取文件。</p>
+<p>codec主要负责将数据在原始与Logstash Event之间转换。 multiline可以匹配多行，藏剑的用途是提取错误堆栈信息。</p>
+<h3 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h3><p>对Logstash Event进行转换解析，常用：date,<a href="https://github.com/logstash-plugins/logstash-patterns-core/blob/master/patterns/grok-patterns" target="_blank" rel="noopener">grok常用正则</a>,dissect基于分隔符解析数据，解决grok消耗过多CPU的问题。</p>
+<p>dissect常用配置：</p>
+<pre><code class="lang-bash"># / 后面的指定匹配的顺序
+原始日志：two three one go
+配置： %{+order/2} %{+order/3} %{+order/1} %{+order/4}
+结果：{&quot;order&quot;:&quot;one two three go&quot;}
+
+# 动态的键值对(例如query参数)
+原始日志：a=1&amp;b=2
+配置：%{?key1}=%{&amp;key1}&amp;%{?key2}=%{&amp;key2}
+结果：{&quot;a&quot;:&quot;1&quot;,&quot;b&quot;:&quot;2&quot;}
+</code></pre>
+<p>mutate是使用最频繁的插件，可以对字段进行各种操作：重命名、删除、替换、更新等。常用操作:convert类型转换，gsub字符串替换，split/join/merge，字符串切割/数组合并，rename字段重命名，update/replace字段内容更新或者替换，remove_field删除字段。</p>
+<h3 id="调试配置建议"><a href="#调试配置建议" class="headerlink" title="调试配置建议"></a>调试配置建议</h3><p>使用http做input方便输入测试数据，并且可以结合reload特性(stdin无法reload)</p>
+<pre><code class="lang-bash">input {http{port =&gt; 7474}}
+filter {}
+output {stdout{codec =&gt; rubydebug}}
+</code></pre>
+<p><code>@metadata</code>特殊字段其内部不会输出到output中，适合用来存储做条件判断、临时存储的字段，相比<code>remove_field</code>有一定的性能提升。</p>
+<pre><code class="lang-bash">input {http{port =&gt; 7474}}
+filter {
+  # 这里相当于一个调试开关
+  mutate { add_field =&gt; {&quot;[@metadata][debug]&quot; =&gt; true} }
+  mutate { add_field =&gt; {&quot;show&quot; =&gt; &quot;this data will in output&quot;} }
+}
+output {
+  if [@metadata][debug] {
+    stdout {codec =&gt; rubydebug}
+  } else {
+    stdout {codec =&gt; dots}
+  }
+}
+</code></pre>
+<h2 id="实战apache日志"><a href="#实战apache日志" class="headerlink" title="实战apache日志"></a>实战apache日志</h2><p>debug.conf</p>
+<pre><code class="lang-bash">input {http{port =&gt; 7474}}
+filter {
+  grok {
+    match =&gt; {
+      &quot;message&quot; =&gt; &quot;%{COMBINEDAPACHELOG}&quot;
+    }
+  }
+  mutate {
+    remove_field =&gt; [&quot;headers&quot;,&quot;message&quot;,&quot;timestamp&quot;]
+  }
+  ruby {
+    code =&gt; &quot;event.set(&#39;@read_timestamp&#39;,event.get(&#39;@timestamp&#39;))&quot;
+  }
+  geoip {
+    source =&gt; &quot;clientip&quot;
+    fields =&gt; [&quot;location&quot;,&quot;country_name&quot;,&quot;city_name&quot;,&quot;region_name&quot;]
+  }
+  useragent {
+    source =&gt; &quot;agent&quot;
+    target =&gt; &quot;useragent&quot;
+  }
+  date {
+    match =&gt; [&quot;timestamp&quot;,&quot;dd/MMM/yyyy:HH:mm:ss Z&quot;]
+  }
+}
+output {stdout{codec =&gt; rubydebug}}
+</code></pre>
+<pre><code class="lang-bash">./bin/logstash -f debug.conf -r # 使用-r参数可以热重载配置
+</code></pre>
+<p>使用POSTMAN发送HTTP请求,注意将请求内容放在body中:</p>
+<pre><code class="lang-bash">218.19.140.242 - - [10/Dec/2010:09:31:17 +0800] &quot;GET /query/trendxml/district/todayreturn/month/2009-12-14/2010-12-09/haizhu_tianhe.xml HTTP/1.1&quot; 200 1933 &quot;-&quot; &quot;Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8 (.NET CLR 3.5.30729)&quot;
+</code></pre>
+<h2 id="实战CSV文件"><a href="#实战CSV文件" class="headerlink" title="实战CSV文件"></a>实战CSV文件</h2><p>csv.conf</p>
+<pre><code class="lang-bash">input {
+  file {
+    path =&gt; &quot;/tmp/player_data.csv&quot;
+    start_position =&gt; &quot;beginning&quot;
+    sincedb_path =&gt; &quot;/dev/null&quot;
+  }
+}
+filter {
+  csv {
+    autodetect_column_names =&gt; true
+    autogenerate_column_names =&gt; false
+    convert =&gt; {
+      &quot;uid&quot; =&gt; &quot;integer&quot;
+      &quot;play_count&quot; =&gt; &quot;integer&quot;
+      &quot;hundred_win_rate&quot; =&gt; &quot;float&quot;
+      &quot;landlord_count&quot; =&gt; &quot;integer&quot;
+      &quot;farmer_count&quot; =&gt; &quot;integer&quot;
+    }
+  }
+  mutate {
+    add_field =&gt; {&quot;role_count&quot; =&gt; &quot;%{landlord_count},%{farmer_count}&quot;}
+    remove_field =&gt; [&quot;landlord_count&quot;,&quot;farmer_count&quot;,&quot;message&quot;]
+  }
+  date {
+    match =&gt; [&quot;last_play_time&quot;,&quot;yyyy-MM-dd HH:mm:ss&quot;]
+  }
+}
+output {
+    elasticsearch {
+      index =&gt; &quot;player_data&quot;
+    }
+    stdout {codec =&gt; rubydebug}
+}
+</code></pre>
+<p>player_data.csv:</p>
+<pre><code class="lang-bash">uid,play_count,max_rate,win_count,win_max,win_max_time,&quot;last_play_time&quot;,&quot;hundred_results&quot;,hundred_win_rate,max_keep_win_count,win_max_rate,win_total,lose_total,spring_count,bomb_count,win_point,tnmt_count,tnmt_win_count,tnmt_best_rank,landlord_count,farmer_count,play_time,diamond_play_count
+9682421,504,73728,247,460800,1534842968,&quot;2018-10-24 14:33:48&quot;,&quot;1111111000001110010010111011111001011101001100001110100000010010110111011101111110000010000100101001&quot;,0.52,3,24576,3855191,5083567,5,348,0,0,0,99999,219,285,29220,0
+9682423,15,6912,5,2832,1531899522,&quot;2018-07-18 15:53:12&quot;,&quot;110001101000000&quot;,0.33,2,3072,9971,18879,NULL,26,0,0,0,99999,0,0,0,0
+9682424,1447,6144,795,4822,1536214982,&quot;2018-12-14 11:11:14&quot;,&quot;0001111010100001100011110000001110100101100001010111111010011010000101111100101100000010110011001101&quot;,0.48,9,4608,10230,393207,NULL,15,0,32,20,1,3,11,132,0
+</code></pre>
+<h1 id="Beats"><a href="#Beats" class="headerlink" title="Beats"></a>Beats</h1><h2 id="Filebeat"><a href="#Filebeat" class="headerlink" title="Filebeat"></a>Filebeat</h2><p>读取日志文件，但是不做数据处理，保证”At least once”至少被读取一次，数据不会丢（但某些情况下数据可能被重复消费）。可以处理多行数据、解析JSON、简单的过滤功能。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/filebeats-arch.png" alt="FileBeats架构"></p>
+<pre><code class="lang-bash"># -e输出到stderr，默认输出到syslog和logs/filebeat
+# 由于6.x之后只能指定一个output，所以加上publish参数指定相关的debug日志
+filebeat -e -c filebeat.yml -d &quot;publish&quot;
+</code></pre>
+<h3 id="Elasticsearch-Ingest-Node"><a href="#Elasticsearch-Ingest-Node" class="headerlink" title="Elasticsearch Ingest Node"></a>Elasticsearch Ingest Node</h3><p>5.x新增的一个节点类型，可以在数据写入ES之前(bulk/index操作)对数据进行处理，可以配置独立的ingest node,(<code>node.ingest:true</code>)专门进行数据处理。api endpoint为pipeline.类似于logstash的filter。</p>
+<h3 id="Filebeats-Module"><a href="#Filebeats-Module" class="headerlink" title="Filebeats Module"></a>Filebeats Module</h3><p>filebeats提供了许多开箱即用的module用于数据采集-&gt;ES建模-&gt;数据处理-&gt;存储并分析数据的一整套解决方案。</p>
+<pre><code class="lang-bash">filebeat modules list
+filebeat modules enable nginx
+</code></pre>
+<p>参见安装目录下的<code>modules</code>目录和<code>fields.yml</code>。按照这个规则可以制定属于我们自己的module。</p>
+<h2 id="Metrics-Beats"><a href="#Metrics-Beats" class="headerlink" title="Metrics Beats"></a>Metrics Beats</h2><p>定期收集OS，软件或者服务的指标数据存储在ES中进行实时分析。</p>
+<ul>
+<li>Logs:记录离散的事件，具有随机性。例如程序的调试信息或者错误信息</li>
+<li>Metrics:记录度量可以聚合的数据，具有计划性。例如服务的响应时间</li>
+</ul>
+<pre><code class="lang-bash">./metricbeat -e -d &quot;publish&quot;
+./metricbeat setup --dashboards # 导入dashboard
+</code></pre>
+<p>metricsbeats同filebeats也会向es中导入index template。</p>
+<pre><code class="lang-bash">GET _template/metricbeat*
+GET metricbeat-6.1.1-2019.01.05/_search
+</code></pre>
+<p>也可以在kibana的discover中替代上面的命令行进行操作,dashboard面板用于展示指标的监控数据。</p>
+<h2 id="Packet-Beats"><a href="#Packet-Beats" class="headerlink" title="Packet Beats"></a>Packet Beats</h2><p>抓取并解析网络包数据。packetbeats抓包配置有2种：</p>
+<ul>
+<li>pcap:基于libcap，跨平台</li>
+<li>af_packet：仅支持Linux，基于内存映射的嗅探技术，性能更好</li>
+</ul>
+<pre><code class="lang-bash">./packetbeat setup --dashboards
+sudo ./packetbeat -e -c packetbeat.yml -d &quot;publish&quot;
+
+GET _template/packetbeat*
+GET packetbeat-6.0.1-2019.01.10/_search
+</code></pre>
+<p>heartbeats用于检测主机是否存活。此外还有<a href="https://www.elastic.co/guide/en/beats/libbeat/current/community-beats.html" target="_blank" rel="noopener">社区提供的beats</a>可以满足需各种求。</p>
+<h1 id="Kibana"><a href="#Kibana" class="headerlink" title="Kibana"></a>Kibana</h1><p>线上部署推荐专门部署一个Coordinating Only ES Node和Kibana在同一台机器上。</p>
+<p><a href="https://www.elastic.co/guide/en/kibana/6.1/tutorial-load-dataset.html" target="_blank" rel="noopener">测试数据导入</a></p>
+<p>在Kibana的management界面中创建一个名为<code>logstash-*</code>的index pattern。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-visualize.png" alt="Kibana可视化"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-visualize2.png" alt="Buckets-SplitSeries使用Terms aggression"><br><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-split-chart.png" alt="Buckets-SplitCharts使用不同的图表展示不同的数据"></p>
+<p>注意Buckets中聚合的顺序不同将影响展示的结果。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/kibana-timelion.png" alt="时间序列图"></p>
+<h1 id="项目实战"><a href="#项目实战" class="headerlink" title="项目实战"></a>项目实战</h1><h2 id="房屋搜索项目"><a href="#房屋搜索项目" class="headerlink" title="房屋搜索项目"></a>房屋搜索项目</h2><p><a href="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/airbnb.csv" target="_blank" rel="noopener">数据源airbnb.csv</a></p>
+<h3 id="创建数据模型"><a href="#创建数据模型" class="headerlink" title="创建数据模型"></a>创建数据模型</h3><p><a href="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/airbnb.settings.json" target="_blank" rel="noopener">airbnb.settings.json</a></p>
+<h3 id="导入数据"><a href="#导入数据" class="headerlink" title="导入数据"></a>导入数据</h3><p>logstash配置文件<code>ls.conf</code></p>
+<pre><code class="lang-json">input{
+    stdin{}
+}
+
+filter{
+    csv{
+        columns =&gt; [&quot;accommodates&quot;,&quot;bathrooms&quot;,&quot;bed_type&quot;,&quot;bedrooms&quot;,&quot;beds&quot;,&quot;date_from&quot;,&quot;date_o&quot;,&quot;date_rom&quot;,&quot;date_to&quot;,&quot;has_availability&quot;,&quot;host_image&quot;,&quot;host_name&quot;,&quot;image&quot;,&quot;listing_url&quot;,&quot;location&quot;,&quot;name&quot;,&quot;price&quot;,&quot;property_type&quot;,&quot;room_type&quot;]
+    }
+
+    mutate{
+        remove_field=&gt;[&quot;message&quot;]
+        lowercase=&gt;[&quot;has_availability&quot;]
+    }
+}
+
+output{
+    elasticsearch{
+        index =&gt; &quot;testairbnb&quot;
+    }
+
+    stdout{
+        codec=&gt;rubydebug
+
+    }
+}
+</code></pre>
+<p>导入：</p>
+<p>cat airbnb.csv | bin/logstash -f ls.conf</p>
+<h3 id="配置Kibana"><a href="#配置Kibana" class="headerlink" title="配置Kibana"></a>配置Kibana</h3><ol>
+<li>Management-&gt;Index Patterns-&gt;Create Index Pattern创建一个<code>testairbnb</code>的index pattern，Time Filter field name选择<code>I don&#39;t want to use the Time Filter</code>。</li>
+<li>修改host_image,image和listing_url的format为Url，并且将host_image,image的Type配置为<code>Image</code>，Url Template配置为<code></code>,配置成<code></code>会被转义。</li>
+<li>接下来就可以在Discover中发现testairbnb了，由于我们没有选择time_filter，所以右上角不会出现时间选择。步骤2中修改的URL和图片也会在这个面板被正确展示出来。</li>
+</ol>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/elk/test_airbana.png" alt="房屋搜索"></p>
+<p><a href="https://github.com/appbaseio-apps/airbeds" target="_blank" rel="noopener">一个更加友好的房屋搜索项目</a></p>
+<p><a href="https://blog.csdn.net/yiifaa/article/details/74531976" target="_blank" rel="noopener">注意ES跨域访问</a></p>
+<h2 id="nginx日志分析"><a href="#nginx日志分析" class="headerlink" title="nginx日志分析"></a>nginx日志分析</h2><p>资料下载：</p>
+<p><a href="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/nginx_template.json" target="_blank" rel="noopener">nginx_template.json</a><br><a href="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/access.1w.log" target="_blank" rel="noopener">access.1w.log</a><br><a href="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/nginx_log.conf" target="_blank" rel="noopener">nginx_log.conf</a></p>
+<pre><code class="lang-bash">bin/logstash -f nginx_log.conf
+</code></pre>
+<p>导入数据后可以使用<code>GET _cat/indices/nginx_logs_*</code>查看创建的索引，在kinana中配置<code>nginx_logs*</code>index pattern。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%20imooc%20log%20-%20imooc%20overview.png" alt="nginx日志分析结果" title>
+                </div>
+                <div class="image-caption">nginx日志分析结果</div>
+            </figure>
+<h2 id="北京空气质量分析"><a href="#北京空气质量分析" class="headerlink" title="北京空气质量分析"></a>北京空气质量分析</h2><p><a href="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/air_quality_mapping_pipeline.json" target="_blank" rel="noopener">air_quality_index.json</a><br><a href="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/filebeat-air_quality.yml" target="_blank" rel="noopener">air_quality_filebeat.yml</a></p>
+<p>空气质量的CSV数据可以到<a href="http://www.stateair.net/web/historical/1/1.html" target="_blank" rel="noopener">美大使馆网站</a>下载</p>
+<p>导入数据：</p>
+<pre><code class="lang-bash">cat air_quality/*.csv | ./filebeat -e -c filebeat-air_quality.yml -d &quot;publish&quot;
+</code></pre>
+<p>使用Python脚本将小时数据聚合成天数据：</p>
+<pre><code class="lang-python">from datetime import datetime
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch([&#39;127.0.0.1:9200&#39;])
+
+search_query = {
+    &quot;query&quot;: {
+        &quot;range&quot;: {
+            &quot;value&quot;: {
+                &quot;gte&quot;: 1
+            }
+        }
+    },
+    &quot;aggs&quot;: {
+        &quot;days&quot;: {
+            &quot;date_histogram&quot;: {
+                &quot;field&quot;: &quot;@timestamp&quot;,
+                &quot;interval&quot;: &quot;day&quot;,
+                &quot;time_zone&quot;: &quot;+08:00&quot;
+            },
+            &quot;aggs&quot;: {
+                &quot;pm25&quot;: {
+                    &quot;stats&quot;: {
+                        &quot;field&quot;: &quot;value&quot;
+                    }
+                }
+            }
+        }
+    },
+    &quot;size&quot;: 0
+}
+res = es.search(index=&#39;air_quality&#39;, body=search_query)
+
+index_name = &#39;air_quality_days&#39;
+index_type = &#39;doc&#39;
+es.indices.delete(index=index_name, ignore=[400, 404])
+
+for info in res[&#39;aggregations&#39;][&#39;days&#39;][&#39;buckets&#39;]:
+    cur_date = datetime.strptime(info[&#39;key_as_string&#39;], &#39;%Y-%m-%dT%H:%M:%S.%f+08:00&#39;)
+    new_doc = {
+        &quot;@timestamp&quot;: info[&#39;key_as_string&#39;],      
+        &#39;year&#39;: cur_date.year,
+        &#39;month&#39;: cur_date.month,
+        &#39;day&#39;: cur_date.day,
+        &quot;value_max&quot;: info[&#39;pm25&#39;][&#39;max&#39;],
+        &quot;value_avg&quot;: info[&#39;pm25&#39;][&#39;avg&#39;],
+        &quot;value_min&quot;: info[&#39;pm25&#39;][&#39;min&#39;],
+    }
+    es.index(index=index_name, doc_type=index_type, id=new_doc[&#39;@timestamp&#39;], body=new_doc)
+    print(new_doc)
+</code></pre>
+<blockquote>
+<p>对于在es中没有的字段，可以在kibana的index pattern中的script fields中添加</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%202016%E5%B9%B4%E7%9A%84%E5%8C%97%E4%BA%AC%E9%9B%BE%E9%9C%BE.png" alt="2016年的北京雾霾" title>
+                </div>
+                <div class="image-caption">2016年的北京雾霾</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/%5BProject%5D%20%E5%8C%97%E4%BA%AC%E7%9A%84%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E8%BF%99%E4%BA%9B%E5%B9%B4%E6%9C%89%E5%8F%98%E5%A5%BD%E5%90%97%EF%BC%9F.png" alt="北京空气质量趋势" title>
+                </div>
+                <div class="image-caption">北京空气质量趋势</div>
+            </figure>
+<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><ul>
+<li>正则调试网站debuggex，regexr</li>
+<li>grok调试：<a href="https://grokdebug.herokuapp.com" target="_blank" rel="noopener">https://grokdebug.herokuapp.com</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.950Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/12/10/elk/" target="_blank" rel="external">https://consoles.fun/2018/12/10/elk/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/大数据/">大数据</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据分析/">数据分析</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/12/10/elk/&title=《Elastic Stack入门》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/12/10/elk/&title=《Elastic Stack入门》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/12/10/elk/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Elastic Stack入门》 — 雨碎江南&url=https://consoles.fun/2018/12/10/elk/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/12/10/elk/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/12/26/awesome-alg/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">有趣的算法</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/11/25/redis/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">redis使用场景</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/12/10/elk/&title=《Elastic Stack入门》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/12/10/elk/&title=《Elastic Stack入门》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/12/10/elk/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Elastic Stack入门》 — 雨碎江南&url=https://consoles.fun/2018/12/10/elk/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/12/10/elk/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwklEQVR42u3aO5LDIBAFQN//0nK6gZHfMIBVW03k8kc0Dl4NA69XPK4/Y/Tp6J3Rb0dPWzBwcXHb3Ot2jKYf/fZ+ltECEgMuLu55bj5BHkB5/OURiYuL+3zufflyv0hcXNz/wU3oeZzh4uI+n5tsfqqbnLnWybK9Gi4uboObb2P2vd7S38XFxZ3iXlMjD6lOeH2YFxcX9wi3GjrJO51cip6Mi4u7mVuNm7wtki87/ztwcXF/y83LkaQ9eh92yWJwcXF/xd234clLoi8RiYuLe4SbfLVTDK1qyxZ2Tri4uG3uHLG6aekURsPNDy4u7mbughRsN1MKZQ0uLu5mbieYVt34yIsnXFzcM9y8EElKk2QZ1aOUQgcXFxd3A7ezgCp3Ls5wcXHPcDvXJvJoy0uipIGCi4u7m5s3OzpHpKuCEhcX9ww3b3Pk1zTzJmz+B+Hi4p7kXsWRLC+qquYOUXBxcY9w+wceaw9lq5GHi4u7j5uH19x1q7knfNn84OLiHuHuCKa5NC30d3FxcR/ATQIu6sR0loSLi/sw7v1kcxc9qxcycHFxT3L7m5+51mc+Fy4u7klu3jDN4y8vX/KyCRcX9wj3DXFHyC8cfs+sAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

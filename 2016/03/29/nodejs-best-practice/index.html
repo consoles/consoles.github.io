@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>nodejs最佳实践 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js,javascript">
+    <meta name="description" content="与善人居，如入芝兰之室，久而不闻其香，即与之化矣．与不善人居，如入鲍鱼之肆，久而不闻其臭，亦与之化矣。丹之所藏者赤，漆之所藏者黑，是以君子必慎其所处者焉。 —— 《孔子家语》  npm常用命令# 查看全局安装的node模块的位置 $ npm root -g # 消除mac下全局安装模块报错permission deny sudo chown -R $(whoami) $(npm config g">
+<meta name="keywords" content="node.js,javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nodejs最佳实践">
+<meta property="og:url" content="https://consoles.fun/2016/03/29/nodejs-best-practice/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="与善人居，如入芝兰之室，久而不闻其香，即与之化矣．与不善人居，如入鲍鱼之肆，久而不闻其臭，亦与之化矣。丹之所藏者赤，漆之所藏者黑，是以君子必慎其所处者焉。 —— 《孔子家语》  npm常用命令# 查看全局安装的node模块的位置 $ npm root -g # 消除mac下全局安装模块报错permission deny sudo chown -R $(whoami) $(npm config g">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.995Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nodejs最佳实践">
+<meta name="twitter:description" content="与善人居，如入芝兰之室，久而不闻其香，即与之化矣．与不善人居，如入鲍鱼之肆，久而不闻其臭，亦与之化矣。丹之所藏者赤，漆之所藏者黑，是以君子必慎其所处者焉。 —— 《孔子家语》  npm常用命令# 查看全局安装的node模块的位置 $ npm root -g # 消除mac下全局安装模块报错permission deny sudo chown -R $(whoami) $(npm config g">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">nodejs最佳实践</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">nodejs最佳实践</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-29T14:35:52.000Z" itemprop="datePublished" class="page-time">
+  2016-03-29
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#npm常用命令"><span class="post-toc-text">npm常用命令</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#多进程"><span class="post-toc-text">多进程</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#事件监听"><span class="post-toc-text">事件监听</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何实现EventEmitter"><span class="post-toc-text">如何实现EventEmitter</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用EventEmitter监听HTTP会话"><span class="post-toc-text">使用EventEmitter监听HTTP会话</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#EventEmitter中newListenser事件的妙用"><span class="post-toc-text">EventEmitter中newListenser事件的妙用</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#异步流程控制"><span class="post-toc-text">异步流程控制</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#模仿async库的waterfall"><span class="post-toc-text">模仿async库的waterfall</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#模仿async-parallel"><span class="post-toc-text">模仿async.parallel</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现co-js-效果同bluebirdde-coroutine"><span class="post-toc-text">实现co.js,效果同bluebirdde#coroutine</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#lodash中部分API的简单实现"><span class="post-toc-text">lodash中部分API的简单实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为console-log前面增加时间戳信息"><span class="post-toc-text">为console.log前面增加时间戳信息</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#深入理解异步IO"><span class="post-toc-text">深入理解异步IO</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#循环依赖"><span class="post-toc-text">循环依赖</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一些技巧和优化"><span class="post-toc-text">一些技巧和优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ES5和ES6中的实现class"><span class="post-toc-text">ES5和ES6中的实现class</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#js代码的编译和优化"><span class="post-toc-text">js代码的编译和优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#隐藏类"><span class="post-toc-text">隐藏类</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#优化回退"><span class="post-toc-text">优化回退</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#模板引擎Nunjucks中的坑"><span class="post-toc-text">模板引擎Nunjucks中的坑</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#生成器函数"><span class="post-toc-text">生成器函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#生成器函数和Iterator接口"><span class="post-toc-text">生成器函数和Iterator接口</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现状态机"><span class="post-toc-text">实现状态机</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#装饰器"><span class="post-toc-text">装饰器</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#async-amp-await-和内存泄漏"><span class="post-toc-text">async &amp; await 和内存泄漏</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-nodejs-best-practice"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">nodejs最佳实践</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-29 22:35:52" datetime="2016-03-29T14:35:52.000Z"  itemprop="datePublished">2016-03-29</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>与善人居，如入芝兰之室，久而不闻其香，即与之化矣．与不善人居，如入鲍鱼之肆，久而不闻其臭，亦与之化矣。丹之所藏者赤，漆之所藏者黑，是以君子必慎其所处者焉。 —— 《孔子家语》</p>
+</blockquote>
+<h1 id="npm常用命令"><a href="#npm常用命令" class="headerlink" title="npm常用命令"></a>npm常用命令</h1><pre><code class="lang-bash"># 查看全局安装的node模块的位置
+$ npm root -g
+# 消除mac下全局安装模块报错permission deny
+sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
+</code></pre>
+<h1 id="多进程"><a href="#多进程" class="headerlink" title="多进程"></a>多进程</h1><blockquote>
+<p>cluster模块,可以把任务分配给子进程,就是说Node把当前程序复制了一份给另一个进程每个子进程有些特殊的能力,比如能够与<strong>其他子进程共享socket连接</strong>(多个进程共享socket连接,那么端口不就冲突了么?)。这样我们就可以写一个Node程序,让它创建许多其他Node程序,并把任务分配给它们。需要重点理解的是,你用cluster把工作共享到一组复制的Node程序时,主进程不会参与到每个具体的事务中。主进程管理所有的子进程,但当子进程与I/O操作交互时,它们是直接进行操作的,不需要通过主进程。这意味着,如果你用cluster来创建一个Web服务器,请求将不会通过你的主进程,而是直接连接到子进程。而且,调度这些请求并不会导致系统出现瓶颈。以下是一个示例:</p>
+</blockquote>
+<pre><code class="lang-js">var cluster = require(&#39;cluster&#39;);
+var http = require(&#39;http&#39;);
+var numCPUs = require(&#39;os&#39;).cpus().length;  // 获取CPU内核数
+
+var count = 0;
+
+// 是则根据CPU内核数创建worker进程
+if (cluster.isMaster) {
+    // Fork workers
+    for (var i = 0; i &lt; numCPUs; i++) {
+        cluster.fork();
+    }
+
+    Object.keys(cluster.workers).forEach(function(id) {
+        console.log(&#39;I am worker running with ID : &#39; + cluster.workers[id].process.pid);
+    });
+    cluster.on(&#39;exit&#39;, function(worker, code, signal) {
+        console.log(&#39;worker &#39; + worker.process.pid + &#39; died&#39;);
+        // restart a worker
+        cluster.fork();
+    });
+} else {
+  console.log(count++); // 每次打印都是0
+    // 那么此worker进程就启动一个http服务
+    http.createServer(function(req, res) {
+        res.writeHead(200);
+        res.end(&quot;hello world\n&quot;);
+    }).listen(8000);
+}
+</code></pre>
+<blockquote>
+<p><code>cluster</code>提供了跨平台时让多个进程共享<code>socket</code>的方法。即使多个子进程在共享一个端口上的连接,其中一个堵塞了,也不会影响其他工作进程的新连接。(PS:这到底是如何做到的?)<br><code>process.strerr</code>是阻塞的可写流,编码永远是<strong>UTF8</strong>.生产环境中应该避免向其写入过多内容.</p>
+</blockquote>
+<h1 id="事件监听"><a href="#事件监听" class="headerlink" title="事件监听"></a>事件监听</h1><h2 id="如何实现EventEmitter"><a href="#如何实现EventEmitter" class="headerlink" title="如何实现EventEmitter"></a>如何实现EventEmitter</h2><p>我们来分析下<code>EventEmitter</code>的简略实现代码:</p>
+<pre><code class="lang-js">EventEmitter.prototype.emit = function(type){
+  // ...
+  var handler = this._events[type]
+  // ...
+  } else if(isArray(handler)){
+    var args = Array.prototype.slice.call(arguments,1)
+    var listeners = handler.slice();
+    for(var i = 0,l = listeners.length;i &lt; l;i++){
+      listeners[i].apply(this,args)
+    }
+    return true
+  }
+  // ...
+}
+</code></pre>
+<blockquote>
+<p>在事件触发后,运行时处理程序中的一项检查是看看是否存在事件监听器的数组。如果有几个监听器,运行执行器会按数组顺序把里面的监听器一一调用。意思是说,第一个绑定的监听器会首先用<code>apply()</code>方法调用,然后是第二个,以此类推。这里需要重点注意的是,一个事件的所有监听器是在同一个代码路径上的。所以如果其中一个回调函数出现了异常未被捕获,将导致该事件的其他回调函数终止执行。</p>
+</blockquote>
+<h2 id="使用EventEmitter监听HTTP会话"><a href="#使用EventEmitter监听HTTP会话" class="headerlink" title="使用EventEmitter监听HTTP会话"></a>使用<code>EventEmitter</code>监听HTTP会话</h2><p>httpsniffer.js</p>
+<pre><code class="lang-js">&#39;use strict&#39;
+
+const url = require(&#39;url&#39;)
+const util = require(&#39;util&#39;)
+
+exports.sniffOn = server =&gt; {
+
+    let _reqToString = req =&gt; {
+        let ret = `[request:]${req.method} ${req.httpVersion} ${req.url}\n${JSON.stringify(url.parse(req.url,true))}\n`
+        let keys = Object.keys(req.headers)
+        for(let i = 0;i &lt; keys.length;i++){
+            let key = keys[i]
+            ret += `${i} ${key}:${req.headers[key]}\n`
+        }
+        if(req.trailers){
+            ret += `${req.trailers}\n`
+            return ret
+        }
+    }
+
+    server.on(&#39;request&#39;,(req,res) =&gt; {
+        util.log(&#39;========= e_request =========&#39;)
+        util.log(_reqToString(req))
+    })
+    server.on(&#39;close&#39;,errno =&gt; {
+        util.log(&#39;[e_close] errno = &#39;,errno)
+    })
+    server.on(&#39;checkContinue&#39;,(req,res) =&gt; {
+        util.log(&#39;e_checkContinue&#39;)
+        util.log(_reqToString(req))
+        res.writeContinue()
+    })
+    server.on(&#39;upgrade&#39;,(req,socket,head) =&gt; {
+        util.log(&#39;e_upgrade&#39;)
+        util.log(_reqToString(req))
+    })
+    server.on(&#39;clientError&#39;,() =&gt; {
+        util.log(&#39;e_clientError&#39;)
+    })
+}
+</code></pre>
+<p>test_httpsniffer.js</p>
+<pre><code class="lang-js">&#39;use strict&#39;
+
+const http = require(&#39;http&#39;)
+const sniffer = require(&#39;./httpsniffer&#39;)
+
+let server = http.createServer((req,res) =&gt; {
+    res.writeHead(200,{&#39;Content-Type&#39;:&#39;text/plain&#39;})
+    res.end(&#39;hello world\n&#39;)
+})
+
+sniffer.sniffOn(server)
+server.listen(3000)
+</code></pre>
+<h2 id="EventEmitter中newListenser事件的妙用"><a href="#EventEmitter中newListenser事件的妙用" class="headerlink" title="EventEmitter中newListenser事件的妙用"></a>EventEmitter中newListenser事件的妙用</h2><p>newListener可以用来做事件机制的反射，特殊应用，事件管理等。当任何on事件添加到EventEmitter时，就会触发newListener事件，基于这种模式，我们可以做很多自定义处理.</p>
+<pre><code class="lang-js">const EventEmitter = require(&#39;events&#39;);
+
+class MyEmitter extends EventEmitter {
+}
+
+var emitter = new MyEmitter();
+emitter.on(&#39;newListener&#39;, function (name, listener) {
+    console.log(&quot;添加事件:&quot;, name);
+    console.log(&quot;新事件的处理函数:&quot;, listener);
+    setTimeout(function () {
+        console.log(&quot;我是自定义延时处理机制&quot;);
+    }, 1000);
+});
+emitter.on(&#39;hello&#39;, function () {
+    console.log(&#39;hello&#39;);
+});
+emitter.on(&#39;world&#39;, function () {
+    console.log(&#39;world&#39;);
+});
+</code></pre>
+<p>输出结果</p>
+<pre><code class="lang-txt">添加事件: hello
+新事件的处理函数: function hello() {
+  console.log(&#39;hello&#39;);
+}
+添加事件: world
+新事件的处理函数: function world() {
+  console.log(&#39;world&#39;);
+}
+我是自定义延时处理机制
+我是自定义延时处理机制
+</code></pre>
+<h1 id="异步流程控制"><a href="#异步流程控制" class="headerlink" title="异步流程控制"></a>异步流程控制</h1><h2 id="模仿async库的waterfall"><a href="#模仿async库的waterfall" class="headerlink" title="模仿async库的waterfall"></a>模仿async库的waterfall</h2><pre><code>&#39;use strict&#39;
+
+/**
+ * sync_exec.js
+ * 使函数队列顺序执行，参考async.js@waterfall
+ *
+ * @param  {[Array]} fnQ  [函数队列]
+ * @param  {[type]} args [每个函数的共同参数] [optional]
+ * @return {[Undefined]}      [Undefined]
+ */
+let syncExec = module.exports = function(fnQ,args){
+
+    /**
+     * 递归函数，依次执行函数队列中的函数
+     * @param  {[Array]} fnQ   [函数队列]
+     * @param  {[Number]} count [函数执行计数器]
+     * @param  {[Number]} total [队列长度]
+     * @param  {[Array]} argv  [每个函数的共有参数]
+     * @param  {[object]} self  [函数绑定的this指向]
+     * @return {[Undefined]}       [undefined]
+     */
+    let _exec = function(fnQ,count,total,argv,self){
+        if(count === total) return
+        fnQ[count].call(self,
+            function(){
+                _exec(fnQ,++count,total,argv,self)
+            },
+            argv
+        )
+    }
+
+    let self = this
+    let fLen = fnQ.length
+    let argv = [].slice.call(arguments,1) // 0是next函数，从1开始是函数真正的参数
+    return _exec(fnQ,0,fLen,argv,self,void 0)
+}
+</code></pre><h2 id="模仿async-parallel"><a href="#模仿async-parallel" class="headerlink" title="模仿async.parallel"></a>模仿async.parallel</h2><pre><code class="lang-js">function parallel(arr, cb) {
+
+    const len = arr.length;
+
+    var results = [];
+    var error   = false;
+
+    for (let i = 0; i &lt; len; i++) {
+        let parr = arr[i].params.concat();
+        parr.push(function (err, data) {
+            if (err &amp;&amp; !error) {
+                error = true;
+                cb(err, results);
+            } else {
+                results.push(data);
+                if (results.length === len) {
+                    cb(null, results);
+                }
+            }
+        });
+
+        arr[i].func.apply(arr[i].thisObj, parr);
+    }
+}
+
+function sleep(sec, cb) {
+    setTimeout(() =&gt; {
+        require(&#39;util&#39;).log(&#39;delay sec &#39; + sec);
+        var err = Math.random() &gt; .5 ? null : new Error(&#39;error&#39; + sec);
+        cb(err, sec);
+    }, sec * 1000);
+}
+
+var funcs = [1, 2, 3].map(x =&gt; ({func: sleep, params: [x]}));
+
+parallel(funcs, function (err, data) {
+    console.log(&#39;parallel end&#39;, err, &#39;data&#39;, data);
+});
+</code></pre>
+<p>输出：</p>
+<pre><code class="lang-txt">10 Sep 16:48:33 - delay sec 1
+parallel end Error: error1
+    at Timeout._onTimeout (/Users/yiihua-013/WebstormProjects/hiyundong/test.js:65:43)
+    at listOnTimeout (internal/timers.js:531:17)
+    at processTimers (internal/timers.js:475:7) data []
+10 Sep 16:48:34 - delay sec 2
+10 Sep 16:48:35 - delay sec 3
+</code></pre>
+<h2 id="实现co-js-效果同bluebirdde-coroutine"><a href="#实现co-js-效果同bluebirdde-coroutine" class="headerlink" title="实现co.js,效果同bluebirdde#coroutine"></a>实现<a href="https://github.com/tj/co" target="_blank" rel="noopener">co.js</a>,效果同bluebirdde#coroutine</h2><pre><code class="lang-js">function co(gen) {
+
+    var hander_error_ = [];
+
+    function flow() {
+        var iter_ = gen();
+
+        var next_ = data =&gt; {
+            // http://es6.ruanyifeng.com/#docs/generator#next-%E6%96%B9%E6%B3%95%E7%9A%84%E5%8F%82%E6%95%B0
+            // 将结果作为参数传递给next，yield左侧的变量就能被正确赋值，同时执行下一个异步操作。采用这种方式从上到下直到这个Generator对象中被yield分割的每一部分都执行完毕
+            var result = iter_.next(data);
+            if (!result.done) {
+                result.value.then(data =&gt; {
+                    next_(data);
+                }).catch(function (err) {
+                    hander_error_.forEach(handler =&gt; {
+                        if (typeof handler === &#39;function&#39;) {
+                            handler(err);
+                        }
+                    });
+                });
+            }
+        };
+
+        process.nextTick(() =&gt; {
+            try {
+                next_();
+            } catch (err) {
+                hander_error_.forEach(handler =&gt; {
+                    if (typeof handler === &#39;function&#39;) {
+                        handler(err);
+                    }
+                });
+            }
+        });
+        return flow;
+    }
+
+    Object.defineProperty(flow, &#39;catch&#39;, {
+        enumerable: false,
+        value     : function (handler) {
+            if (typeof handler === &#39;function&#39;) {
+                hander_error_.push(handler);
+            }
+            return flow;
+        }
+    });
+
+    return flow;
+}
+
+const readFileAsync = path =&gt; new Promise((resolve, reject) =&gt; require(&#39;fs&#39;).readFile(path, (err, data) =&gt; err ? reject(err) : resolve(data)));
+const delayAsync    = sec =&gt; new Promise(resolve =&gt; setTimeout(resolve, sec * 1000));
+const log           = require(&#39;util&#39;).log;
+
+let hco = co(function *() {
+    log(&#39;co begin&#39;);
+    yield delayAsync(3);
+    let ret = yield readFileAsync(__filename);
+    log(ret);
+    throw new Error(&#39;there is an error!&#39;);
+    log(&#39;co end&#39;);
+});
+hco().catch(err =&gt; console.error(&#39;err:&#39;, err));
+</code></pre>
+<p>co解析：</p>
+<pre><code class="lang-js">const readFileAsync = path =&gt; new Promise((resolve, reject) =&gt; require(&#39;fs&#39;).readFile(path, (err, data) =&gt; err ? reject(err) : resolve(data)));
+var gen = function* (){
+    var f1 = yield readFileAsync(&#39;/etc/hosts&#39;);
+    console.log(&#39;f1&#39;,f1.toString());
+    var f2 = yield readFileAsync(&#39;/etc/shells&#39;);
+    console.log(&#39;f2&#39;,f2.toString());
+};
+
+var g = gen();
+const step1 = g.next();
+log(&#39;step1&#39;,step1); // step1 { value: Promise { &lt;pending&gt; }, done: false }
+step1.value.then(data =&gt; {
+    log(&#39;data1&#39;,data); // data1 &lt;Buffer 23 23 ... &gt;
+    // 当promise#onFullfield的时候向next传递参数，yield得到的值就是next传递的参数
+    let step2 = g.next(data); // 此处的参数影响 gen函数中的第一个console
+    log(&#39;step2&#39;,step2); // step2 { value: Promise { &lt;pending&gt; }, done: false }
+    step2.value.then(data =&gt; {
+        log(&#39;data2&#39;,data); // data2 &lt;Buffer 23 20 ... &gt;
+        g.next(data); // 指定gen中的第二个console
+    });
+});
+</code></pre>
+<pre><code class="lang-js">// test_async_exec.js
+&#39;use strict&#39;
+
+function App(){}
+
+App.prototype.syncExec = require(&#39;./sync_exec&#39;)
+
+var app = new App()
+
+app.syncExec([function(next,args){
+    console.log(1)
+    console.log(&#39;args:&#39;,args)
+    next() // 必须调用next
+},function(next,args){
+    console.log(2)
+    console.log(&#39;args:&#39;,args)
+    next(22)
+},function(next,args){
+    console.log(3)
+    console.log(&#39;args:&#39;, args)
+    next()
+},function(next){
+    console.log(4)
+}],{a:-1,b:-2},-3,-4)
+
+// 1
+// args: [ { a: -1, b: -2 }, -3, -4 ]
+// 2
+// args: [ { a: -1, b: -2 }, -3, -4 ]
+// 3
+// args: [ { a: -1, b: -2 }, -3, -4 ]
+// 4
+</code></pre>
+<h1 id="lodash中部分API的简单实现"><a href="#lodash中部分API的简单实现" class="headerlink" title="lodash中部分API的简单实现"></a>lodash中部分API的简单实现</h1><pre><code class="lang-js">&#39;use strict&#39;
+
+let _ = module.exports = {
+
+    extend:function(origin,add){
+        if(!add || !this.isObject(add)) return origin
+        let keys = Object.keys(add)
+        let i = keys.length
+        while(i--) origin[keys[i]] = add[keys[i]]
+        return origin    
+    },
+    isObject:function(obj){
+        return typeof obj === &#39;object&#39; &amp;&amp; obj !== null
+    },
+    isString:function(obj){
+        return Object.prototype.toStirng.call(obj) === &#39;[object String]&#39;
+    }
+}
+</code></pre>
+<p>参见：<a href="https://coding.net/u/consoles/p/nodejs-start/git/blob/master/lodash/lodash.js" target="_blank" rel="noopener">coding.net</a></p>
+<h2 id="为console-log前面增加时间戳信息"><a href="#为console-log前面增加时间戳信息" class="headerlink" title="为console.log前面增加时间戳信息"></a>为<code>console.log</code>前面增加时间戳信息</h2><pre><code class="lang-js">&#39;use strict&#39;
+
+exports.log = function(){
+    let _log = console.log
+    let args = Array.from(arguments)
+    let dateTimeStr = `[ ${Date()} ]`// 日期字符串可采用必要的格式化，可参见moment.js
+    if(&#39;string&#39; === typeof args[0]) dateTimeStr += args.shift(args)
+    return _log.apply(console,[dateTimeStr].concat(args))
+}
+</code></pre>
+<p>参见<a href="https://coding.net/u/consoles/p/nodejs-start/git/blob/master/console/console.js" target="_blank" rel="noopener">coding.net</a></p>
+<h1 id="深入理解异步IO"><a href="#深入理解异步IO" class="headerlink" title="深入理解异步IO"></a>深入理解异步IO</h1><blockquote>
+<p>在os中，程序的运行空间分为内核空间和用户空间。我们常常提到的异步IO实际上是<em>用户空间中的程序不用依赖内核空间中的IO操作实际完成，即可进行后续的任务</em>。</p>
+</blockquote>
+<h1 id="循环依赖"><a href="#循环依赖" class="headerlink" title="循环依赖"></a>循环依赖</h1><p>两个文件互相require并不会造成依赖死循环。第一次被require的对象将是不完整的对象。</p>
+<p><a href="http://www.ruanyifeng.com/blog/2015/05/require.html" target="_blank" rel="noopener">require源码解读</a><br><a href="https://segmentfault.com/a/1190000004151411" target="_blank" rel="noopener">循环依赖</a></p>
+<h1 id="一些技巧和优化"><a href="#一些技巧和优化" class="headerlink" title="一些技巧和优化"></a>一些技巧和优化</h1><ul>
+<li>在一个函数的内部可以使用<code>console.trace()</code>打印出该函数的调用堆栈，注意：最先调用的方法在底。</li>
+<li>少于600个字符的函数v8会进行优化，详见:<a href="https://juejin.im/post/584e74b5128fe10058b2aa6b" target="_blank" rel="noopener">node优化的小小黑科技</a></li>
+<li>由于utf-8编码是变长编码,长度可能在1~4个字节,所以最佳实践是定义缓冲区的大小为4的整数倍。</li>
+</ul>
+<h2 id="ES5和ES6中的实现class"><a href="#ES5和ES6中的实现class" class="headerlink" title="ES5和ES6中的实现class"></a>ES5和ES6中的实现class</h2><p>ES5中通常这样实现：</p>
+<pre><code class="lang-js">function Agent(options) {
+
+    console.log(this);
+
+    if (!(this instanceof Agent)) {
+        return new Agent(options);
+    }
+
+    this.options = options;
+}
+
+new Agent({a:1});
+</code></pre>
+<p>ES5中为什么要做<code>instance of</code>的判断呢？这是因为ES5中类都是函数模拟的，所以调用Agent可以不用new关键字，直接像普通函数（或者使用call,apply）一样调用<code>Agent(options)</code>，此时的this就是函数调用时的this，但是这并不是我们希望的this，这样在this上的赋值就会污染外部的作用域（这是一个极度危险的操作）：</p>
+<pre><code class="lang-js">function Agent(options) {
+  this.options = options;
+}
+
+function Agent2(options) {
+  if (!(this instanceof Agent2)) {
+    return new Agent2(options);
+  }
+  this.options = options;
+}
+
+const ctx = {options: 1};
+
+let ret = Agent.call(ctx, -1);
+console.log(ctx, ret); // 不使用new得到的实例为undefined，并且ctx中的值被改变了
+ret = Agent2.call(ctx, 0);
+console.log(ctx, ret); // 同样的不合法的操作可以保证得到正确的实例，并且不会污染外边的作用域中的变量
+
+// { options: -1 } undefined
+// { options: -1 } Agent2 { options: 0 }
+</code></pre>
+<p>ES6中的class因为必须使用new关键字，因而简化了代码，无需使用上面的判断。</p>
+<p>Socket IO,是完全异步的，没有涉及到线程；而文件IO是用多线程模拟的，具有不同的特点：</p>
+<ul>
+<li>本地磁盘读写比网络请求快得多</li>
+<li>磁盘文件按块访问，OS的缓存机制使得顺序读写文件的效率极高</li>
+</ul>
+<p>Linux下node在启动时会维护一个线程池，libuv的默认线程池大小为4，可以使用<a href="https://nodejs.org/api/cli.html#cli_uv_threadpool_size_size" target="_blank" rel="noopener">UV_THREADPOOL_SIZE</a>,命令行参数启动时指定。线程池使用的地方：</p>
+<ul>
+<li>fs api</li>
+<li>异步加密方法,例如：crypto.pbkdf2(), crypto.scrypt(), crypto.randomBytes()</li>
+<li>dns.lookup()</li>
+<li>zlib api</li>
+</ul>
+<p>因为libuv的线程池是固定大小的，因此如果上述api花费了太长时间，必然会导致后续的上述api调用的性能出现问题。所以增大线程池大小是一个可能会提高程序性能。详见<a href="https://github.com/nodejs/node/issues/8436" target="_blank" rel="noopener">dns.lookup阻塞了fs io</a></p>
+<h2 id="js代码的编译和优化"><a href="#js代码的编译和优化" class="headerlink" title="js代码的编译和优化"></a>js代码的编译和优化</h2><h3 id="隐藏类"><a href="#隐藏类" class="headerlink" title="隐藏类"></a>隐藏类</h3><p>在静态语言中，开发者定义的类，每一个成员变量都有一个确定的类型。因为有了类型信息，一个对象包含哪些成员和这些成员在对象中的偏移量等信息编译阶段就可以确定，执行时CPU只需要用对象首地址加上成员在对象内部的偏移量就可以访问内部成员，这些访问指令在编译阶段就生成了。但对于js这种动态语言，变量在运行时可以随时由不同的类型赋值，并且对象本身可以随时添加删除成员。访问对象属性需要的信息完全由运行时决定。为了按照索引的方式访问成员，V8“悄悄滴”对运行中的对象分了类，这个过程中产生了一种V8内部的数据结构称为隐藏类，其本身是一个对象。</p>
+<p>当定义一个构造函数，使用这个函数生成第一个对象的时候V8会为他初始化一个隐藏类。以后使用这个构造器生成的对象指向同一个隐藏类。但是如果程序中某个对象添加或者删除了某个属性，V8立即创建一个新的隐藏类，改变之后的对象指向新创建的隐藏类。隐藏类起到了分组对象的作用。同一组的对象具有相同的成员名称。隐藏类记录了成员的名称和偏移量，根据这些信息，V8能够按照对象首地址+偏移量访问成员变量。因此创建对象的时候最好一次性指定好对象的成员，动态增添属性会造成隐藏类的派生。</p>
+<h3 id="优化回退"><a href="#优化回退" class="headerlink" title="优化回退"></a>优化回退</h3><p>程序在运行时，V8会采集js的运行数据，当发现某些函数执行比较频繁，就将其标记为热点函数。针对热点函数，V8会认为此函数比较稳定，类型已经确定，会调用编译器生成更高效的字节码，万一遇到类型变化(例如函数的入参由number变为string)，v8会将函数回退到优化前一般的情况。因此针对不同类型的参数尽量多写个函数而不是在同一个函数中进行类型区分。</p>
+<h1 id="模板引擎Nunjucks中的坑"><a href="#模板引擎Nunjucks中的坑" class="headerlink" title="模板引擎Nunjucks中的坑"></a>模板引擎Nunjucks中的坑</h1><p>后端采用eggjs渲染模板</p>
+<pre><code class="lang-js">const data = [{&quot;lng&quot;:114.0512961,&quot;lat&quot;:22.1333079,&quot;count&quot;:17},{&quot;lng&quot;:114.0522961,&quot;lat&quot;:22.2333079,&quot;count&quot;:15},{&quot;lng&quot;:114.0532961,&quot;lat&quot;:22.3333079,&quot;count&quot;:12}];
+await ctx.render(&#39;map&#39;, { data });
+
+// map.nj
+&lt;script&gt;
+  var points = {{ data }}
+&lt;/script&gt;
+</code></pre>
+<p>渲染到页面全部成了<code>[[object Object],[object Object],[object Object]]</code>,原来默认会调用toString方法,JSON中的双引号被转义了，所以还需要使用<code>safe</code>防止其转义。</p>
+<pre><code class="lang-js">// var points = {{ data | dump }}  // 这个是错误的，要写成下面的
+var points = {{ data | dump | safe }};
+</code></pre>
+<p>参见:(<a href="https://github.com/mozilla/nunjucks/issues/94" target="_blank" rel="noopener">https://github.com/mozilla/nunjucks/issues/94</a>)</p>
+<h1 id="生成器函数"><a href="#生成器函数" class="headerlink" title="生成器函数"></a>生成器函数</h1><h2 id="生成器函数和Iterator接口"><a href="#生成器函数和Iterator接口" class="headerlink" title="生成器函数和Iterator接口"></a>生成器函数和Iterator接口</h2><pre><code class="lang-js">const obj = {};
+obj[Symbol.iterator] = function* () {
+  for(let i = 0;i &lt; 3;i++) yield i;
+}
+for(let v of obj) console.log(v)
+</code></pre>
+<h2 id="实现状态机"><a href="#实现状态机" class="headerlink" title="实现状态机"></a>实现状态机</h2><pre><code class="lang-js">const state_machine = function* (){
+  while(true) {
+    yield &#39;state:A&#39;
+    yield &#39;state:B&#39;
+    yield &#39;state:C&#39;
+  }
+}
+const s = state_machine();
+for(let i = 0;i &lt; 7;i++) console.log(s.next());
+</code></pre>
+<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><p>是一个函数用来修饰类的行为。第三方库code-decorator。日志系统可以用这种方法：</p>
+<pre><code class="lang-js">const log = type =&gt; {
+  return function(target,name,descriptor) {
+    let src_method = descriptor.value;
+    descriptor.value = (...args) =&gt; {
+      src_method.apply(target,args);
+      console.log(`log ${type}`);
+    }
+  }
+}
+
+// 类中只写业务，不埋点
+class AD{
+  @log(&#39;show&#39;)
+  show(){
+    console.log(&#39;ad is show&#39;);
+  }
+  @log(&#39;click&#39;)
+  click(){
+    console.log(&#39;ad is click&#39;);
+  }
+}
+
+const ad = new AD();
+ad.show();
+ad.click();
+</code></pre>
+<blockquote>
+<p>在没有重复使用3次以上的场景下避免使用抽象。过早优化是万恶之源。</p>
+</blockquote>
+<h1 id="async-amp-await-和内存泄漏"><a href="#async-amp-await-和内存泄漏" class="headerlink" title="async &amp; await 和内存泄漏"></a>async &amp; await 和内存泄漏</h1><pre><code class="lang-js">function sleep(delay) {
+    return new Promise(resolve =&gt; setTimeout(resolve, delay));
+}
+
+const _ = require(&#39;lodash&#39;);
+
+async function doTask() {
+    // console.log(&#39;start&#39;);
+    await sleep(_.random(10, 30));
+    // console.log(&#39;done&#39;);
+}
+
+async function start() {
+    await sleep(3);
+    await doTask();
+    await start(); // await 这里存在内存泄漏(将前面的await去掉/改成循环 则不会有这个问题)
+}
+
+start();
+
+setInterval(() =&gt; {
+    console.log(process.memoryUsage());
+},10e3);
+</code></pre>
+<p>上面的代码存在内存泄漏问题：</p>
+<p>进程启动的时候占用内存是22M</p>
+<pre><code class="lang-bash">  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+30211 devel     20   0 1229m 381m  10m S  1.0  9.6   1:36.63 node test.js
+# 在start函数的递归调用中取消await
+21729 devel     20   0  867m  23m  10m S  1.0  0.6   1:22.73 node test.js
+# 改成循环
+14498 devel     20   0  867m  24m  10m S  1.0  0.6   1:11.04 node test.js
+</code></pre>
+<p>上面的内存泄漏的原因在于promise不断堆积来不及销毁，参见：<a href="https://segmentfault.com/q/1010000017498684?_ea=5678155" target="_blank" rel="noopener">https://segmentfault.com/q/1010000017498684?_ea=5678155</a></p>
+<p>Node的Buffer模块性能相关部分有C++实现，所以Buffer对象的内存分配不是在V8的堆内存中，而是在Node的C++层面实现内存申请的（<strong>Buffer的内存虽然由Node的C/C++层面实现内存申请，但是变量的回收的还是由V8的GC管理的</strong>）。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.995Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/29/nodejs-best-practice/" target="_blank" rel="external">https://consoles.fun/2016/03/29/nodejs-best-practice/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/29/nodejs-best-practice/&title=《nodejs最佳实践》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/29/nodejs-best-practice/&title=《nodejs最佳实践》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/29/nodejs-best-practice/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《nodejs最佳实践》 — 雨碎江南&url=https://consoles.fun/2016/03/29/nodejs-best-practice/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/29/nodejs-best-practice/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/31/design-pattern-in-js/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">javascript设计模式</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/26/linux-shell-varible/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Shell基础-变量和配置文件</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/29/nodejs-best-practice/&title=《nodejs最佳实践》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/29/nodejs-best-practice/&title=《nodejs最佳实践》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/29/nodejs-best-practice/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《nodejs最佳实践》 — 雨碎江南&url=https://consoles.fun/2016/03/29/nodejs-best-practice/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/29/nodejs-best-practice/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMElEQVR42u3ay27CMBAFUP7/p6nUVaUSc2dsqsY+XiEIiU8WI8/j8YjX83v9/Hy1fl9zdYfxnR+fWBgYGLdl5Nsab7G60atNV18ZBgbGOYw8yF69gnEMHPPGzx1fg4GBgXF1zZiUhNTkewwMDIy1ATc/8OWvDAMDA6NXPktW8uBqwrwsF8fAwLgho9cY+JvPH+9vYGBg/HtGL4z2Ht9LcaNdYWBgbM3IS2l5ob9avJtpjkZnTwwMjJszqiEvH97qhem8VPci1GJgYGzNKEfoYguh2gqd6mxgYGBszage9ZLQXB2kqKbNGBgYJzCq5bOktZkD1gZiDAyMvRnVEYdVSWxvNU+7GBgYN2esLYTlR8aZt/6mhYmBgbERIz+0VZsHvUJ/fhzEwMA4hzGfiPYOgo945fvBwMA4gZEX6HvBcabxUK4aYmBgbMSoFtFWNRKqbYM3JAwMjK0Z1QGvajtzZpyi1/jEwMDYm5G3JPNmQJ7i9sJ0IevFwMDYjtGL1tX2QP4sDAyMkxkzg18zW8yD6VS5DQMDYyNGEkYTdi8EVwPui/9iYGBszeilkWNGL1j3gjsGBsYJjGdxJY/PU9Blv2JgYGzNyFe+3fzI2BvmiDqxGBgY2zHyIJvAmqGwdR8MDIzTGKvK+tXA3ftvVG7DwMA4kjFf3K8G7jwxxsDAwMiTyaSdWR0gi67EwMA4gNFrBvQC8fwIWnnGDQMD4+aMmeSzV56bGeOojnRgYGDcnPEFDfbwLmRmNjUAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

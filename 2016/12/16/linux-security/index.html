@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Linux网络安全 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux,信息安全">
+    <meta name="description" content="用户和用户组用户组指的是具有相同系统权限的一组用户,配置文件位于/etc/group。该配置文件的格式为组名:组密码占位符:组编号:组内用户名列表。当组内只有一个用户且用户名和组名相同的时候可以省略组内的用户名列表，例如:mysql:x:501:。组号1~499为系统预留的组编号。 /etc/shadow存放用户组的密码信息，和/etc/group一一对应。分别是组名称:组密码:组管理者:组中用户">
+<meta name="keywords" content="linux,信息安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux网络安全">
+<meta property="og:url" content="https://consoles.fun/2016/12/16/linux-security/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="用户和用户组用户组指的是具有相同系统权限的一组用户,配置文件位于/etc/group。该配置文件的格式为组名:组密码占位符:组编号:组内用户名列表。当组内只有一个用户且用户名和组名相同的时候可以省略组内的用户名列表，例如:mysql:x:501:。组号1~499为系统预留的组编号。 /etc/shadow存放用户组的密码信息，和/etc/group一一对应。分别是组名称:组密码:组管理者:组中用户">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mtr.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/nmap.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/syn-attack.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/Netfilter.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/data-filter-flow.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/iptables-rules.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/ftp-active-mode.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/ftp-passive-mode.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/vsftpd.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/snat.jpg">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/dnat.jpg">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.975Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux网络安全">
+<meta name="twitter:description" content="用户和用户组用户组指的是具有相同系统权限的一组用户,配置文件位于/etc/group。该配置文件的格式为组名:组密码占位符:组编号:组内用户名列表。当组内只有一个用户且用户名和组名相同的时候可以省略组内的用户名列表，例如:mysql:x:501:。组号1~499为系统预留的组编号。 /etc/shadow存放用户组的密码信息，和/etc/group一一对应。分别是组名称:组密码:组管理者:组中用户">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mtr.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Linux网络安全</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Linux网络安全</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-12-16T11:40:03.000Z" itemprop="datePublished" class="page-time">
+  2016-12-16
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#用户和用户组"><span class="post-toc-text">用户和用户组</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#系统扫描和安全防范"><span class="post-toc-text">系统扫描和安全防范</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#主机扫描"><span class="post-toc-text">主机扫描</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#路由扫描"><span class="post-toc-text">路由扫描</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#批量主机服务扫描"><span class="post-toc-text">批量主机服务扫描</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安全防范"><span class="post-toc-text">安全防范</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#iptables"><span class="post-toc-text">iptables</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#iptables规则组成"><span class="post-toc-text">iptables规则组成</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#场景1"><span class="post-toc-text">场景1</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#场景二"><span class="post-toc-text">场景二</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#场景三"><span class="post-toc-text">场景三</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#iptables-NAT表配置"><span class="post-toc-text">iptables NAT表配置</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#iptables防CC攻击"><span class="post-toc-text">iptables防CC攻击</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用iptables进行端口转发实现nginx代理功能"><span class="post-toc-text">使用iptables进行端口转发实现nginx代理功能</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SSH免密登陆"><span class="post-toc-text">SSH免密登陆</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-linux-security"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Linux网络安全</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-12-16 19:40:03" datetime="2016-12-16T11:40:03.000Z"  itemprop="datePublished">2016-12-16</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="用户和用户组"><a href="#用户和用户组" class="headerlink" title="用户和用户组"></a>用户和用户组</h1><p>用户组指的是具有<em>相同系统权限</em>的一组用户,配置文件位于<code>/etc/group</code>。该配置文件的格式为<code>组名:组密码占位符:组编号:组内用户名列表</code>。当组内只有一个用户且用户名和组名相同的时候可以省略组内的用户名列表，例如:<code>mysql:x:501:</code>。组号1~499为系统预留的组编号。</p>
+<p><code>/etc/shadow</code>存放用户组的密码信息，和<code>/etc/group</code>一一对应。分别是<code>组名称:组密码:组管理者:组中用户名列表</code>。当组密码为空、星号或者感叹号的时候可以认为组密码为空.</p>
+<p><code>/etc/passwd</code>，存放用户信息。<code>用户名：密码占位符：用户编号：用户组编号：用户注释信息：用户主目录：shell类型</code>。<code>/etc/shadow</code>存放用户密码。</p>
+<pre><code class="lang-bash">$ groupadd sexy # 添加组
+$ groupmod -n market sexay # 组改名
+$ groupmod -g 668 market # 更改组id
+$ groupadd boss -g 666 # 创建用户组并同时指定gid
+$ groupdel market # 删除用户组之前必须先删除组中的用户，否则成了黑户口可能有权限影响
+$ groupadd sexy
+$ useradd sdf -g sexy
+$ useradd jzmb -g sexy
+$ # 修改用户名
+$ usermod -l cls sdf
+$ usermod -d /home/cls cls
+$ usermod -G sexy imooc # 将用户添加到组
+$ userdel jzmb # 如果需要删除个人目录下，需要使用-r参数
+$ passwd -l cls # 锁定账户
+$ passwd -u cls # 解锁账户
+$ gpasswd -a cls boss # 将cls用户添加到附属组boss，区别于useradd -g
+$ useradd -g main_group -G group1,group2 # 创建用户并同时制定主组合附属组
+</code></pre>
+<blockquote>
+<p>创建用户的时候如果没有指定用户组，将会创建一个和用户名相同的用户组。建立<code>/etc/nologin</code>文件可以禁止除了root之外的所有用户登陆。<code>id</code>命令可以查看用户信息（用户名、用户编号;组编号、组列表）,<code>groups</code>显示用户所在的组。</p>
+</blockquote>
+<p>pem证书权限400。</p>
+<pre><code class="lang-bash">gpasswd -a devel sudo # devel用户可以使用sudo运行部分命令
+</code></pre>
+<h1 id="系统扫描和安全防范"><a href="#系统扫描和安全防范" class="headerlink" title="系统扫描和安全防范"></a>系统扫描和安全防范</h1><h2 id="主机扫描"><a href="#主机扫描" class="headerlink" title="主机扫描"></a>主机扫描</h2><blockquote>
+<p>主机扫描命令<a href="http://fping.org/" target="_blank" rel="noopener">fping</a>用于给目标主机发送ping请求，测试主机的存活情况。特点是并行发送，结果易读。<code>ping</code>实际上基于ICMP协议的，很多的运营商为了安全性屏蔽了ICMP封包，使用<code>ping</code>就无法准确知道主机是否存活。<a href="http://www.hping.org/" target="_blank" rel="noopener">hping</a>支持TCP/IP数据报组装。</p>
+</blockquote>
+<p>make hping的时候如果遇到以下错误：</p>
+<pre><code class="lang-bash">gcc -c -O2 -Wall    -g  main.c
+main.c:29:18: 致命错误：pcap.h：没有那个文件或目录
+ #include &lt;pcap.h&gt;
+                  ^
+编译中断。
+make: *** [main.o] 错误 1
+</code></pre>
+<p>需要使用<code>yum install -y libpcap-devel</code>，make clean后再次make报错：</p>
+<pre><code class="lang-bash">libpcap_stuff.c:19:21: 致命错误：net/bpf.h：没有那个文件或目录
+ #include &lt;net/bpf.h&gt;
+                     ^
+编译中断。
+make: *** [libpcap_stuff.o] 错误 1
+</code></pre>
+<p>执行<code>ln -sf /usr/include/pcap-bpf.h /usr/include/net/bpf.h</code>。make clean &amp;&amp; make 报错如下：</p>
+<pre><code class="lang-bash">/usr/bin/ld: cannot find -ltcl
+collect2: 错误：ld 返回 1
+make: *** [hping3] 错误 1
+</code></pre>
+<p>执行<code>yum -y install tcl-devel</code>。make clean &amp;&amp; make 成功。</p>
+<pre><code class="lang-bash"># 对指定目标端口发起tcp探测(1.165机器上使用`sysctl -w net.ipv4.icmp_echo_ignore_all=1`写入内核参数可以忽略ICMP封包)
+hping -p 3306 -S 192.168.1.165
+
+# 伪造来源IP，模拟DDOS攻击
+# 在165机器上执行`tcpdump -npi eth0 src host 192.168.1.128`抓取来自128的数据包
+# 在128机器上执行`hping -p 3306 -S 192.168.1.165`，抓包如下：
+
+05:15:11.885246 IP 192.168.1.128.dialog-port &gt; 192.168.1.165.mysql: Flags [S], seq 25702362, win 512, length 0
+05:15:11.885805 IP 192.168.1.128.dialog-port &gt; 192.168.1.165.mysql: Flags [R], seq 25702363, win 0, length 0
+05:15:12.885827 IP 192.168.1.128.h2250-annex-g &gt; 192.168.1.165.mysql: Flags [S], seq 1159234257, win 512, length 0
+05:15:12.886281 IP 192.168.1.128.h2250-annex-g &gt; 192.168.1.165.mysql: Flags [R], seq 1159234258, win 0, length 0
+05:15:13.886156 IP 192.168.1.128.amiganetfs &gt; 192.168.1.165.mysql: Flags [S], seq 1926746266, win 512, length 0
+05:15:13.886446 IP 192.168.1.128.amiganetfs &gt; 192.168.1.165.mysql: Flags [R], seq 1926746267, win 0, length 0
+05:15:14.886436 IP 192.168.1.128.rtcm-sc104 &gt; 192.168.1.165.mysql: Flags [S], seq 877480920, win 512, length 0
+05:15:14.886804 IP 192.168.1.128.rtcm-sc104 &gt; 192.168.1.165.mysql: Flags [R], seq 877480921, win 0, length 0
+05:15:15.886527 IP 192.168.1.128.zephyr-srv &gt; 192.168.1.165.mysql: Flags [S], seq 92599202, win 512, length 0
+05:15:15.886898 IP 192.168.1.128.zephyr-srv &gt; 192.168.1.165.mysql: Flags [R], seq 92599203, win 0, length 0
+
+# 我们在128机器上伪造ip 111.111.111.111向165发送数据`hping -p 3306 -S 192.168.1.165 -a 111.111.111.111`，165上使用`tcpdump -npi eth0 src host 111.111.111.111`，抓包如下：
+
+05:20:47.637022 IP 111.111.111.111.cr-websystems &gt; 192.168.1.165.mysql: Flags [S], seq 1736489811, win 512, length 0
+05:20:48.637440 IP 111.111.111.111.precise-sft &gt; 192.168.1.165.mysql: Flags [S], seq 1884271442, win 512, length 0
+05:20:49.637893 IP 111.111.111.111.sent-lm &gt; 192.168.1.165.mysql: Flags [S], seq 1138710010, win 512, length 0
+05:20:50.638273 IP 111.111.111.111.attachmate-g32 &gt; 192.168.1.165.mysql: Flags [S], seq 1280639165, win 512, length 0
+05:20:51.638627 IP 111.111.111.111.cadencecontrol &gt; 192.168.1.165.mysql: Flags [S], seq 964302270, win 512, length 0
+05:20:52.638932 IP 111.111.111.111.infolibria &gt; 192.168.1.165.mysql: Flags [S], seq 1582924875, win 512, length 0
+
+# 如果发送发发送比较频繁会，服务器会多次建立TCP3次握手等待和重试，导致165机器多次重试并回包给128询问为什么128没有建立第三次握手。165一直无法收到第三次回应的包导致资源耗尽或者网卡流量拥堵。
+</code></pre>
+<h2 id="路由扫描"><a href="#路由扫描" class="headerlink" title="路由扫描"></a>路由扫描</h2><p>Linux下traceroute默认发送udp包，而windows下tracert发送ICMP包，目标端口一般大于30000.traceroute支持3种协议(tcp,udp和ICMP，使用tcp的方式可以获得更加可靠的侦测)。</p>
+<p><code>mtr</code>测试主机到每一个路由的联通性。</p>
+<p>以下是<code>mtr github.com</code>的结果：<br><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mtr.png" alt="mtr命令" title>
+                </div>
+                <div class="image-caption">mtr命令</div>
+            </figure></p>
+<p>我们可以看到各个节点的丢包还是比较严重的。</p>
+<h2 id="批量主机服务扫描"><a href="#批量主机服务扫描" class="headerlink" title="批量主机服务扫描"></a>批量主机服务扫描</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/nmap.png" alt="nmap" title>
+                </div>
+                <div class="image-caption">nmap</div>
+            </figure>
+<blockquote>
+<p>所谓的版开发是指不建立完整的TCP3次握手</p>
+</blockquote>
+<pre><code class="lang-bash">$ nmap -sP 192.168.1.0/24 # 扫描主机段内哪些主机存活
+$ nmap -sS -p 0-30000 192.168.1.165 # 发送SYN包，侦测主机服务，指定端口为0-30000
+</code></pre>
+<h2 id="安全防范"><a href="#安全防范" class="headerlink" title="安全防范"></a>安全防范</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/syn-attack.png" alt="SYN攻击的原理" title>
+                </div>
+                <div class="image-caption">SYN攻击的原理</div>
+            </figure>
+<p>攻击者伪造ip（利用hping）向目标主机发送SYN包，目标主机收到SYN=x包后，向操作系统内核的backlog队列中写入记录，并向<em>不存在的地址</em>回包SYN=y，ACK=x+1，服务器无法收到第三次握手包。如果攻击的ip很多，会一直想backlog中写入记录，导致backlog队列满了。由于无法收到第三次握手包，服务器会不断重试回包（带宽满），导致服务器一直处于等待，导致系统资源占满。</p>
+<p>解决方案：</p>
+<ul>
+<li>减少发送SYN+ACK包的重试次数：</li>
+</ul>
+<pre><code class="lang-bash">$ sysctl -w net.ipv4.tcp_synack_retires=3
+$ sysctl -w net.ipv4.tcp_syn_retires=3
+</code></pre>
+<ul>
+<li>SYN Cookies技术</li>
+</ul>
+<p>不建立3次握手，不做等待<br><code>sysctl -w net.ipv4.tcp_syncookies=1</code></p>
+<ul>
+<li>增加backlog队列长度</li>
+</ul>
+<p><code>sysctl -w net.ipv4.tcp_max_syn_backlog=2048</code></p>
+<p>其他补充策略：</p>
+<ul>
+<li>关闭ICMP:<code>sysctl -w net.ipv4.icmp_echo_ignore_all=1</code></li>
+<li>iptables防止恶意扫描：</li>
+</ul>
+<pre><code class="lang-bash">$ iptables -A FORWARD -p tcp -syn -m limit -limit 1/s -limit-burst 5 -j ACCEPT
+$ iptables -A FORWARD -p tcp -tcp-flags SYN,ACK,FIN,RST RST -m limit -limit 1/s -j ACCEPT
+$ iptables -A FORWARD -p icmp -icmp-type echo-request -m limit -limit 1/s -j ACCEPT
+</code></pre>
+<h1 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h1><blockquote>
+<p>NetFilter是linux操作系统核心层内部的一个数据包模块。Hook point是数据包在Netfilter中的挂载点（PRE_ROUTING,INPUT,OUTPUT,FORWARD,POST_ROUTING），数据包在经过这5个挂载点的时候我们可以进行处理。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/Netfilter.png" alt="NetFilter" title>
+                </div>
+                <div class="image-caption">NetFilter</div>
+            </figure>
+<p>iptables = 4张表(filter,nat,managle,raw) + 5条链(Hook Point) + 规则</p>
+<p>Filter表：访问控制、规则匹配<br>Nat表：地址转发</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/data-filter-flow.png" alt="数据包在4张表和5条链中的流向" title>
+                </div>
+                <div class="image-caption">数据包在4张表和5条链中的流向</div>
+            </figure>
+<h3 id="iptables规则组成"><a href="#iptables规则组成" class="headerlink" title="iptables规则组成"></a>iptables规则组成</h3><p>数据包访问控制：ACCEPT,DROP,REJECT。DROP是直接丢包，REJECT是返回客户端拒绝消息<br>数据包改写：SNAT（改写原地址）,DNAT（改写目标地址）<br>信息记录：LOG</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/iptables-rules.png" alt="iptables规则" title>
+                </div>
+                <div class="image-caption">iptables规则</div>
+            </figure>
+<h3 id="场景1"><a href="#场景1" class="headerlink" title="场景1"></a>场景1</h3><ul>
+<li>对所有地址开发本机TCP(80,22,10-21)端口访问。</li>
+<li>允许所有地址开放本机的基于ICMP协议的数据包访问。</li>
+<li>其他未被允许的端口禁止访问。</li>
+</ul>
+<blockquote>
+<p>以下命令均在192.168.1.128上完成。</p>
+</blockquote>
+<pre><code class="lang-bash">$ iptables -F # 清除规则
+$ iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+$ iptables -I INPUT -p tcp --dport 22 -j ACCEPT # SSH端口要在默认的规则中加入
+$ iptables -I INPUT -p tcp --dport 10:21 -j ACCEPT # 端口范围为10-21
+$ iptables -I INPUT -p icmp -j ACCEPT # 允许ICMP协议
+$ iptables -A INPUT -j REJECT # 拒绝其他端口，注意该规则追加在末尾
+$ iptables -D INPUT -p tcp --dport 80 -j ACCEPT # 删除规则
+$ iptables -I INPUT -p tcp -s 192.168.1.100 --dport 80 -j ACCEPT # 只允许192.168.1.100访问web服务
+</code></pre>
+<p>上面的规则中存在以下的几个问题：</p>
+<ul>
+<li>外部主机可以连接到22号端口，但是127.0.0.1（192.168.1.128上的）无法连接到22端口。（本机无法访问本机）</li>
+<li>本机无法向外发送请求，例如在192.168.1.128上执行<code>curl http://www.baidu.com</code>。（本机无法访问其他主机）</li>
+</ul>
+<pre><code class="lang-bash">$ iptables -I INPUT -i lo -j ACCEPT # 开放本机lo网卡
+$ iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT # 已经建立TCP监听的时候放行
+</code></pre>
+<h3 id="场景二"><a href="#场景二" class="headerlink" title="场景二"></a>场景二</h3><blockquote>
+<p>ftp主动模式客户端开放随机端口并使用<code>PORT</code>命令将该端口上传至服务器，服务器通过<em>20端口</em>向该随机端口推送数据。ftp被动模式是是客户端发送<code>PASV</code>命令给服务端，服务端会开放一个随机端口，并告诉客户端该端口，客户端会向服务端的该端口拉取数据。所谓的主动和被动是站在服务器的立场上说的。</p>
+</blockquote>
+<p><a href="http://www.imooc.com/article/15136" target="_blank" rel="noopener">ftp主动模式和被动模式</a></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/ftp-active-mode.png" alt="主动模式" title>
+                </div>
+                <div class="image-caption">主动模式</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/ftp-passive-mode.png" alt="被动模式" title>
+                </div>
+                <div class="image-caption">被动模式</div>
+            </figure>
+<p>ftp默认使用的是被动模式。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/vsftpd.png" alt="vsftpd" title>
+                </div>
+                <div class="image-caption">vsftpd</div>
+            </figure>
+<p>在128服务器上进行如下iptables设置：</p>
+<pre><code class="lang-bash">$ iptables -I INPUT -p tcp --dport 21 -j ACCEPT
+$ iptables -I INPUT -p tcp --dport 22 -j ACCEPT
+$ iptables -I INPUT -p icmp -j ACCEPT
+$ iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+$ iptables -A INPUT -j REJECT
+$ iptables -nL
+</code></pre>
+<p>我们使用客户端进行登录，发现使用被动模式的时候连接被拒绝：</p>
+<pre><code class="lang-bash">➜  ~ ftp anonymous@192.168.1.128
+Connected to 192.168.1.128.
+220 (vsFTPd 3.0.2)
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp&gt; ls
+229 Entering Extended Passive Mode (|||53438|).
+ftp: Can&#39;t connect to `192.168.1.128&#39;: Connection refused
+200 EPRT command successful. Consider using EPSV.
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        0               6 Nov 05 19:43 pub
+226 Directory send OK.
+ftp&gt;
+</code></pre>
+<p>在上面的图中我们发现设置了iptables规则后，ftp被动模式连接被拒绝，使用主动模式可以正常连接（服务器使用20端口向外发送数据）。但是ftp为什么默认是被动模式？这主要是为了安全考虑（使用固定的20端口发送数据可能被黑客拦截）。</p>
+<p>编辑vsftpd配置文件：</p>
+<pre><code class="lang-bash"># 开放被动模式的高端口
+pasv_min_port=50000
+pasv_max_port=60000
+</code></pre>
+<p>第一种方式：在上面的主动模式下的iptables上加上如下配置：</p>
+<pre><code class="lang-bash">$ iptables -I INPUT -p tcp --dport 50000:60000 -j ACCEPT
+</code></pre>
+<p>可以发现我们已经可以使用ftp的被动模式了！</p>
+<p>第二种方式：加入内核的连接追踪模块。</p>
+<pre><code class="lang-bash">$ iptables -D INPUT -p tcp --dport 50000:60000 -j ACCEPT
+$ modprobe nf_conntrack_ftp # 加入连接追踪模块
+</code></pre>
+<p>永久生效需要修改配置文件：<code>/etc/sysconfig/iptables-config</code></p>
+<pre><code class="lang-bash">IPTABLES_MODULES=&quot;nf_conntrack_ftp&quot;
+</code></pre>
+<h3 id="场景三"><a href="#场景三" class="headerlink" title="场景三"></a>场景三</h3><ul>
+<li>员工在公司内部（192.168.1.0/24,192.168.2.0/24）能访问服务器上的任何服务</li>
+<li>员工出差（例如上海），通过VPN连接到公司外网（员工）-&gt;拨号到-&gt;VPN Server-&gt;内网ftp，samba，nfs，ssh</li>
+<li>公司有一个门户网站需要允许公网访问</li>
+</ul>
+<pre><code class="lang-bash">$ iptables -F
+$ iptables -I INPUT -i lo -j ACCEPT
+$ iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+$ iptables -A INPUT -s 192.168.1.0/24 -j ACCEPT
+$ iptables -A INPUT -s 192.168.2.0/24 -j ACCEPT
+$ iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+$ iptables -A INPUT -p tcp --dport 1723 -j ACCEPT # VPN,pptp
+$ iptables -I INPUT -p icmp -j ACCEPT
+$ iptables -A INPUT -j REJECT
+</code></pre>
+<blockquote>
+<p>可以将以上脚本写入到<code>/etc/rc.local</code>开机启动项中<code>/bin/sh /root/iptables_rules.sh</code>。</p>
+</blockquote>
+<h2 id="iptables-NAT表配置"><a href="#iptables-NAT表配置" class="headerlink" title="iptables NAT表配置"></a>iptables NAT表配置</h2><ul>
+<li>SNAT:源地址转换，出口POSTROUTING</li>
+<li>DNAT:目的地址转换,入口PREROUTING</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/snat.jpg" alt="SNAT网络拓扑结构" title>
+                </div>
+                <div class="image-caption">SNAT网络拓扑结构</div>
+            </figure>
+<p>以上的结构中101为宿主机，NAT Server2个网卡(hostonly + bridge)。</p>
+<p>在NAT Server上进行如下配置：</p>
+<pre><code class="lang-bash">$ vi /etc/sysctl.conf
+net.ipv4.ip_forward=1
+
+$ sysctl -p # load value from file
+$ sysctl -a | grep ip_forward # check if valid
+$ iptables -t nat -A POSTROUTING -s 172.16.61.0/24 -j SNAT --to 192.168.1.128 # 将源地址改写
+$ iptables -t nat -L
+</code></pre>
+<p>在客户机172.16.61.129上加入默认网关</p>
+<pre><code class="lang-bash">$ netstat -rn # 查看路由表
+$ route add 0.0.0.0 gw 172.16.61.128
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/dnat.jpg" alt="DNAT" title>
+                </div>
+                <div class="image-caption">DNAT</div>
+            </figure>
+<pre><code class="lang-bash">$ iptables -t nat -A PREROUTING -d 192.168.1.128 -p tcp --dport 80 -j DNAT --to 172.16.61.129:80
+</code></pre>
+<h2 id="iptables防CC攻击"><a href="#iptables防CC攻击" class="headerlink" title="iptables防CC攻击"></a>iptables防CC攻击</h2><p>connlimit模块用于限制每个客户端ip的并发连接数。</p>
+<pre><code class="lang-bash">$ iptables -F
+$ iptables -I INPUT -p TCP --syn --dport 80 -m connlimit --connlimit-above 100 -j REJECT # 每个客户端ip连接不能超过100
+</code></pre>
+<p>limit模块用于限速和控制流量。</p>
+<pre><code class="lang-bash"># 10个包之类放行，超过10个的时候仅允许每分钟1个
+$ iptables -A INPUT -p icmp -m limit --limit 1/m --limit-burst 10 -j ACCEPT
+$ iptables -A INPUT -p icmp -j DROP # 关掉默认的ICMP
+</code></pre>
+<h2 id="使用iptables进行端口转发实现nginx代理功能"><a href="#使用iptables进行端口转发实现nginx代理功能" class="headerlink" title="使用iptables进行端口转发实现nginx代理功能"></a>使用iptables进行端口转发实现nginx代理功能</h2><pre><code class="lang-bash"># 当访问80端口的时候将流量转发到8080端口
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+</code></pre>
+<h2 id="SSH免密登陆"><a href="#SSH免密登陆" class="headerlink" title="SSH免密登陆"></a>SSH免密登陆</h2><p>关闭root登陆，密码登陆可以提升服务器安全性。ssh免密登陆，将公钥粘贴到服务器的<code>~/.ssh/authorized_keys</code>，并设置权限为600。重启ssh服务。</p>
+<p>Fail2Ban软件可以对服务器安全进行记录。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.975Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/12/16/linux-security/" target="_blank" rel="external">https://consoles.fun/2016/12/16/linux-security/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/信息安全/">信息安全</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/12/16/linux-security/&title=《Linux网络安全》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/12/16/linux-security/&title=《Linux网络安全》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/12/16/linux-security/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux网络安全》 — 雨碎江南&url=https://consoles.fun/2016/12/16/linux-security/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/12/16/linux-security/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/12/27/dns-bind/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">使用Bind搭建智能DNS</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/12/11/linux-service/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Linux服务管理</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/12/16/linux-security/&title=《Linux网络安全》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/12/16/linux-security/&title=《Linux网络安全》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/12/16/linux-security/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux网络安全》 — 雨碎江南&url=https://consoles.fun/2016/12/16/linux-security/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/12/16/linux-security/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIklEQVR42u3aQY7DMAgF0N7/0pntSFXSD6Qziv28qiqn8esCAeb1itfxa13ved///uz15+u3jBYGBsZjGcflOnvB+8vODnH91NkZ8rNhYGDsw0gC6DWpF0arf9bp9xgYGBhxEEyCY/49BgYGRo+RpHR52oeBgYGRM/IGWXKIPB38h1ocAwPjgYy86/73n79yv4GBgfEoxqQQzVO63rOFU2FgYCzNyANcb2AiKWujAjX5BQwMjKUZ1dZ/3qqrUvO3nFIxMDAWZXyvJq4efdTyw8DAWJRx7euNRNzQvq8GdAwMjKUZSUmZZ1/VknUyOlapazEwMNZh9EYo8uA73//h78bAwFiUkRSKk1CbF8ajKwQMDIwNGL0QXA3W1TR0VItjYGAsxKheWM5XL8WMGnkYGBhLM5Kxhm8Un5MWGwYGBkZ1/GtynZAf9Ia7DgwMjIczyleGxWuDuxpzhdwTAwNjIca9FwPzK8xmiMfAwFiaMXksCaZ5KTvZg4GBsTaj15SfNPGPeOUtPwwMjB0Y1WZ9r5StltC3FbEYGBhLMKrjX6NhiNb+G+40MDAwHsg4imv+VMLIxzswMDB2YEzyrknyl7TnekEfAwNjVUYvXObP9qrOnIqBgbEPY9KGywcsmiMUyakwMDAwghStR+qlmzcEXAwMjI0ZvTI4v6L4UMRiYGAszegNTFSDZr4/CbgYGBj7MHojDpNvJgMWo4tMDAyM5zF+AKT3vCqPjHdQAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

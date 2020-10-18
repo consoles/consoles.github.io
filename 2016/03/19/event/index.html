@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>DOM与事件 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="javascript">
+    <meta name="description" content="javascript和html之间的交互是通事件实现的.事件就是文档或者浏览器窗口中发生的一些特定的瞬间.我们可以使用侦听器来预定事件,以便事件发生时执行相应的代码.传统的软件工程中称为观察者模式,使得行为(js)和外观(html和css)松散耦合.  DOM事件流“DOM2级事件”规定事件流包括3个阶段:  事件捕获(为截获事件提供了机会) 处于目标(实际的目标接收到事件) 事件冒泡(可对事件">
+<meta name="keywords" content="javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DOM与事件">
+<meta property="og:url" content="https://consoles.fun/2016/03/19/event/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="javascript和html之间的交互是通事件实现的.事件就是文档或者浏览器窗口中发生的一些特定的瞬间.我们可以使用侦听器来预定事件,以便事件发生时执行相应的代码.传统的软件工程中称为观察者模式,使得行为(js)和外观(html和css)松散耦合.  DOM事件流“DOM2级事件”规定事件流包括3个阶段:  事件捕获(为截获事件提供了机会) 处于目标(实际的目标接收到事件) 事件冒泡(可对事件">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/event-stream.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.952Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DOM与事件">
+<meta name="twitter:description" content="javascript和html之间的交互是通事件实现的.事件就是文档或者浏览器窗口中发生的一些特定的瞬间.我们可以使用侦听器来预定事件,以便事件发生时执行相应的代码.传统的软件工程中称为观察者模式,使得行为(js)和外观(html和css)松散耦合.  DOM事件流“DOM2级事件”规定事件流包括3个阶段:  事件捕获(为截获事件提供了机会) 处于目标(实际的目标接收到事件) 事件冒泡(可对事件">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/event-stream.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">DOM与事件</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">DOM与事件</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-19T13:48:19.000Z" itemprop="datePublished" class="page-time">
+  2016-03-19
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#DOM事件流"><span class="post-toc-text">DOM事件流</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事件处理程序"><span class="post-toc-text">事件处理程序</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DOM0级事件处理程序"><span class="post-toc-text">DOM0级事件处理程序</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DOM2级事件处理程序"><span class="post-toc-text">DOM2级事件处理程序</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IE事件处理程序"><span class="post-toc-text">IE事件处理程序</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事件对象"><span class="post-toc-text">事件对象</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#事件类型"><span class="post-toc-text">事件类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#UI事件"><span class="post-toc-text">UI事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#焦点事件"><span class="post-toc-text">焦点事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#事件委托"><span class="post-toc-text">事件委托</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-event"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">DOM与事件</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-19 21:48:19" datetime="2016-03-19T13:48:19.000Z"  itemprop="datePublished">2016-03-19</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>javascript和html之间的交互是通<em>事件</em>实现的.事件就是文档或者浏览器窗口中发生的一些特定的瞬间.我们可以使用<strong>侦听器</strong>来预定事件,以便事件发生时执行相应的代码.传统的软件工程中称为<a href="http://www.cnblogs.com/wangjq/archive/2012/07/12/2587966.html" target="_blank" rel="noopener">观察者模式</a>,使得行为(js)和外观(html和css)松散耦合.</p>
+</blockquote>
+<h2 id="DOM事件流"><a href="#DOM事件流" class="headerlink" title="DOM事件流"></a>DOM事件流</h2><p>“DOM2级事件”规定事件流包括3个阶段:</p>
+<ol>
+<li>事件捕获(为截获事件提供了机会)</li>
+<li>处于目标(实际的目标接收到事件)</li>
+<li>事件冒泡(可对事件做出响应)</li>
+</ol>
+<p>以下面的DOM结构为例:</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/event-stream.png" alt="事件流" title>
+                </div>
+                <div class="image-caption">事件流</div>
+            </figure>
+<p>单击<code>div</code>元素的时候会按照上述顺序触发事件.</p>
+<h2 id="事件处理程序"><a href="#事件处理程序" class="headerlink" title="事件处理程序"></a>事件处理程序</h2><pre><code class="lang-html">&lt;button onclick=&quot;show();&quot;&gt;
+</code></pre>
+<p>思考:上述的时间处理程序有什么缺点?<br>答:缺点有2个.①可能存在时差问题.考虑这样一种情形.show函数定义在按钮的后面,当DOM还没有加载到<code>script</code>标签的时候将会发生错误,此种情形可以通过内部添加<code>try-catch</code>来解决:<code>&lt;button onclick=&quot;try{show();}catch(ex){}&quot;&gt;</code>;②拓展事件处理程序的作用链将会是浏览器不兼容的.</p>
+<h3 id="DOM0级事件处理程序"><a href="#DOM0级事件处理程序" class="headerlink" title="DOM0级事件处理程序"></a>DOM0级事件处理程序</h3><p>该种方式将一个函数赋值给一个事件处理程序的属性,比较简单,兼容性好,例如:</p>
+<pre><code class="lang-js">var btn = getElementById(&#39;btn&#39;)
+btn.onclick = function () {
+  console.log(&#39;clicked&#39;,this.id); // clicked btn
+}
+</code></pre>
+<p>使用DOM0级方法指定的时间处理程序被认为是<strong>元素的方法</strong>.这个时候的事件处理程序是在元素作用域中运行(this指向当前元素).以这种方式添加的事件处理程序会在<em>事件流的冒泡阶段</em>被处理,删除事件处理程序只需要将事件处理程序的属性设置为<code>null</code>,例如:<code>btn.onclick = null</code>.</p>
+<h3 id="DOM2级事件处理程序"><a href="#DOM2级事件处理程序" class="headerlink" title="DOM2级事件处理程序"></a>DOM2级事件处理程序</h3><p>定义了2个方法<code>addEventListener()</code>和<code>removeEventListener()</code>用于指定或者删除事件处理程序.都接收3个参数:事件名,事件处理函数和布尔值(true,捕获阶段调用事件处理函数;false,冒泡阶段调用事件处理函数,缺省为false).这种方式可以弥补了DOM0中不能添加多个事件处理函数的不足:</p>
+<pre><code class="lang-js">var btn = getElementById(&#39;btn&#39;)
+btn.addEventListener(&#39;click&#39;,function(){
+  console.log(1);
+})
+btn.addEventListener(&#39;click&#39;,function(){
+  console.log(2);
+})
+// 1 2
+</code></pre>
+<p>以上为btn添加了2个事件处理程序,这2个程序会按照它们的添加它们顺序触发.</p>
+<h3 id="IE事件处理程序"><a href="#IE事件处理程序" class="headerlink" title="IE事件处理程序"></a>IE事件处理程序</h3><p>IE9之前的版本支持<code>attachEvent()</code>和<code>detachEvent()</code>,接收事件名(注意”on”)和事件处理函数,只支持在冒泡阶段处理,和DOM0级事件的区别在于<code>attachEvent()</code>在<em>全局作用域</em>中运行,因此<code>window === this</code>,<code>attachEvent</code>也可以绑定多个事件,但是触发的顺序是<em>与添加的时候相反的</em>.</p>
+<h2 id="事件对象"><a href="#事件对象" class="headerlink" title="事件对象"></a>事件对象</h2><p>兼容DOM的对象会将一个<code>event</code>对象传入到事件处理程序中(无论是DOM0还是DOM2),事件处理程序执行完后,<code>event</code>对象将被销毁;IE中的事件对象是<code>window.event</code>.在事件处理程序内部<code>this === currentTarget</code>,而<code>target</code>则表示的是事件的实际目标,我们来看下面的一个例子:</p>
+<pre><code class="lang-html">&lt;body&gt;
+    &lt;button type=&quot;button&quot; id=&quot;btn&quot;&gt;按钮&lt;/button&gt;
+    &lt;script&gt;
+        document.body.addEventListener(&#39;click&#39;,function(e){
+            console.log(this); // body
+            console.log(e.currentTarget); // body
+            console.log(e.target); // button#btn
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+<blockquote>
+<p><code>this</code>和<code>currentTarget</code>都是body元素,因为事件是注册到body上的,而<code>target</code>却是按钮,因为它是事件的真是目标(最具体的元素).由于按钮上并没有注册处理程序,click事件就冒泡到了<code>document.body</code>并在那里得到处理.(在上面的例子中我们可以使用<code>e.stopProgation()</code>从而禁止事件传播)</p>
+<p>其实,恰当使用能力检测就可以写出兼容代码,详见<a href="https://github.com/consoles/front-end/blob/master/DOMEvent/js/event.js" target="_blank" rel="noopener">event.js</a></p>
+</blockquote>
+<h2 id="事件类型"><a href="#事件类型" class="headerlink" title="事件类型"></a>事件类型</h2><h3 id="UI事件"><a href="#UI事件" class="headerlink" title="UI事件"></a>UI事件</h3><p>UI事件指的是那些不一定与用户操作有关的事件.</p>
+<ul>
+<li>load:页面完全加载完成后在window上触发;当所有框架内容加载完毕后在框架集上触发;图像加载完成后在<code>&lt;img&gt;</code>元素上触发;嵌入内容加载完毕后在<code>&lt;object&gt;</code>元素上触发</li>
+<li>abort:用户停止下载过程时;如果嵌入的内容没有加载完,则在<code>&lt;object&gt;</code>元素上触发</li>
+<li>error:js错误时在window上触发;图像无法加载时在<code>&lt;img&gt;</code>上触发;无法加载内容时在<code>&lt;object&gt;</code>上触发;一个或者多个框架无法加载时在框架集上触发</li>
+</ul>
+<blockquote>
+<p>根据“DOM2 级事件”规范,应该在<code>document</code>而非<code>window</code>上面触发<code>load</code>事件。但是,所有浏览器都在<code>window</code>上面实现了该事件,以确保向后兼容,例如我们经常用的<code>window.onload</code>.</p>
+</blockquote>
+<h3 id="焦点事件"><a href="#焦点事件" class="headerlink" title="焦点事件"></a>焦点事件</h3><ul>
+<li>focus,元素获取焦点时触发.但是该事件<em>不会冒泡</em>.</li>
+<li>blur,元素失去焦点触发,不会冒泡</li>
+<li>focusin,元素获取焦点时触发,与html事件focus等价,但冒泡.</li>
+<li>focusout,元素失去焦点时触发,是html事件blur的通用版本.</li>
+</ul>
+<p>当焦点从页面中的一个元素移动到另外一个元素,会依次触发下列事件:</p>
+<ol>
+<li>focusout在失去焦点的元素上触发</li>
+<li>focusin在获得焦点的元素上触发</li>
+<li>blur在失去焦点的元素上触发</li>
+<li>focus在获得焦点的元素上触发</li>
+</ol>
+<h3 id="事件委托"><a href="#事件委托" class="headerlink" title="事件委托"></a>事件委托</h3><p>添加太多的事件处理程序会带来性能问题(函数是对象,对象就要占内存),解决方案就是采用<em>事件委托</em>.事件委托利用了事件冒泡,只指定一个事件处理程序就可以管理某一类型的所有事件,例如<code>click</code>事件会一直冒泡到<code>document</code>,也就是说<strong>我们可以为整个页面添加一个onclick事件处理程序而不必为每个元素添加事件处理程序</strong>,例如:</p>
+<pre><code class="lang-html">&lt;ul id=&quot;list&quot;&gt;
+  &lt;li id=&quot;li1&quot;&gt;li1 content&lt;/li&gt;
+  &lt;li id=&quot;li2&quot;&gt;li2 content&lt;/li&gt;
+  &lt;li id=&quot;li3&quot;&gt;li3 content&lt;/li&gt;
+  &lt;li id=&quot;li4&quot;&gt;li4 content&lt;/li&gt;
+  &lt;li id=&quot;li5&quot;&gt;li5 content&lt;/li&gt;
+&lt;/ul&gt;
+&lt;script&gt;
+  var list = document.getElementById(&#39;list&#39;)
+  list.addEventListener(&#39;click&#39;,function(ev){
+    var target = ev.target
+    console.log(target.id)
+    switch (target.id) {
+        //
+    }
+  })
+&lt;/script&gt;
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.952Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/19/event/" target="_blank" rel="external">https://consoles.fun/2016/03/19/event/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/19/event/&title=《DOM与事件》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/19/event/&title=《DOM与事件》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/19/event/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《DOM与事件》 — 雨碎江南&url=https://consoles.fun/2016/03/19/event/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/19/event/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/22/form/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">表单的常见操作</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/19/elements-size/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">javascript中的元素大小</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/19/event/&title=《DOM与事件》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/19/event/&title=《DOM与事件》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/19/event/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《DOM与事件》 — 雨碎江南&url=https://consoles.fun/2016/03/19/event/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/19/event/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxUlEQVR42u3aOW7DQAwFUN//0kqbIpY+yTHhAG8qw9DyRgUxXF6veF2/1v01737f/3N44eLijrnX7bq/5h03gSbP/2NLuLi4i9w8MOURprqNewMuLu43c6shL38mLi7u/+Umd1WTH1xc3O/kJuGpV9RIgtdHcjVcXNwB9+wre78/Ut/FxcVtca/iKh9HbgNf+e24uLgr3HkxdFIGrb4XFxd3h3sq7TlVBHn4NLi4uIvcXgrUK7kmjZaHExkuLu4KNw861RGrU60aXFzcTe7kcb1kJtlqM1fDxcU9xK0mM0mZY9QczXM1XFzcRW5ycOmNZUwKLtGJDBcX9yj3vsBRHaWqtmEKHwUXF3eFmyczp5qskxIqLi7uJrdcR4mHriZFk7chDBcXd5HbG5LoXVltwzzMjODi4n6YO2l49Jqs5eQHFxd3nZsfR8oBKClwVIsguLi4H+BexTW5t1dqwcXF3edORiLy4DVJn5qbwcXFHXNzSt6Ozdur5W3j4uIucvNA0xuz6CU/D01WXFzcr+HmTdb5+MWBQIaLi7vCTRDJW3ppEi4u7ia3V9ys3pVvtdxkxcXFPcoth5JBeErKLpMiLC4u7pj7A7HoUsEfbJZYAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

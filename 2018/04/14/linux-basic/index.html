@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Linux基础 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux">
+    <meta name="description" content="硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在/dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到/dev/sdb上并没有可用的分区表，使用fdisk /dev/sdb即可进入分区模式">
+<meta name="keywords" content="linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux基础">
+<meta property="og:url" content="https://consoles.fun/2018/04/14/linux-basic/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在/dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到/dev/sdb上并没有可用的分区表，使用fdisk /dev/sdb即可进入分区模式">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.971Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux基础">
+<meta name="twitter:description" content="硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在/dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到/dev/sdb上并没有可用的分区表，使用fdisk /dev/sdb即可进入分区模式">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Linux基础</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Linux基础</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-04-14T12:07:51.000Z" itemprop="datePublished" class="page-time">
+  2018-04-14
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#硬盘分区、格式化和挂载"><span class="post-toc-text">硬盘分区、格式化和挂载</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MBR分区模式"><span class="post-toc-text">MBR分区模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#GPT分区模式"><span class="post-toc-text">GPT分区模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分区格式化"><span class="post-toc-text">分区格式化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分区挂载"><span class="post-toc-text">分区挂载</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为硬盘添加swap分区"><span class="post-toc-text">为硬盘添加swap分区</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#磁盘管理"><span class="post-toc-text">磁盘管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#密钥管理"><span class="post-toc-text">密钥管理</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-linux-basic"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Linux基础</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-04-14 20:07:51" datetime="2018-04-14T12:07:51.000Z"  itemprop="datePublished">2018-04-14</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="硬盘分区、格式化和挂载"><a href="#硬盘分区、格式化和挂载" class="headerlink" title="硬盘分区、格式化和挂载"></a>硬盘分区、格式化和挂载</h1><h2 id="MBR分区模式"><a href="#MBR分区模式" class="headerlink" title="MBR分区模式"></a>MBR分区模式</h2><blockquote>
+<p>主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。</p>
+</blockquote>
+<p>服务器添加硬盘后会显示在<code>/dev</code>目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用<code>fdisk</code>（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用<code>fdisk -l</code>看到<code>/dev/sdb</code>上并没有可用的分区表，使用<code>fdisk /dev/sdb</code>即可进入分区模式(注意：如果添加的分区是拓展分区,一个硬盘上拓展分区的数量最多只能有一个，拓展分区不能直接使用，必须添加逻辑分区,方法是进入到分区模式，然后按n，按照提示为拓展分区添加逻辑分区)。因为逻辑分区在拓展分区内部，所以如果删除拓展分区，它下面的逻辑分区将一同删除。<em>拓展分区的出现本身就是为了解决MBR中只能有4个主分区的问题。</em></p>
+<h2 id="GPT分区模式"><a href="#GPT分区模式" class="headerlink" title="GPT分区模式"></a>GPT分区模式</h2><blockquote>
+<p>主分区最多128个，分区的类型概念模糊了，单个分区的容量几乎没有限制(18EB,1EB=1024PB,1PB=1024TB)，GPT的主分区中不太适合安装X86架构的系统。</p>
+</blockquote>
+<p>GPT分区使用<code>parted</code>工具(MBR和GPT都支持)。</p>
+<blockquote>
+<p>固态硬盘中4K对其非常重要，对硬盘的性能会产生很大影响，通常将一块硬盘的起始的0~1MB的空间牺牲掉用来做4K对其。</p>
+</blockquote>
+<pre><code class="lang-bash">$ parted
+$ select /dev/sdc # 选择我们新添加的硬盘
+$ mklabel gpt # 指定分区类型为gpt，还有一种是msdos表示MBR分区
+$ mkpart # 按照提示进下下一步操作即可，注意start和end表示从第XXXMB开始到XXXMB结束
+$ mkpart part2 2000 3000 # 分区名 上一个分区的结束位置 本分区的结束位置
+$ print # 第一列为分区编号
+$ rm 3 # 删除第3个分区
+$ unit GB # 使用GB为单位指定分区的开始和结束位置
+</code></pre>
+<p><em>fdisk工具需要输入w将分区信息更新写入，而gpt工具只需要分好之后退出即可</em></p>
+<h2 id="分区格式化"><a href="#分区格式化" class="headerlink" title="分区格式化"></a>分区格式化</h2><p>分区格式化使用<code>mkfs</code>。</p>
+<pre><code class="lang-bash">$ mkfs.ext4 /dev/sdb1 # 将/dev/sdb1格式化为ext4
+$ mkfs -t ext3 /dev/sdb2
+</code></pre>
+<h2 id="分区挂载"><a href="#分区挂载" class="headerlink" title="分区挂载"></a>分区挂载</h2><p>分区默认挂载目录是<code>/mnt</code></p>
+<pre><code class="lang-bash">$ mkdir -p /mnt/test
+$ mount /dev/sdb1 /mnt/test
+$ umount /mnt/test # 或者umount /dev/sdb1
+</code></pre>
+<blockquote>
+<p>通过mount命令挂载的分区在重启后会失效，需要将其写入到<code>/etc/fstab</code>中可以重启自动挂载。</p>
+</blockquote>
+<pre><code class="lang-bash">$ vi + /etc/fstab # + 表示定位到最后一行,添加这样的一行即可
+$ /dev/sdb1       /mnt/test       ext3    defaults        0       0
+</code></pre>
+<h2 id="为硬盘添加swap分区"><a href="#为硬盘添加swap分区" class="headerlink" title="为硬盘添加swap分区"></a>为硬盘添加swap分区</h2><p>首先建立普通分区</p>
+<pre><code class="lang-bash">$ fdisk /dev/sdb
+$ p
+$ t # 选择分区编号，输入6（最后一个分区）
+$ # 系统提示改变16进制编码（输入L可看到全部编码，可以发现83为普通linux分区,82为交换分区，输入82,w保存退出）
+$ mkswap /dev/sdb6 # 格式化交换分区
+$ swapon /dev/sdb6 # 启用交换分区
+</code></pre>
+<p>交换分区启用完成后可以使用<code>free</code>命令查看加载状况，还可以使用<code>swapoff /dev/sdb6</code>停用交换分区。</p>
+<h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><pre><code class="lang-bash">$ du -h -s /tmp/ # 统计/tmp目录大小
+$ du -sh *.js # 统计当前目录下js文件大小
+</code></pre>
+<h2 id="密钥管理"><a href="#密钥管理" class="headerlink" title="密钥管理"></a>密钥管理</h2><pre><code class="lang-bash"># 上传公钥到服务器
+cat ~/.ssh/id_rsa.pub | ssh devel@192.168.3.118 &#39;cat &gt;&gt; .ssh/authorized_keys&#39;
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.971Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/04/14/linux-basic/" target="_blank" rel="external">https://consoles.fun/2018/04/14/linux-basic/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/04/14/linux-basic/&title=《Linux基础》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/04/14/linux-basic/&title=《Linux基础》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/04/14/linux-basic/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux基础》 — 雨碎江南&url=https://consoles.fun/2018/04/14/linux-basic/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/04/14/linux-basic/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/04/15/docker-learn/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">docker学习</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/04/14/sed-and-awk/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">sed-and-awk</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/04/14/linux-basic/&title=《Linux基础》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/04/14/linux-basic/&title=《Linux基础》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/04/14/linux-basic/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Linux基础》 — 雨碎江南&url=https://consoles.fun/2018/04/14/linux-basic/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/04/14/linux-basic/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACH0lEQVR42u3aQY7kIAwF0L7/pTPblloh34aMFHisSqkq4GWBbOOfn3hcv0bv+d/Pd7/5O9uygYGB8VnGNRzjhWdeRBX2sAcMDIwDGHcLj38z3lAPlqyLgYGBkTCSA7oX8GFgYGC8ceBWD9DqK8DAwMCoTl1OL+NX9p9ycQwMjA8yZsK1tz+/cr+BgYHxKcZVHNVwrVpQu1oDAwNjb0YvQa1uK5knCR8fmjwwMDC2Zoy/WNX4lQeFd2tFVAwMjGMY8y1cq64KkuMbAwNjb0Z1gfK14svNFhgYGCcwegFZFTyeOV99KrbFwMDYgjET3vUaKfIDN5oBAwNjU0a1rJ+3X4wXninq3SaxGBgYBzCqRfy8cJ+nr83EGAMD4zBGrxCWl+SqAWgUYmJgYBzMyK8be7BqgHj7BAMD4zBGtZQ/0/K1rDkMAwNja0a1oL+qrDZfz2/muxgYGB9k9K4B8tvDXqpcbrbAwMDYmrE2mJsvqyVbf2i5wMDAOIyRHJqrrhOqYehDEouBgbEpY/4QzNPgJN1NXg0GBgZG9OfiVqIgr5XcYmBg7Mq4iiM/cJMZ8paOhxUxMDC2ZsyEYnl4N9MuVm3IwMDA2JWRF7x6YWLv8rJ6TGNgYJzAmC+oJUFh8qR3zYCBgYHRCwpngstyaQ8DAwMjCA2rpbrq81dCQwwMjE8xeiFdknyOj+PqhQQGBsaZjF6LQ+/ic23iioGBcQDjH+Ahk2FMgDh5AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

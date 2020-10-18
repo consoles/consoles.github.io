@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>javascript设计模式 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="javascript,设计模式">
+    <meta name="description" content="心游于艺，道不远人  变继承关系为组合关系State模式继承描述了is-a的关系，子类可以继承父类的成员变量和函数，也可以修改父类的成员变量和函数。使用设计模式来实现代码复用，而不是使用继承实现代码复用。继承关系有局限性。">
+<meta name="keywords" content="javascript,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript设计模式">
+<meta property="og:url" content="https://consoles.fun/2016/03/31/design-pattern-in-js/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="心游于艺，道不远人  变继承关系为组合关系State模式继承描述了is-a的关系，子类可以继承父类的成员变量和函数，也可以修改父类的成员变量和函数。使用设计模式来实现代码复用，而不是使用继承实现代码复用。继承关系有局限性。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/StatePattern.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DecoratorPattern.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.942Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="javascript设计模式">
+<meta name="twitter:description" content="心游于艺，道不远人  变继承关系为组合关系State模式继承描述了is-a的关系，子类可以继承父类的成员变量和函数，也可以修改父类的成员变量和函数。使用设计模式来实现代码复用，而不是使用继承实现代码复用。继承关系有局限性。">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/StatePattern.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">javascript设计模式</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">javascript设计模式</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-31T15:03:56.000Z" itemprop="datePublished" class="page-time">
+  2016-03-31
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#变继承关系为组合关系"><span class="post-toc-text">变继承关系为组合关系</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#State模式"><span class="post-toc-text">State模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式"><span class="post-toc-text">装饰器模式</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#模拟接口"><span class="post-toc-text">模拟接口</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#作用域、嵌套函数和闭包"><span class="post-toc-text">作用域、嵌套函数和闭包</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#继承"><span class="post-toc-text">继承</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类式继承"><span class="post-toc-text">类式继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#克隆函数和原型式继承"><span class="post-toc-text">克隆函数和原型式继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#多继承与mixin"><span class="post-toc-text">多继承与mixin</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#单例"><span class="post-toc-text">单例</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#对象字面量"><span class="post-toc-text">对象字面量</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#惰性实例化"><span class="post-toc-text">惰性实例化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分支"><span class="post-toc-text">分支</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#方法的链式调用"><span class="post-toc-text">方法的链式调用</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#工厂模式"><span class="post-toc-text">工厂模式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#简单工厂"><span class="post-toc-text">简单工厂</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#工厂模式-1"><span class="post-toc-text">工厂模式</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-design-pattern-in-js"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">javascript设计模式</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-31 23:03:56" datetime="2016-03-31T15:03:56.000Z"  itemprop="datePublished">2016-03-31</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>心游于艺，道不远人</p>
+</blockquote>
+<h1 id="变继承关系为组合关系"><a href="#变继承关系为组合关系" class="headerlink" title="变继承关系为组合关系"></a>变继承关系为组合关系</h1><h2 id="State模式"><a href="#State模式" class="headerlink" title="State模式"></a>State模式</h2><p>继承描述了is-a的关系，子类可以继承父类的成员变量和函数，也可以修改父类的成员变量和函数。使用设计模式来实现代码复用，而不是使用继承实现代码复用。继承关系有局限性。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/StatePattern.png" alt="State设计模式" title>
+                </div>
+                <div class="image-caption">State设计模式</div>
+            </figure>
+<h2 id="装饰器模式"><a href="#装饰器模式" class="headerlink" title="装饰器模式"></a>装饰器模式</h2><p>java中有一个Runnable接口：</p>
+<pre><code class="lang-java">interface Runnable{
+  void run();
+}
+</code></pre>
+<p>如何实现LoggingRunnable，TransactionRunnable?</p>
+<p>原始的CodingTask类：</p>
+<pre><code class="lang-java">class CodingTask implements Runnable{
+
+    @Override
+    public void run() {
+        System.out.println(&quot;writing code&quot;);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // 抛出运行时异常防止异常被吞没
+            throw new RuntimeException(e);
+        }
+    }
+}
+</code></pre>
+<p>一种不太好的实现：</p>
+<pre><code class="lang-java">abstract class LoggingRunnable implements Runnable{
+
+    protected abstract void doRun();
+
+    @Override
+    public void run() {
+        System.out.println(&quot;Task started at &quot; + LocalTime.now());
+        doRun();
+        System.out.println(&quot;Task done at &quot; + LocalTime.now());
+    }
+}
+
+abstract class TransactionRunnable implements Runnable{
+
+    protected abstract void doRun();
+
+    @Override
+    public void run() {
+        System.out.println(&quot;begin transaction.&quot;);
+        boolean shouldRollback = false;
+        try {
+            doRun();
+        } catch (Exception e) {
+            shouldRollback = true;
+            throw e;
+        } finally {
+            if (shouldRollback) {
+                System.out.println(&quot;rollback&quot;);
+            } else {
+                System.out.println(&quot;commit&quot;);
+            }
+        }
+    }
+}
+
+class CodingTask extends LoggingRunnable{
+
+    @Override
+    protected void doRun() {
+        System.out.println(&quot;writing code&quot;);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // 抛出运行时异常防止异常被吞没
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+public class Test{
+    public static void main(String[] args) {
+        new CodingTask().run();
+    }
+}
+</code></pre>
+<p>上面的代码虽然实现了功能，但是CodingTask的定义却变得不是很明朗：</p>
+<ul>
+<li>CodingTask从字面意思上是任务，原始的CodingTask实现了Runnable接口含义更明确</li>
+<li>引入了另外一个前提，凡是在使用CodingTask的地方必须记录日志 </li>
+<li>如果我们现在不想要CodingTask记录日志了，而是当做一个Transaction处理，就必须修改代码让CodingTask继承TransactionRunnable抽象类</li>
+<li>如果CodingTask要同时完成记录日志和启用事务，由于单继承的局限性，上面的代码无法做到（即使支持多继承，由于LoggingRunnable和TransactionRunnable都有doRun，到底调用哪个也是很复杂的）</li>
+<li>run方法比doRun具有更好的语义</li>
+</ul>
+<p>装饰器模式可以解除上述耦合：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/DecoratorPattern.png" alt="装饰器模式" title>
+                </div>
+                <div class="image-caption">装饰器模式</div>
+            </figure>
+<blockquote>
+<p>类里面的成员要么是public的，要么是private的，如果遇到protected要反思下是否建立的争取的模型。</p>
+</blockquote>
+<pre><code class="lang-java">class LoggingRunnable implements Runnable {
+
+    private final Runnable runnable;
+
+    public LoggingRunnable(Runnable runnable) {
+        this.runnable = runnable;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(&quot;Task started at &quot; + LocalTime.now());
+        runnable.run();
+        System.out.println(&quot;Task done at &quot; + LocalTime.now());
+    }
+}
+
+class TransactionRunnable implements Runnable {
+
+    private final Runnable runnable;
+
+    public TransactionRunnable(Runnable runnable) {
+        this.runnable = runnable;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(&quot;begin transaction.&quot;);
+        boolean shouldRollback = false;
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            shouldRollback = true;
+            throw e;
+        } finally {
+            if (shouldRollback) {
+                System.out.println(&quot;rollback&quot;);
+            } else {
+                System.out.println(&quot;commit&quot;);
+            }
+        }
+    }
+}
+
+class CodingTask implements Runnable {
+
+    @Override
+    public void run() {
+        System.out.println(&quot;writing code&quot;);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+
+        CodingTask task = new CodingTask();
+
+        task.run(); // 单独run
+        new LoggingRunnable(task).run(); // 记录日志,run
+        new LoggingRunnable(new TransactionRunnable(task)).run(); // 记录日志,开启事务,run
+    }
+}
+</code></pre>
+<p>上面的代码，每个类各司其职，但是可以通过嵌套灵活组装。里层的逻辑装饰了外层逻辑。java流就使用了装饰器模式。</p>
+<p>一种<em>快速出错</em>的常规编程实践提倡一旦出错就立刻抛出异常，使错误的定位更加容易（这和忽略错误并将异常推迟到以后处理的方式截然相反）。</p>
+<h1 id="模拟接口"><a href="#模拟接口" class="headerlink" title="模拟接口"></a>模拟接口</h1><pre><code class="lang-js">const assert = require(&#39;assert&#39;);
+
+class Interface {
+    constructor(name, methods) {
+        assert(name, &#39;接口名不能为空&#39;);
+        assert(Array.isArray(methods) &amp;&amp; methods.every(m =&gt; typeof m === &#39;string&#39;), &#39;请检查方法名数组&#39;);
+        this.name = name;
+        this.methods = methods;
+    }
+    static ensureImplements(obj, ...interfaces) {
+        for (const inter of interfaces) {
+            const clazz = inter.constructor;
+            const className = clazz.name;
+            assert.equal(clazz, Interface, `${className}必须通过new Interface生成`);
+            for (const methodName of inter.methods) {
+                assert.equal(typeof obj[methodName], &#39;function&#39;, `${className}没有实现呢${methodName}方法`);
+            }
+        }
+    }
+}
+
+const i1 = new Interface(&#39;map&#39;, [&#39;zoomIn&#39;, &#39;zoomOut&#39;]);
+const i2 = new Interface(&#39;show&#39;, [&#39;show&#39;]);
+
+// mock instance
+const map = {
+    zoomIn() {
+        console.log(&#39;map zoom in&#39;);
+    },
+    zoomOut() {
+
+    }
+};
+
+Interface.ensureImplements(map, i1, i2);
+map.zoomIn();
+</code></pre>
+<h1 id="作用域、嵌套函数和闭包"><a href="#作用域、嵌套函数和闭包" class="headerlink" title="作用域、嵌套函数和闭包"></a>作用域、嵌套函数和闭包</h1><pre><code class="lang-js">function foo() {
+    var a = 10;
+    function bar() {
+        a *= 2;
+        return a;
+    }
+    return bar;
+}
+
+const baz = foo(); // 指向函数bar
+let ret = baz(); // 20
+ret = baz(); // 40
+debugger
+var blat = foo(); // balt指向另一个bar
+ret = blat(); // 20
+debugger
+</code></pre>
+<p>上述代码中，返回的对bar函数的引用被赋值给变量baz，bar函数虽然是在foo函数外部，但是依然能够访问变量a，这是因为js中的作用域是词法的。函数是运行在定义它们的作用域中（foo内部的作用域），而不是运行在调用它们的作用域中。只要bar被定义在foo中，它就能访问在foo中定义的所有变量，即使foo的执行已经结束。这是一个闭包的例子，在foo返回之后它的作用域就被保存下来，但是只有它返回的那个函数能够访问这个作用域。上面的例子中，baz和blat各有这个作用域及a的一个副本，而且只有它们自己能够对其进行修改。<em>返回一个内嵌函数是创建闭包最常用的手段</em>。</p>
+<p>通过闭包，我们可以实现私有变量：</p>
+<pre><code class="lang-js">function Book(newISBN){
+    var isbn;
+    this.setISBN = function(newISBN) {
+        isbn = newISBN;
+    }
+    this.getISBN = function(){
+        return isbn;
+    }
+    // constructor code
+    this.setISBN(newISBN);
+}
+Book.prototype.commonMethod = function(){}
+</code></pre>
+<p>上面代码中私有变量通过闭包进行封装可以实现防止无意中修改了变量中的属性。用这种方式创建对象有2个弊端：</p>
+<ol>
+<li>新的对象的私有属性和方法都需要占用额外的内存（一般的创建对象所有的方法都存储在原型对象中，内存中只存储一份）</li>
+<li>不利于派生子类，不能访问父类的私有属性和方法</li>
+</ol>
+<p>ES6提供的Reflect可以实现真正的属性私有化：</p>
+<pre><code class="lang-js">function priavateProp(obj, filter){
+  const handler = {
+    get(obj, prop) {
+      if(!filter(prop)){
+        let val = Reflect.get(obj, prop)
+        if(typeof val === &#39;function&#39;){
+          val = val.bind(obj)
+        }
+        return val
+      }
+    },
+    set(obj, prop, val) {
+      if(filter(prop)){
+        throw new Error(`cannot set property ${prop}`)
+      }
+      return Reflect.set(obj, prop, val)
+    },
+    has(obj, prop) {
+      return filter(prop) ? false : Reflect.has(obj, prop)
+    },
+    ownKeys(obj) {
+      return Reflect.ownKeys(obj).filter( prop =&gt; !filter(prop))
+    }
+  }
+
+  return new Proxy(obj, handler)
+}
+
+// 私有属性过滤器 
+// 规则：以 _ 为开头的属性都是私有属性
+function filter(prop){
+  return prop.indexOf(&#39;_&#39;) === 0
+}
+
+const o = {
+  _private: &#39;private property&#39;,
+  name: &#39;public name&#39;,
+  say(){
+    // 内部访问私有属性
+    console.log(this._private)
+  }
+}
+
+const p = priavateProp(o, filter)
+
+console.log(p)  // Proxy {_private: &quot;private property&quot;, name: &quot;public name&quot;}
+
+p._private  // undefined
+JSON.stringify(p) // &quot;{&quot;name&quot;:&quot;public name&quot;}&quot;
+
+// 只能内部访问私有属性
+p.say()  //  private property
+
+console.log(&#39;_private&#39; in p)   // false
+
+// 不能遍历到私有属性 
+Object.keys(p)  // [&quot;name&quot;, &quot;say&quot;]
+
+// 私有属性不能赋值
+p._private = &#39;000&#39;  // Uncaught Error: cannot set property _private
+</code></pre>
+<h1 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h1><h2 id="类式继承"><a href="#类式继承" class="headerlink" title="类式继承"></a>类式继承</h2><pre><code class="lang-js">function Person(name) {
+    this.name = name;
+}
+Person.prototype.getName = function () {
+    // 注意：这里不能用箭头函数
+    return this.name;
+};
+
+function Author(name, books) {
+    Person.call(this, name); // 使用this上下文调用父类的构造器
+    this.books = books;
+}
+// 子类原型指向父类原型
+Author.prototype = new Person();
+Author.prototype.constructor = Author; // constructor被改变成了Person，需要再次修正回来
+Author.prototype.getBooks = function () { // 添加子类特有方法
+    return this.books;
+}
+</code></pre>
+<p>抽象一个函数用于继承：</p>
+<pre><code class="lang-js">function extend(subClass, superClass) {
+    // 改进：添加一个空函数并将其创建的对象实例插入到原型链中，因为超类的实例可能比较大或者包含比较多的运算
+    const F = function () { };
+    F.prototype = superClass.prototype;
+    subClass.prototype = new F();
+    subClass.prototype.constructor = subClass;
+
+    // 改进引用父类的方式，从而子类中可以使用 `子类名.superClass_`得到父类的名称，比起Person.call(this, name)更具有通用性，同时有了superClass_也可以直接调用超类中的方法
+    subClass.superClass_ = superClass.prototype;
+    if (superClass.prototype.constructor === Object.prototype.constructor) {
+        superClass.prototype.constructor = superClass;
+    }
+}
+
+function Person(name) {
+    this.name = name;
+}
+Person.prototype.getName = function () {
+    return this.name;
+};
+
+function Author(name, books) {
+    this.books = books;
+    Author.superClass_.constructor.call(this, name);
+}
+extend(Author, Person);
+Author.prototype.getBooks = function () {
+    return this.books;
+}
+Author.prototype.getName = function () {
+    const name = Author.superClass_.getName.call(this);
+    return name + &#39;-&gt;&#39; + this.getBooks().join(&#39;,&#39;);
+};
+
+const a = new Author(&#39;村上春树&#39;, [&#39;挪威的森林&#39;, &#39;1Q84&#39;])
+const info = a.getName();
+</code></pre>
+<p>上面的代码可以使用node中自带的inherits进行简化：</p>
+<pre><code class="lang-js">function Person(name) {
+    this.name = name;
+}
+Person.prototype.getName = function () {
+    // 注意：这里不能用箭头函数
+    return this.name;
+};
+
+function Author(name, books) {
+    Person.call(this, name); // 调用父类构造器，这一步不能省略
+    this.books = books;
+}
+Author.prototype.getBooks = function () {
+    return this.books;
+}
+
+require(&#39;util&#39;).inherits(Author, Person);
+</code></pre>
+<p>node中实现实际上是通过<code>Object.setPrototypeOf(ctor.prototype, superCtor.prototype)</code>将子类原型设置和父类一样。幸运的是ES6提供了class关键字和extends关键字，再也不用这么麻烦了，ES6大法好！</p>
+<pre><code class="lang-js">class Person {
+    constructor(name) {
+        this.name = name;
+    }
+    getName() {
+        return this.name;
+    }
+}
+class Author extends Person {
+    constructor(name, books) {
+        super(name);
+        this.books = books;
+    }
+    getBooks() {
+        return this.books;
+    }
+}
+</code></pre>
+<h2 id="克隆函数和原型式继承"><a href="#克隆函数和原型式继承" class="headerlink" title="克隆函数和原型式继承"></a>克隆函数和原型式继承</h2><pre><code class="lang-js">const clone = obj =&gt; {
+    function F(){};
+    F.prototype = obj;
+    return new F(); // 返回一个以给定原型为对象的空对象
+}
+</code></pre>
+<p>原型链继承比类式继承更能节省内存。原型链查找的方式创建的对象使得所有克隆出来的对象共享每个属性和方法的唯一一份实例，只有在直接设置了某个克隆出来的对象的属性和方法的时候，情况才会有所变化。与此同时，在类式继承中创建的每一个对象在内存中都有自己的一份属性（和私有方法）的副本。</p>
+<pre><code class="lang-js">const Person = {
+    init(name, age) {
+        this.name = name;
+        this.age = age;
+    },
+    show() {
+        return `name = ${this.name},age = ${this.age}`;
+    }
+};
+
+const s = clone(Person); // 创建Person对象的一个副本，然后改变其中的一些方法
+s.showAge = function () {
+    return this.age;
+};
+s.init(&#39;张三&#39;, 14);
+console.log(s.show());
+console.log(s.showAge());
+</code></pre>
+<p>用这种方法创建的对象往往有较高的内存使用效率，因为它们会共享那些未被改写的属性和方法。那些包含数组和或者对象类型的成员的克隆会有一些麻烦的地方。但是这个问题可以通过一个方法来解决。</p>
+<h2 id="多继承与mixin"><a href="#多继承与mixin" class="headerlink" title="多继承与mixin"></a>多继承与mixin</h2><pre><code class="lang-js">const Util = {
+    show() {
+        const output = [];
+        for (const key of Object.keys(this)) {
+            output.push(`${key} : ${this[key]}`);
+        }
+        return output.join(&#39;,&#39;);
+    }
+}
+
+class Student {
+    constructor(name, age, courses) {
+        this.name = name;
+        this.age = age;
+        this.courses = courses;
+    }
+}
+
+// 注意：givingClass为带有方法的普通对象
+function mixin(receivingClass, givingClass) {
+    for (const methodName in givingClass) {
+        if (!receivingClass.prototype[methodName]) {
+            receivingClass.prototype[methodName] = givingClass[methodName];
+        }
+    }
+}
+
+mixin(Student, Util);
+
+const s = new Student(&#39;张三丰&#39;, 83, [&#39;太极拳&#39;, &#39;乾坤大罗伊&#39;]);
+const str = s.show();
+</code></pre>
+<blockquote>
+<p>用一些代码来拓展一个类有时候比继承一个类更加适合，这可以轻松解决类中的重复代码问题。</p>
+</blockquote>
+<p>上面的代码可以将工具函数混入到类的原型中实现多继承，注意混入的类不能是ES6的class而是一个普通对象。因为ES6中定义的实例方法是不可枚举的。</p>
+<h1 id="单例"><a href="#单例" class="headerlink" title="单例"></a>单例</h1><p>js中的单体是一个用来划分命名空间并将一批相关方法和属性组织在一起的对象，如果它可以被实例化，那么只能被实例化一次。</p>
+<h2 id="对象字面量"><a href="#对象字面量" class="headerlink" title="对象字面量"></a>对象字面量</h2><pre><code class="lang-js">const Singleton = {
+    attr1: true,
+    attr2: 10,
+    _privateAttr1: &#39;hehe&#39;,
+    method1() { },
+    method2() { },
+    _privateMethod(){ }
+}
+</code></pre>
+<p>这种方式创建的单体对象在划分命名空间的时候非常有用：代码分模块组织，增强代码的可读性。有了命名空间也可以减少变量的冲突。</p>
+<p>上面的代码使用约定的下划线开头表示私有成员，使用闭包可以实现完全私有：</p>
+<pre><code class="lang-js">const Singleton = (function () {
+    // 私有成员
+    const privateAttr = 1;
+    const privateMethod = () =&gt; 1;
+
+    // 共有成员
+    return {
+        publicAttr: true,
+        publicMethod(args) { }
+    }
+})();
+</code></pre>
+<p>上面的这种模式又称为模块模式(module pattern)，指的是把一批相关的属性和方法组织成模块并起到划分命名空间的作用。</p>
+<p>上面的这种方式实现私有的优势：私有成员不会在单例对象外部被访问，可以自由改变对象的实现细节，而不会殃及无辜。</p>
+<h2 id="惰性实例化"><a href="#惰性实例化" class="headerlink" title="惰性实例化"></a>惰性实例化</h2><p>生成对资源密集型或者配置开销非常大的单体：</p>
+<pre><code class="lang-js">const Singleton = (function () {
+    let uniqInstance;
+    // 构造器私有化，不能从外面访问
+    function constructor() {
+        // 私有成员
+        const privateAttr = 1;
+        const privateMethod = () =&gt; 1;
+
+        // 共有成员
+        return {
+            publicAttr: true,
+            publicMethod(args) { }
+        }
+    }
+    return {
+        getInstance() {
+            if (!uniqInstance) uniqInstance = constructor();
+            return uniqInstance;
+        }
+    };
+})();
+</code></pre>
+<h2 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h2><p>一种用来把浏览器差异封装到运行期间内动态进行设置的技术。例如XHR对象在早期的IE中是ActiveX对象。如果不采用这种技术，每次调用这个方法的时候浏览器嗅探代码会再次运行，严重缺乏效率。</p>
+<pre><code class="lang-js">const XHRFactory = (function () {
+    const standard = {
+        createXHR() {
+            return new XMLHttpRequest();
+        }
+    };
+    const activeXNew = {
+        createXHR() {
+            return new ActiveXObject(&#39;Msxml2.XMLHTTP&#39;);
+        }
+    };
+    const activeXOld = {
+        createXHR() {
+            return new ActiveXObject(&#39;Microsoft.XMLHTTP&#39;);
+        }
+    };
+
+    let testObj;
+    try {
+        testObj = standard.createXHR();
+        return standard;
+    } catch (e) {
+        try {
+            testObj = activeXNew.createXHR();
+            return activeXNew;
+        } catch (error) {
+            try {
+                testObj = activeXOld.createXHR();
+                return activeXOld;
+            } catch (error) {
+                throw new Error(&#39;no xhr object found in this enviroment&#39;);
+            }
+        }
+    }
+})();
+</code></pre>
+<p>上面的代码之所以有效的原因是：在脚本加载时一次性确定特定浏览器的代码。这样一来初始化完成之后每种浏览器只会执行针对它的js代码。</p>
+<p>在使用分之的时候需要在内存（分支计数需要多创建对象）和时间之间做一个权衡</p>
+<h1 id="方法的链式调用"><a href="#方法的链式调用" class="headerlink" title="方法的链式调用"></a>方法的链式调用</h1><pre><code class="lang-js">class Student {
+    constructor() {
+        this.name = &#39;defalut&#39;;
+        this.age = 0;
+    }
+    setName(name) {
+        this.name = name;
+        return this;
+    }
+    setAge(age) {
+        this.age = age;
+        return this;
+    }
+    getName(cb) {
+        // 直接使用return会终止链式调用，采用回调函数可以解决
+        // return this.name;
+        cb.call(this, this.name);
+        return this;
+    }
+    getAge(cb) {
+        cb(this.age);
+        return this;
+    }
+}
+
+new Student().getName(console.log)
+    .setAge(10).getAge(console.log)
+</code></pre>
+<p>要想实现链式调用，每次方法调用的时候返回this即可。这对于赋值器来说没有什么影响，但是对于取值器来说需要得到返回值，为了保持API的一致可以使用回调函数将值返回。</p>
+<h1 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h1><h2 id="简单工厂"><a href="#简单工厂" class="headerlink" title="简单工厂"></a>简单工厂</h2><pre><code class="lang-js">class Toyota {
+    constructor() {
+        this.name = &#39;丰田&#39;;
+    }
+}
+class Audi {
+    constructor() {
+        this.name = &#39;奥迪&#39;;
+    }
+}
+class BMW {
+    constructor() {
+        this.name = &#39;宝马&#39;;
+    }
+}
+
+const inters = [&#39;wash&#39;, &#39;run&#39;, &#39;repair&#39;];
+for (const clazz of [Toyota, Audi, BMW]) {
+    for (const inter of inters) {
+        clazz.prototype[inter] = function () {
+            console.log(`${this.name} -&gt; ${inter}`);
+        }
+    }
+}
+
+// 汽车接口，包含洗车、运行、维修接口
+const Car = new Intercafe(&#39;Car&#39;, inters);
+
+class CarFactory {
+    static makeCar(model) {
+        let car;
+        switch (model) {
+            case &#39;toyota&#39;:
+                car = new Toyota();
+                break;
+            case &#39;audi&#39;:
+                car = new Audi();
+                break;
+            case &#39;bmw&#39;:
+                car = new BMW();
+                break;
+        }
+        Intercafe.ensureImplements(car, Car); // 确保对象实现了汽车接口
+        return car;
+    }
+}
+class CarShop {
+    static sellCar(model) {
+        const car = CarFactory.makeCar(model);
+        car.wash();
+        return car;
+    }
+}
+</code></pre>
+<p>上面的例子中将创建对象的工作转交给一个外部对象，因为创建对象的方式可能存在变化。</p>
+<blockquote>
+<p>接口再工厂模式中起着很重要的作用。如果不对对象进行类型检查以确保实现了必须的方法。工厂模式所带来的所处也所剩无几。创建对象并且对它们一视同仁。</p>
+</blockquote>
+<h2 id="工厂模式-1"><a href="#工厂模式-1" class="headerlink" title="工厂模式"></a>工厂模式</h2><p>真正的工厂和简单工厂的区别在于不是使用另外一个来来创建对象，而是使用一个子类。工厂是将一个成员对象推迟到子类中进行的类。</p>
+<pre><code class="lang-js">const AjaxHandler = new Intercafe(&#39;AjaxHandler&#39;, [&#39;request&#39;, &#39;createXhr&#39;]);
+
+class SimpleHandler {
+    constructor() {
+        this.createXhr = null;
+    }
+    request(method, url, callback, postVars) {
+        const xhr = this.createXhr();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            xhr.status === 200 ? callback.success(xhr.responseText, xhr.responseXML) : callback.failure(xhr.status);
+        }
+        xhr.open(method, url, true);
+        if (method !== &#39;POST&#39;) postVars = null;
+        xhr.send(postVars);
+    }
+    createXhr() {
+        const methods = [
+            function () { return new XMLHttpRequest(); },
+            function () { return new ActiveXObject(&#39;Msxml2.XMLHTTP&#39;); },
+            function () { return new ActiveXObject(&#39;Microsoft.XMLHTTP&#39;); }
+        ];
+        for (const method of methods) {
+            try {
+                method();
+            } catch (e) {
+                continue;
+            }
+            this.createXhr = method; // memoize the method
+            return method;
+        }
+        throw new Error(&#39;SimpleHandler：Can not create an xhr object.&#39;);
+    }
+}
+
+class QueueHandler extends SimpleHandler {
+    constructor() {
+        this.queue = [];
+        this.requestInProcess = false;
+        this.retryDelay = 5;
+    }
+    advanceQueue() {
+        if (this.queue.length === 0) {
+            this.requestInProcess = false;
+            return;
+        }
+        const req = this.queue.shift();
+        this.request(req.method, req.url, req.callback, req.postVars, true);
+    }
+    request(method, url, callback, postVars, override) {
+        if (this.requestInProcess &amp;&amp; !override) {
+            this.queue.push({ method, url, callback, postVar });
+        } else {
+            this.requestInProcess = true;
+            const xhr = this.createXhr();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+                if (xhr.status === 200) {
+                    callback.success(xhr.responseText, xhr.responseXML)
+                    this.advanceQueue();
+                } else {
+                    callback.failure(xhr.status);
+                    setTimeout(() =&gt; {
+                        this.request(method, url, callback, postVars, true);
+                    }, this.retryDelay * 1000);
+                }
+            }
+            xhr.open(method, url, true);
+            if (method !== &#39;POST&#39;) postVars = null;
+            xhr.send(postVars);
+        }
+    }
+}
+
+class OfflineHandler extends SimpleHandler {
+    constructor() {
+        this.storedRequests = [];
+    }
+    request(method, url, callback, postVars) {
+        if (XhrManager.isOffline()) {
+            this.storedRequests.push({ method, url, callback, postVar });
+        } else {
+            // online的时候使用父类发送xhr
+            this.flushStoredRequests();
+            super.request(method, url, callback, postVars);
+        }
+    }
+    flushStoredRequests() {
+        for (const req of this.storedRequests) {
+            super.request(req.method, req.url, req.callback, req.postVars);
+        }
+    }
+}
+
+const XhrManager = {
+    createXhrHandler() {
+        let xhr;
+        if (this.isOffline()) {
+            xhr = new OfflineHandler();
+        } else if (this.isHighLatency()) {
+            xhr = new QueueHandler();
+        } else {
+            xhr = new SimpleHandler();
+        }
+        Intercafe.ensureTmplements(xhr, AjaxHandler);
+        return xhr;
+    },
+    isOffline() { },
+    isHighLatency() { }
+};
+</code></pre>
+<p>上述createXhr中memoize技术，复杂的设置代码只会在首次调用的时候执行一次，此后就只有针对当前浏览器的代码会被执行。</p>
+<p>上面的工厂模式可以根据网络条件创建专门的请求对象：OfflineHandler会在用户离线的时候把请求缓存起来，而QueueHandler会在发起新的请求之前确保所有请求都已经成功处理，如果请求失败后还支持指定时间间隔后重试这个请求，直到成功为止。</p>
+<p>现在我们只需要使用<code>XhrManager.createXhrHandler</code>这个工厂方法而不需要实例化特定的类了。</p>
+<p>工厂模式的好处在于消除对象间的耦合，通过工厂方法而不是new关键字可以把所有的实例化代码集中在一个位置，从而可以大大简化更换所用的类或者在运行期间选择类的工作。在派生子类的时候也提供了更大的灵活性 ———— 先创建一个抽象的父类，在子类中创建工厂方法，从而把成员对象的实例化推迟到专门的子类中进行。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.942Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/31/design-pattern-in-js/" target="_blank" rel="external">https://consoles.fun/2016/03/31/design-pattern-in-js/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/31/design-pattern-in-js/&title=《javascript设计模式》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/31/design-pattern-in-js/&title=《javascript设计模式》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/31/design-pattern-in-js/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript设计模式》 — 雨碎江南&url=https://consoles.fun/2016/03/31/design-pattern-in-js/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/31/design-pattern-in-js/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/04/04/linux-shell-operator/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Shell基础-运算符</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/29/nodejs-best-practice/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">nodejs最佳实践</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/31/design-pattern-in-js/&title=《javascript设计模式》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/31/design-pattern-in-js/&title=《javascript设计模式》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/31/design-pattern-in-js/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript设计模式》 — 雨碎江南&url=https://consoles.fun/2016/03/31/design-pattern-in-js/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/31/design-pattern-in-js/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACIElEQVR42u3aQXLDIAwF0N7/0u62i4R8SU5nDI9Vp7EDj86okuDnJx7Xn7H+Tf5p8tbNAwMD47GMaznWz6yp+UZU530xCwYGxgGMdxOvn+kF3/UsybwYGBgYOeOKRxKaMTAwMO5lROla/C4GBgZGwkiKyWqx+g6Qv/WVWhwDA+OBjLzr/v8/f+V8AwMD41GMqziqLbZ1athbw4tVYWBgbM3IA1x10Ql+EnAxMDBOY0werV6tqLbbkpCNgYFxAmOe0k0qzRzwAYOBgXEMoxo6qwcDk5A9ynAxMDC2Y+TpYPXq2F2HnVHAxcDA2IixDqz5JYxe+ti8BFb9/4CBgfFYRr64+WFAtaFWuAKCgYFxAKMXdpMlVhv9vQuvGBgY5zCqrbFqWy3frHJJjIGBcQAjeaE3TbWh1rxsgYGBsTUj71blZe0kjN72N8HAwNiOMSk4qxdV772oEWWdGBgYD2fM9UnyNzlCiI4zMTAwtmb0jierE+Rv5ey3GAwMjE0ZvctbPXa+xHJQxsDAOIYxKUEnh515ctnsGmJgYGzBmCSLvZJ48jwGBsY5jKs48q9Oys7qdhSSQgwMjI0YkwPOXhqXf08e9DEwME5gJEG2CmgGxGLKiIGBcRqjWsRWQ3O+TU0kBgYGxuAiRbV8TbbjU/TFwMDASEPteul5GRw9iYGBcQAjSd2S1li1t9e73oGBgXEaIy8dqxNPFtE7FsXAwNiO8QuNzUupU/uZFgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

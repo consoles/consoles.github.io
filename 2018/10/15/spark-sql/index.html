@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>大数据基础之SparkSQL | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="spark,hadoop,hive,hdfs">
+    <meta name="description" content="在对应用进行集群化的时候，对于应用如何规划所使用的cpu核心数量有一个不成文的规定：总核心数量-1。因为操作系统需要消耗一些cpu，如果我们的应用占用了全部的cpu，一旦os需要处理一些其他任务，就会因为没有空闲的核而强制进行上下文切换，会减慢应用的处理速度。">
+<meta name="keywords" content="spark,hadoop,hive,hdfs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据基础之SparkSQL">
+<meta property="og:url" content="https://consoles.fun/2018/10/15/spark-sql/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="在对应用进行集群化的时候，对于应用如何规划所使用的cpu核心数量有一个不成文的规定：总核心数量-1。因为操作系统需要消耗一些cpu，如果我们的应用占用了全部的cpu，一旦os需要处理一些其他任务，就会因为没有空闲的核而强制进行上下文切换，会减慢应用的处理速度。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/map-reduce.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mapreduce-combiner.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mapreduce-partitioner.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/yarn-arch.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/yarn-process-step.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-sql-arch.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-dataset-dataframe-sql.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/column-storage.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.011Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大数据基础之SparkSQL">
+<meta name="twitter:description" content="在对应用进行集群化的时候，对于应用如何规划所使用的cpu核心数量有一个不成文的规定：总核心数量-1。因为操作系统需要消耗一些cpu，如果我们的应用占用了全部的cpu，一旦os需要处理一些其他任务，就会因为没有空闲的核而强制进行上下文切换，会减慢应用的处理速度。">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/map-reduce.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">大数据基础之SparkSQL</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">大数据基础之SparkSQL</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-10-15T04:49:23.000Z" itemprop="datePublished" class="page-time">
+  2018-10-15
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#HDFS架构"><span class="post-toc-text">HDFS架构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#NameNode和DataNode"><span class="post-toc-text">NameNode和DataNode</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#副本机制"><span class="post-toc-text">副本机制</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Hadoop环境搭建"><span class="post-toc-text">Hadoop环境搭建</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#核心配置文件"><span class="post-toc-text">核心配置文件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#格式化HDFS和启停"><span class="post-toc-text">格式化HDFS和启停</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HDFS-Shell常用操作"><span class="post-toc-text">HDFS Shell常用操作</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#集群模式安装"><span class="post-toc-text">集群模式安装</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在一台机器上进行安装"><span class="post-toc-text">在一台机器上进行安装</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#将001上的安装包分发到其他节点"><span class="post-toc-text">将001上的安装包分发到其他节点</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MapReduce"><span class="post-toc-text">MapReduce</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#YARN简介"><span class="post-toc-text">YARN简介</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#架构"><span class="post-toc-text">架构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#执行流程"><span class="post-toc-text">执行流程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境搭建"><span class="post-toc-text">环境搭建</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#大数据仓库HIVE"><span class="post-toc-text">大数据仓库HIVE</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境搭建-1"><span class="post-toc-text">环境搭建</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本操作"><span class="post-toc-text">基本操作</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Spark及其生态圈"><span class="post-toc-text">Spark及其生态圈</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境搭建-2"><span class="post-toc-text">环境搭建</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Local-模式"><span class="post-toc-text">Local 模式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#standalone模式"><span class="post-toc-text">standalone模式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#wordcount"><span class="post-toc-text">wordcount</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Spark-SQL概述"><span class="post-toc-text">Spark SQL概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SparkSQL-Shell的使用"><span class="post-toc-text">SparkSQL Shell的使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查看执行计划"><span class="post-toc-text">查看执行计划</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ThriftServer-amp-Beeline的使用"><span class="post-toc-text">ThriftServer &amp; Beeline的使用</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#DataFrame-amp-RDD"><span class="post-toc-text">DataFrame &amp; RDD</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本操作-1"><span class="post-toc-text">基本操作</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#DataFrame和RDD的互操作"><span class="post-toc-text">DataFrame和RDD的互操作</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#数据处理流程"><span class="post-toc-text">数据处理流程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Spark-on-Yarn"><span class="post-toc-text">Spark on Yarn</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#常见问题："><span class="post-toc-text">常见问题：</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-spark-sql"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">大数据基础之SparkSQL</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-10-15 12:49:23" datetime="2018-10-15T04:49:23.000Z"  itemprop="datePublished">2018-10-15</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>在对应用进行集群化的时候，对于应用如何规划所使用的cpu核心数量有一个不成文的规定：总核心数量-1。因为操作系统需要消耗一些cpu，如果我们的应用占用了全部的cpu，一旦os需要处理一些其他任务，就会因为没有空闲的核而强制进行上下文切换，会减慢应用的处理速度。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/map-reduce.png" alt="MapReduce模型" title>
+                </div>
+                <div class="image-caption">MapReduce模型</div>
+            </figure>
+<p>map操作中将每个单词设置为1<br>shuffle过程中将key相同的分到同一个reduce上</p>
+<h1 id="HDFS架构"><a href="#HDFS架构" class="headerlink" title="HDFS架构"></a>HDFS架构</h1><h2 id="NameNode和DataNode"><a href="#NameNode和DataNode" class="headerlink" title="NameNode和DataNode"></a>NameNode和DataNode</h2><p><a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html#NameNode_and_DataNodes" target="_blank" rel="noopener">NameNode和DataNode</a></p>
+<p>blocksize:128M<br>130M会被拆分成2个block:128M+2M</p>
+<p>NameNode:</p>
+<ul>
+<li>客户端请求</li>
+<li>元数据管理（文件名称、副本系数、block存放的DataNode）</li>
+</ul>
+<p>DataNode：</p>
+<ul>
+<li>存储用户文件对应的数据块</li>
+<li>定期向NameNode发送心跳信息，汇报自身及其所有的block信息，健康状况</li>
+</ul>
+<blockquote>
+<p>SecondNameNode在2.x中已经不是必须的了。</p>
+</blockquote>
+<h2 id="副本机制"><a href="#副本机制" class="headerlink" title="副本机制"></a>副本机制</h2><p>hdfs-site.xml中的<code>dfs.replication</code></p>
+<ul>
+<li>replication factor:副本因子会被存放在NameNode中</li>
+<li>一个文件的所有block大小都一样，除了最后一个</li>
+</ul>
+<h1 id="Hadoop环境搭建"><a href="#Hadoop环境搭建" class="headerlink" title="Hadoop环境搭建"></a>Hadoop环境搭建</h1><p>用户名hadoop,密码hadoop，/home/hadoop目录结构：</p>
+<p>software:存放软件安装包<br>lib：开发的jar包<br>app:所有软件的安装目录，子目录tmp<br>data:测试数据目录<br>source:框架源码目录</p>
+<p><a href="http://archive.cloudera.com/cdh5/cdh/5/" target="_blank" rel="noopener">http://archive.cloudera.com/cdh5/cdh/5/</a><br><a href="https://www.cloudera.com/documentation/enterprise/release-notes/topics/cdh_vd_cdh_package_tarball_57.html" target="_blank" rel="noopener">https://www.cloudera.com/documentation/enterprise/release-notes/topics/cdh_vd_cdh_package_tarball_57.html</a> 2.6.0-cdh5.7.0<br>jdk7u51-linux-x64<br>scala2.11.8</p>
+<p>修改主机名和hosts文件(/etc/sysconfig/network和etc/hosts)</p>
+<p>主机名：hadoop001 - 192.168.100</p>
+<p>/etc/sysconfig/network<br>NETWORKING=yes<br>HOSTNAME=hadoop001</p>
+<p>配置ssh免密登陆(本步骤可以省略，但是重启hadoop进程的时候需要手动输入密码)：</p>
+<pre><code class="lang-bash">ssh-keygen -t rsa
+cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
+# 可以测试是否可以免密登陆本机
+ssh hadoop001
+</code></pre>
+<p>由于大数据开发会打开许多FD,修改最大打开文件数量和进程数量：</p>
+<pre><code class="lang-bash"># 以下内容添加到 /etc/security/limits.conf 文件后面
+* hard nofile 10000
+* soft nofile 10000 
+* hard nproc 10000
+* soft nproc 10000
+</code></pre>
+<h2 id="核心配置文件"><a href="#核心配置文件" class="headerlink" title="核心配置文件"></a>核心配置文件</h2><p>配置文件路径/home/hadoop/app/hadoop-2.6.0-cdh5.7.0/etc/hadoop</p>
+<p>hadoop-env.sh修改JAVA_HOME<br>core-site.xml</p>
+<pre><code class="lang-xml">&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;fs.defaultFS&lt;/name&gt;
+        &lt;value&gt;hdfs://hadoop001:8020&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;
+        &lt;value&gt;/home/hadoop/app/tmp&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+<p>hdfs-site.xml</p>
+<pre><code class="lang-xml">&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.replication&lt;/name&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="格式化HDFS和启停"><a href="#格式化HDFS和启停" class="headerlink" title="格式化HDFS和启停"></a>格式化HDFS和启停</h3><p>bin客户端脚本目录,sbin服务端脚本目录</p>
+<pre><code class="lang-bash">./bin/hdfs namenode -format
+./sbin/start-dfs.sh
+</code></pre>
+<p>使用<code>jps -m</code>命令验证是否启成功：</p>
+<p>2042 SecondaryNameNode<br>1890 DataNode<br>1571 NameNode</p>
+<p>关闭防火墙</p>
+<pre><code class="lang-bash">chkconfig iptables off # 禁止开机自启动
+chkconfig --list
+/etc/init.d/iptables stop
+</code></pre>
+<p>可以访问<a href="http://hadoop001:50070" target="_blank" rel="noopener">http://hadoop001:50070</a>。端口信息参见hdfs-default.xml的<code>dfs.namenode.http-address</code>，NameNode的WebUI。可以查看集群上的datanode信息，浏览hdfs上的文件，浏览日志信息。</p>
+<h3 id="HDFS-Shell常用操作"><a href="#HDFS-Shell常用操作" class="headerlink" title="HDFS Shell常用操作"></a>HDFS Shell常用操作</h3><pre><code class="lang-bash">hadoop fs -ls /
+hadoop fs -mkdir /test
+hadoop fs -mkdir -p /a/b
+hadoop fs -ls -R /
+hadoop fs -put hdfs.cmd /test 
+hadoop fs -text /test/hdfs.cmd
+hadoop fs -get /test/hdfs.cmd a_tmp
+hadoop fs -rm /test/hdfs.cmd
+hadoop fs -rm -r /a
+</code></pre>
+<h2 id="集群模式安装"><a href="#集群模式安装" class="headerlink" title="集群模式安装"></a>集群模式安装</h2><h3 id="在一台机器上进行安装"><a href="#在一台机器上进行安装" class="headerlink" title="在一台机器上进行安装"></a>在一台机器上进行安装</h3><p>以下操作都在hadoop001上进行</p>
+<pre><code class="lang-bash"># 在hadoop001上执行下面的代码会远程登录hadoop001，002，002，输入密码之后即可免密登陆
+# ssh-copy-id -i ~/.ssh/id_rsa.pub &quot;-p 10022 user@server&quot; 解决默认端口问题
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop001
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop002
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop003
+</code></pre>
+<p>分布式和伪分布式仅仅多了个yarn的resourcemanager的hostname，还有slave配置文件<br>hadoop001 yarn-site.xml</p>
+<pre><code class="lang-xml">&lt;property&gt;
+  &lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;
+  &lt;value&gt;hadoop001&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<p>slaves</p>
+<pre><code class="lang-bash">hadoop001
+hadoop002
+hadoop003
+</code></pre>
+<h3 id="将001上的安装包分发到其他节点"><a href="#将001上的安装包分发到其他节点" class="headerlink" title="将001上的安装包分发到其他节点"></a>将001上的安装包分发到其他节点</h3><pre><code class="lang-bash">scp -r ~/app hadoop@hadoop002:~/
+scp -r ~/app hadoop@hadoop003:~/
+scp ~/.bash_profile hadoop@hadoop002:~/
+scp ~/.bash_profile hadoop@hadoop003:~/
+</code></pre>
+<h2 id="MapReduce"><a href="#MapReduce" class="headerlink" title="MapReduce"></a>MapReduce</h2><p>核心概念：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mapreduce-combiner.png" alt="使用Combiner加速WordCount" title>
+                </div>
+                <div class="image-caption">使用Combiner加速WordCount</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/mapreduce-partitioner.png" alt="使用Partitioner指定reducer的输出" title>
+                </div>
+                <div class="image-caption">使用Partitioner指定reducer的输出</div>
+            </figure>
+<ul>
+<li>Split：交由MR作业处理的数据块，是MR中最小的计算单元；HDFS中的blocksize是HDFS中最小的存储单元，默认128M。默认情况下Split和hdfs中的block一一对应。</li>
+<li>InputFormat：将输入数据进行分片（Split）：<code>InputSplit[] getSplit(JobConf job,int numSplits)</code>。<code>TextInputFormat</code></li>
+<li>OutputFormat：输出。</li>
+<li>Combiner:可以看成Map节点本地的Reducer，可以预先对数据进行一部分归并，对于求和这样的操作可以有效减少网络传输。</li>
+<li>Partitioner:有几个partition对应几个reducer作业的输出。</li>
+<li>jobhistory:记录已经完成的MR信息到指定的HDFS目录下，默认是不开启的。</li>
+</ul>
+<p>开启job history后可以通过yarn webui 查看</p>
+<p>mapred-site.xml</p>
+<pre><code class="lang-xml">&lt;property&gt;
+  &lt;name&gt;mapreduce.jobhistory.address&lt;/name&gt;
+  &lt;value&gt;hadoop001:10020&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;mapreduce.jobhistory.webapp.address&lt;/name&gt;
+  &lt;value&gt;hadoop001:19888&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;mapreduce.jobhistory.done-dir&lt;/name&gt;
+  &lt;value&gt;/history/done&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+  &lt;name&gt;mapreduce.jobhistory.intermediate-done-dir&lt;/name&gt;
+  &lt;value&gt;/history/done_intermediate&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<p>yarn-site.xml</p>
+<pre><code class="lang-xml">&lt;property&gt;
+  &lt;name&gt;yarn.log-aggregation-enable&lt;/name&gt;
+  &lt;value&gt;true&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<p>启动history server</p>
+<pre><code class="lang-bash">mr-jobhistory-daemon.sh start historyserver
+</code></pre>
+<blockquote>
+<p>HDFS不适合小文件的存储，如果小文件非常多则集群性能会非常低，namenode维护太多元数据。所以一般情况下集群上的小文件都会定期清理合并成大文件。MapReduce只适合离线批处理。</p>
+</blockquote>
+<h1 id="YARN简介"><a href="#YARN简介" class="headerlink" title="YARN简介"></a>YARN简介</h1><p>hadoop 1.x中JobTracker存在单点且职能过多：</p>
+<ol>
+<li>资源管理</li>
+<li>任务调度</li>
+</ol>
+<p>TaskTracker和JobTacker之间通过心跳维护。资源利用率低，运维成本高。</p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/yarn-arch.png" alt="Yarn架构" title>
+                </div>
+                <div class="image-caption">Yarn架构</div>
+            </figure>
+<p><code>1 * ResourceMananager + n * NodeManager</code></p>
+<p>通常活跃的ResourceManager只有一个（可以做主备，只有主挂掉之后standby才会激活），负责整个集群资源的管理和调度。</p>
+<ol>
+<li>处理客户端请求（启动/杀死）</li>
+<li>启动/监控ApplicationMaster(一个作业对应一个AM)</li>
+<li>监控NodeManager</li>
+<li>系统的资源分配和调度</li>
+</ol>
+<p>NodeManager整个集群中有N个，负责单个节点的资源管理和使用以及task的运行情况。</p>
+<ol>
+<li>定期向RM汇报本节点的资源使用请求和各个Container的运行状态</li>
+<li>接收并处理RM的container启停的各种命令</li>
+<li>单个节点的资源管理和任务管理</li>
+</ol>
+<p>ApplicationMaster每个应用/作业对应一个，负责应用程序的管理</p>
+<ol>
+<li>数据切分</li>
+<li>为应用程序向RM申请资源（container），并分配内部任务</li>
+<li>与NM通信以启停task，task运行在container中</li>
+<li>task的监控和容错</li>
+</ol>
+<p>Container对任务运行情况进行描述：cpu、memory</p>
+<h2 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/yarn-process-step.png" alt="作业在yarn上的执行流程" title>
+                </div>
+                <div class="image-caption">作业在yarn上的执行流程</div>
+            </figure>
+<ol>
+<li>向yarn提交作业</li>
+<li>RM为该作业分配第一个container（AM）</li>
+<li>RM会与对应的NM通信，要求NM在这个container上启动应用的AM</li>
+<li>AM首先会向RM注册，然后AM将为各个任务申请资源并监控运行情况</li>
+<li>AM采用轮训的方式通过RPC协议向RM申请和领取资源</li>
+<li>AM申请到资源后便和对应的NM通信要求NM启动任务</li>
+<li>NM启动我们作业对应的task</li>
+</ol>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>etc/hadoop/mapred-site.xml</p>
+<pre><code class="lang-xml">&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;
+        &lt;value&gt;yarn&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+<p>etc/hadoop/yarn-site.xml</p>
+<pre><code class="lang-xml">&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+        &lt;value&gt;mapreduce_shuffle&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+<pre><code class="lang-bash">./sbin/start-yarn.sh
+</code></pre>
+<p>验证是否启动成功</p>
+<p>jps</p>
+<p>1610 NodeManager<br>1919 Jps<br>1532 ResourceManager</p>
+<p><a href="http://hadoop001:8088" target="_blank" rel="noopener">Yarn WebUI地址</a>可以看到资源的使用情况。端口配置参见yarn-default.xml中的<code>yarn.resourcemanager.webapp.address</code></p>
+<p>提交mr作业到yarn上运行：wordcount</p>
+<blockquote>
+<p>hadoop 默认提供了wordcount，位于/home/hadoop/app/hadoop-2.6.0-cdh5.7.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.7.0.jar</p>
+</blockquote>
+<pre><code class="lang-bash">hadoop fs -mkdir -p /input/wc
+hadoop fs -put data/hello.txt /input/wc
+hadoop fs -ls -R /
+hadoop fs -text /input/wc/hello.txt
+
+# 后面的两个参数指定输入文件和输出目录
+hadoop jar app/hadoop-2.6.0-cdh5.7.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.7.0.jar wordcount /input/wc/hello.txt /output/wc
+</code></pre>
+<pre><code class="lang-bash">hadoop fs -ls -R /output/wc
+# 查看作业运行结果
+hadoop fs -text /output/wc/hello.txt/part-r-00000
+</code></pre>
+<pre><code class="lang-bash">hadoop jar hadoop-mapreduce-examples-2.6.0-cdh5.7.0.jar pi 2 5
+</code></pre>
+<h1 id="大数据仓库HIVE"><a href="#大数据仓库HIVE" class="headerlink" title="大数据仓库HIVE"></a>大数据仓库HIVE</h1><blockquote>
+<p>fb开发的构建与hadoop之上用于解决海量结构化的日志数据统计问题。定义了HQL（类SQL）</p>
+</blockquote>
+<p>几乎所有的大数据场景都可以使用MapReduce来完成，HIVE的出现时将HQL转化为MapReduce作业。极大降低大数据技术在数据分析领域的门槛。</p>
+<p>产生背景：</p>
+<ol>
+<li>mapreduce编程的不便性</li>
+<li>HDFS上的文件非结构化，不便于查询</li>
+</ol>
+<p>通常用于离线数据处理，HIVE底层的执行引擎：MapReduce，Tez，Spark。hive on mapreduce的意思是hive的执行引擎是mapreduce。</p>
+<p>压缩：gzip,lzo,snappy,bzip2<br>存储：TextFile,SequenceFile,RCFile,ORC,Parquet<br>UDF：自定义函数</p>
+<h2 id="环境搭建-1"><a href="#环境搭建-1" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>只需部署一个节点即可。</p>
+<p>配置HIVE_HOME环境变量</p>
+<pre><code class="lang-bash">export HIVE_HOME=/home/hadoop/app/hive-1.1.0-cdh5.7.0
+PATH=$HIVE_HOME/bin:$PATH
+</code></pre>
+<p>注意：需要事先安装mysql。<code>yum install -y mysql-server mysql &amp;&amp; service mysqld restart</code>。<code>mysqladmin -u root password 123456</code>。5.1.73默认安装后root密码为空。配置mysql开机自启动在<code>/etc/rc.d/rc.local</code>中添加<code>service mysqld restart</code>。</p>
+<pre><code class="lang-bash">cd /home/hadoop/app/hive-1.1.0-cdh5.7.0/conf
+cp hive-env.sh.template hive-env.sh
+touch hive-site.xml
+</code></pre>
+<p>编辑hive-env.sh，设置HADOOP_HOME</p>
+<p>hive-site.xml</p>
+<pre><code class="lang-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;configuration.xsl&quot;?&gt;
+&lt;configuration&gt;
+
+&lt;property&gt;
+  &lt;name&gt;javax.jdo.option.ConnectionURL&lt;/name&gt;
+  &lt;value&gt;jdbc:mysql://localhost:3306/sparksql?createDatabaseIfNotExist=true&lt;/value&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;javax.jdo.option.ConnectionDriverName&lt;/name&gt;
+  &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;javax.jdo.option.ConnectionUserName&lt;/name&gt;
+  &lt;value&gt;root&lt;/value&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;javax.jdo.option.ConnectionPassword&lt;/name&gt;
+  &lt;value&gt;123456&lt;/value&gt;
+&lt;/property&gt;
+
+&lt;/configuration&gt;
+</code></pre>
+<blockquote>
+<p>注意需要将mysql驱动放到<code>$HIVE_HOME/lib</code>。</p>
+</blockquote>
+<p>启动hive(确保mysql和hdfs已经启动了)</p>
+<pre><code>./bin/hive
+</code></pre><h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><pre><code class="lang-sql">-- 建表
+create table hive_wordcount(context string);
+-- 加载数据
+load data local inpath &#39;/home/hadoop/data/hello.txt&#39; into table hive_wordcount;
+-- 查询
+select * from hive_wordcount;
+-- lateral view explode 将每行记录按照指定分隔符进行拆解
+select word,count(1) from hive_wordcount lateral view explode(split(context,&#39;\t&#39;)) wc as word group by word;
+</code></pre>
+<p>hql提交执行之后会生成MR作业并在Yarn上运行，可以在Yarn的管理界面上看到。</p>
+<pre><code class="lang-sql">create table emp(empno int,ename string,job string,mgr int,hiredate string,sal double,comm double,deptno int)ROW FORMAT DELIMITED FIELDS TERMINATED BY &#39;\t&#39;;
+create table dept(deptno int,dname string,location string) ROW FORMAT DELIMITED FIELDS TERMINATED BY &#39;\t&#39;;
+
+load data local inpath &#39;/home/hadoop/data/emp.txt&#39; into table emp;
+load data local inpath &#39;/home/hadoop/data/dept.txt&#39; into table dept;
+
+-- 求每个部门的人数
+select deptno,count(1) from emp group by deptno;
+</code></pre>
+<h1 id="Spark及其生态圈"><a href="#Spark及其生态圈" class="headerlink" title="Spark及其生态圈"></a>Spark及其生态圈</h1><p>为什么快？提供了DAG的执行引擎，支持数据流处理和内存计算。MapReduce中的Map和Reduce是基于进程的（需要维护进程的启动和销毁），而Spark中的job是基于线程池的。</p>
+<p>MapReduce效率低下的原因：map的结果会落地到磁盘（不能充分发挥内存威力），经过shuffle然后reduce；每个job(map或者reduce)的粒度都是进程级别（JVM的启动和销毁代价很高）。</p>
+<h2 id="环境搭建-2"><a href="#环境搭建-2" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>下载源码包spark-2.1.0.tgz解压后放到<code>/home/hadoop/source</code>目录。文档地址<a href="http://spark.apache.org/docs/2.1.0/building-spark.html" target="_blank" rel="noopener">http://spark.apache.org/docs/2.1.0/building-spark.html</a></p>
+<p>查看源码包中的pom.xml</p>
+<pre><code class="lang-xml">&lt;properties&gt;
+    &lt;java.version&gt;1.7&lt;/java.version&gt;
+    &lt;maven.version&gt;3.3.9&lt;/maven.version&gt;
+    &lt;sbt.project.name&gt;spark&lt;/sbt.project.name&gt;
+    &lt;slf4j.version&gt;1.7.16&lt;/slf4j.version&gt;
+    &lt;log4j.version&gt;1.2.17&lt;/log4j.version&gt;
+    &lt;hadoop.version&gt;2.2.0&lt;/hadoop.version&gt;
+    &lt;protobuf.version&gt;2.5.0&lt;/protobuf.version&gt;
+    &lt;yarn.version&gt;${hadoop.version}&lt;/yarn.version&gt;
+&lt;/properties&gt;
+
+&lt;profile&gt;
+  &lt;id&gt;hadoop-2.6&lt;/id&gt;
+  &lt;properties&gt;
+    &lt;hadoop.version&gt;2.6.4&lt;/hadoop.version&gt;
+    &lt;jets3t.version&gt;0.9.3&lt;/jets3t.version&gt;
+    &lt;zookeeper.version&gt;3.4.6&lt;/zookeeper.version&gt;
+    &lt;curator.version&gt;2.6.0&lt;/curator.version&gt;
+  &lt;/properties&gt;
+&lt;/profile&gt;
+</code></pre>
+<pre><code class="lang-bash"># 通过命令行的-D参数覆盖pom.xml中的hadoop.version
+# -P参数指定使用pom.xml中的那个profile的id
+mvn -Pyarn -Phadoop-2.6 -Phive -Phive-thriftserver -Dhadoop.version=2.6.0-cdh5.7.0 -DskipTests clean package 
+
+# 编译一个可以部署的包(推荐使用)
+./dev/make-distribution.sh --name 2.6.0-cdh5.7.0 --tgz -Pyarn -Phadoop-2.6 -Phive -Phive-thriftserver -Dhadoop.version=2.6.0-cdh5.7.0 -X
+</code></pre>
+<p>参考：</p>
+<p>pom.xml添加cdh版的maven仓库</p>
+<pre><code class="lang-xml">&lt;repository&gt;
+  &lt;id&gt;cloudera&lt;/id&gt;
+  &lt;url&gt;http://repository.cloudera.com/artifactory/cloudera-repos/&lt;/url&gt;
+&lt;/repository&gt;
+</code></pre>
+<p><a href="https://www.jianshu.com/p/be8a2cf0f32e" target="_blank" rel="noopener">spark源码编译的那些坑</a></p>
+<p>编译完成后会在当前spark源码目录下生成spark-2.1.0-bin-2.6.0-cdh5.7.0.tgz,接下来解压到安装目录即可</p>
+<h3 id="Local-模式"><a href="#Local-模式" class="headerlink" title="Local 模式"></a>Local 模式</h3><pre><code class="lang-bash"># 把SPARK_HOME添加到环境变量
+spark-shell --master local[2]
+</code></pre>
+<p>Spark context Web UI available at <a href="http://192.168.1.100:4040。" target="_blank" rel="noopener">http://192.168.1.100:4040。</a></p>
+<p><a href="http://spark.apache.org/docs/2.1.0/programming-guide.html#using-the-shell" target="_blank" rel="noopener">SparkShell</a><br><a href="http://spark.apache.org/docs/2.1.0/submitting-applications.html#master-urls" target="_blank" rel="noopener">local[2]的含义</a></p>
+<h3 id="standalone模式"><a href="#standalone模式" class="headerlink" title="standalone模式"></a>standalone模式</h3><pre><code class="lang-bash">cp spark-env.sh.template spark-env.sh
+</code></pre>
+<p>spark的standalone模式架构和hadoop的hdfs/yarn很类似，都是<code>1*master + n*woker</code>.spark-env.sh配置：</p>
+<pre><code class="lang-bash">SPARK_MASTER_HOST=hadoop001
+SPARK_WORKER_CORES=2
+SPARK_DAEMON_MEMORY=1g
+SPARK_WORKER_INSTANCES=2 # worker的数量
+</code></pre>
+<pre><code class="lang-bash">./sbin/start-all.sh
+</code></pre>
+<p>worker启动报错</p>
+<pre><code>localhost: failed to launch: nice -n 0 /home/hadoop/app/spark-2.1.0-bin-2.6.0-cdh5.7.0/bin/spark-class org.apache.spark.deploy.worker.Worker --webui-port 8081 spark://hadoop001:7077
+localhost:   JAVA_HOME is not set
+</code></pre><p>解决方案：sbin/spark-config.sh末尾添加：<code>export JAVA_HOME=/home/hadoop/app/jdk1.7.0_51</code></p>
+<p>通过spark-shell连接到SparkMaster</p>
+<pre><code class="lang-bash">spark-shell --master spark://hadoop001:7077
+spark-shell --help
+</code></pre>
+<blockquote>
+<p><code>spark-shell --jars /home/hadoop/software/mysql-connector-java-5.1.23-bin.jar --master local[2]</code>将配置好mysql数据源的hive-site.xml拷贝到spark的conf目录下，使用这个可以使用spark连接到hive。</p>
+</blockquote>
+<p>连接完成之后查看<a href="http://192.168.1.200:8080/可以发现Running" target="_blank" rel="noopener">http://192.168.1.200:8080/可以发现Running</a> Applications中有了一个应用，用了4个cores，状态是RUNNING,如果此时再次启动一个spark-shell，由于申请不到core，所以不会运行，状态是WAITING。</p>
+<h3 id="wordcount"><a href="#wordcount" class="headerlink" title="wordcount"></a>wordcount</h3><p>使用spark-shell连接到spark master在repl中执行：</p>
+<pre><code class="lang-scala">val file = spark.sparkContext.textFile(&quot;file:///home/hadoop/data/wc.txt&quot;)
+val wordCounts = file.flatMap(line =&gt; line.split(&quot;,&quot;)).map((word =&gt; (word, 1))).reduceByKey(_ + _)
+wordCounts.collect
+</code></pre>
+<blockquote>
+<p>开发中建议采用local模式，方便快捷，无需搭建集群。</p>
+</blockquote>
+<h1 id="Spark-SQL概述"><a href="#Spark-SQL概述" class="headerlink" title="Spark SQL概述"></a>Spark SQL概述</h1><p>SQL on Hadoop的解决方案：</p>
+<ul>
+<li>Hive: 将sql转化为mapreduce作业,metastore，Facebook</li>
+<li>impala: cloudera,cdh(建议生产环境使用的hadoop版本)，自己的守护进程执行，非mr，metastore</li>
+<li>presto: 基于sql，facebook，京东</li>
+<li>drill:sql，访问：hdfs,rdbms,json,hbase,mongodb,s3,hive</li>
+<li>spark sql:dataframe/dataset api,metastore，支持外部数据源：hdfs,rdbms,json,hbase,mongodb,s3,hive</li>
+</ul>
+<p><a href="http://spark.apache.org/docs/2.1.0/submitting-applications.html" target="_blank" rel="noopener">向spark提交应用程序</a></p>
+<p>spark-sql的应用并不仅限于sql，还能访问hive，json，parquet文件。提供了sql，DataFrame，Dataset api，比spark-code中RDD更高级的api。</p>
+<blockquote>
+<p>idea拷贝全类名，右键Copy Reference</p>
+</blockquote>
+<pre><code class="lang-scala">package com.spark
+
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SQLContext
+
+/**
+  * SQLContext的使用
+  *
+  * 编译打包 mvn clean package -DskipTests
+  * 上传jar包到服务器 scp target/sql-1.0.jar hadoop@hadoop001:~/lib
+  */
+object SQLContextApp {
+
+  def main(args: Array[String]) {
+
+    val path = args(0)
+
+    //    1.创建SparkContext
+    val sparkConf = new SparkConf()
+
+    // 在测试或者生产环境中,AppName和Master是我们通过脚本进行指定的
+//    sparkConf.setAppName(&quot;SQLContextApp&quot;).setMaster(&quot;local[2]&quot;)
+
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
+
+    //    2.相关处理(json文件)
+    //    json文件来源spark-2.1.0/examples/src/main/resources/people.json
+    val people = sqlContext.read.format(&quot;json&quot;).load(path)
+    people.printSchema()
+    people.show()
+    //    3.关闭资源
+    sc.stop()
+
+  }
+
+}
+</code></pre>
+<pre><code class="lang-bash">spark-submit \
+--class com.spark.SQLContextApp \
+--master local[2] \
+/home/hadoop/lib/sql-1.0.jar \
+file:///home/hadoop/source/spark-2.1.0/examples/src/main/resources/people.json
+</code></pre>
+<h2 id="SparkSQL-Shell的使用"><a href="#SparkSQL-Shell的使用" class="headerlink" title="SparkSQL Shell的使用"></a>SparkSQL Shell的使用</h2><p><a href="https://blog.csdn.net/BigData_Mining/article/details/80895554?utm_source=blogxgwz0" target="_blank" rel="noopener">SparkSQL连接Hive报错找不到表并且使用内置数据库Derby</a></p>
+<p>spark-sql连接hive需要将hive-site.xml复制到spark/conf目录下</p>
+<pre><code class="lang-bash"># 启动完成后spark.sql(&quot;select * from emp e join dept d on e.deptno = d.deptno&quot;).show
+spark-shell --jars /home/hadoop/software/mysql-connector-java-5.1.23-bin.jar --master local[2]
+
+# 打开spark-sql shell连接到hive之后可以直接执行sql，和上面的等效
+spark-sql --jars /home/hadoop/software/mysql-connector-java-5.1.23-bin.jar --master local[2]
+</code></pre>
+<h3 id="查看执行计划"><a href="#查看执行计划" class="headerlink" title="查看执行计划"></a>查看执行计划</h3><pre><code class="lang-bash">spark-sql&gt; table t(key string,value string);
+spark-sql&gt; explain extended select a.key * (2+3),b.value from t a join t b on a.key = b.key and a.key &gt; 3;
+== Parsed Logical Plan ==
+&#39;Project [unresolvedalias((&#39;a.key * (2 + 3)), None), &#39;b.value]
++- &#39;Join Inner, ((&#39;a.key = &#39;b.key) &amp;&amp; (&#39;a.key &gt; 3))
+   :- &#39;UnresolvedRelation `t`, a
+   +- &#39;UnresolvedRelation `t`, b
+
+== Analyzed Logical Plan ==
+(CAST(key AS DOUBLE) * CAST((2 + 3) AS DOUBLE)): double, value: string
+Project [(cast(key#55 as double) * cast((2 + 3) as double)) AS (CAST(key AS DOUBLE) * CAST((2 + 3) AS DOUBLE))#59, value#58]
++- Join Inner, ((key#55 = key#57) &amp;&amp; (cast(key#55 as double) &gt; cast(3 as double)))
+   :- SubqueryAlias a
+   :  +- MetastoreRelation default, t
+   +- SubqueryAlias b
+      +- MetastoreRelation default, t
+
+== Optimized Logical Plan ==
+Project [(cast(key#55 as double) * 5.0) AS (CAST(key AS DOUBLE) * CAST((2 + 3) AS DOUBLE))#59, value#58]
++- Join Inner, (key#55 = key#57)
+   :- Project [key#55]
+   :  +- Filter (isnotnull(key#55) &amp;&amp; (cast(key#55 as double) &gt; 3.0))
+   :     +- MetastoreRelation default, t
+   +- Filter (isnotnull(key#57) &amp;&amp; (cast(key#57 as double) &gt; 3.0))
+      +- MetastoreRelation default, t
+
+== Physical Plan ==
+*Project [(cast(key#55 as double) * 5.0) AS (CAST(key AS DOUBLE) * CAST((2 + 3) AS DOUBLE))#59, value#58]
++- *SortMergeJoin [key#55], [key#57], Inner
+   :- *Sort [key#55 ASC NULLS FIRST], false, 0
+   :  +- Exchange hashpartitioning(key#55, 200)
+   :     +- *Filter (isnotnull(key#55) &amp;&amp; (cast(key#55 as double) &gt; 3.0))
+   :        +- HiveTableScan [key#55], MetastoreRelation default, t
+   +- *Sort [key#57 ASC NULLS FIRST], false, 0
+      +- Exchange hashpartitioning(key#57, 200)
+         +- *Filter (isnotnull(key#57) &amp;&amp; (cast(key#57 as double) &gt; 3.0))
+            +- HiveTableScan [key#57, value#58], MetastoreRelation default, t
+Time taken: 0.252 seconds, Fetched 1 row(s)
+18/10/18 21:22:20 INFO CliDriver: Time taken: 0.252 seconds, Fetched 1 row(s)
+spark-sql&gt; 18/10/18 21:22:20 INFO TaskSetManager: Finished task 0.0 in stage 8.0 (TID 8) in 15 ms on localhost (executor driver) (1/1)
+18/10/18 21:22:20 INFO TaskSchedulerImpl: Removed TaskSet 8.0, whose tasks have all completed, from pool
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-sql-arch.png" alt="Spark-SQL架构图" title>
+                </div>
+                <div class="image-caption">Spark-SQL架构图</div>
+            </figure>
+<h2 id="ThriftServer-amp-Beeline的使用"><a href="#ThriftServer-amp-Beeline的使用" class="headerlink" title="ThriftServer &amp; Beeline的使用"></a>ThriftServer &amp; Beeline的使用</h2><pre><code class="lang-bash">./sbin/start-thriftserver.sh --master local[2] --jars /home/hadoop/software/mysql-connector-java-5.1.23-bin.jar
+# 使用客户端beeline连接即可进行sql操作
+./bin/beeline -u jdbc:hive2://localhost:10000 -n hadoop
+</code></pre>
+<p>执行sql后查看<a href="http://192.168.1.100:4040/sqlserver/可以发现执行过的sql详细信息，对程序的调优非常有帮助。" target="_blank" rel="noopener">http://192.168.1.100:4040/sqlserver/可以发现执行过的sql详细信息，对程序的调优非常有帮助。</a></p>
+<blockquote>
+<p>ThriftServer和普通的spark-shell/spark-sql的不同：前者不管启动多少个客户端（beeline或者jdbc代码方式）都是一个spark application，只会在启动server的时候申请一次资源，多个客户端可以共享数据。</p>
+</blockquote>
+<h1 id="DataFrame-amp-RDD"><a href="#DataFrame-amp-RDD" class="headerlink" title="DataFrame &amp; RDD"></a>DataFrame &amp; RDD</h1><blockquote>
+<p>A Dataset is a distributed collection of data.A DataFrame is a Dataset organized into named columns.</p>
+</blockquote>
+<p>DataFrame不是SparkSQL提出的，而是在R，Pandas语言中已有的。DataFrame是加了schame（列名，列类型，列值）的RDD。有了schema信息可以在编译的时候做更多的优化。</p>
+<p>RDD:<br> java/scala ==&gt; jvm<br> python ==&gt; python runtime </p>
+<p>DataFrame<br> java/scala/python =&gt; Logic Plan</p>
+<p>因此如果语言不同，使用RDD编程会有效率差异，而使用DataFrame则没有区别。 </p>
+<h2 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h2><pre><code class="lang-scala">def main(args: Array[String]) {
+  val spark = SparkSession.builder().appName(&quot;DataFrameApp&quot;).master(&quot;local[2]&quot;).getOrCreate()
+  // load的参数path支持本地fs和分布式fs
+  // json =&gt; DataFrame
+  val peopleDF = spark.read.format(&quot;json&quot;).load(&quot;file:///Users/yiihua-013/tmp/people.json&quot;)
+  // show columns
+  peopleDF.printSchema()
+  // select * from table limit 20
+  peopleDF.show()
+  // 查询某列 select name from table
+  peopleDF.select(&quot;name&quot;).show()
+  // select name,age + 10 as age2 from table
+  peopleDF.select(peopleDF.col(&quot;age&quot;), (peopleDF.col(&quot;age&quot;) + 10).as(&quot;age2&quot;)).show()
+  // select * from table where age &gt; 19
+  peopleDF.filter(peopleDF.col(&quot;age&quot;) &gt; 19).show()
+  // select age,count(1) from table group by age
+  peopleDF.groupBy(&quot;age&quot;).count().show()
+  spark.stop()
+}
+</code></pre>
+<h2 id="DataFrame和RDD的互操作"><a href="#DataFrame和RDD的互操作" class="headerlink" title="DataFrame和RDD的互操作"></a>DataFrame和RDD的互操作</h2><p><a href="http://spark.apache.org/docs/2.1.0/sql-programming-guide.html#interoperating-with-rdds" target="_blank" rel="noopener">DataFrame和RDD的互操作</a></p>
+<pre><code class="lang-scala">object DataFrameRDDApp {
+
+  // DataFrame 与 RDD的互操作
+  def main(args: Array[String]) {
+    val spark = SparkSession.builder().appName(&quot;DataFrameApp&quot;).master(&quot;local[2]&quot;).getOrCreate()
+
+    inferReflection(spark)
+    //    program(spark)
+
+    spark.stop()
+  }
+
+  /**
+    * 把文本文件通过编程的方式转换成DataFrame
+    */
+  def program(spark: SparkSession): Unit = {
+    val rdd = spark.sparkContext.textFile(&quot;file:///Users/yiihua-013/Downloads/tmp/infos.txt&quot;)
+    val rowRDD = rdd.map(_.split(&quot;,&quot;))
+      .map(line =&gt; Row(line(0).toInt, line(1), line(2).toInt))
+    val structType = StructType(
+      Array(
+        StructField(&quot;id&quot;, IntegerType, true),
+        StructField(&quot;name&quot;, StringType, true),
+        StructField(&quot;age&quot;, IntegerType, true)
+      )
+    )
+    val infoDF = spark.createDataFrame(rowRDD, structType)
+    infoDF.printSchema()
+    infoDF.show()
+  }
+
+  /**
+    * 使用反射来推断包含特定数据类型的RDD的元数据
+    */
+  def inferReflection(spark: SparkSession): Unit = {
+    // RDD =&gt; DataFrame
+    val rdd = spark.sparkContext.textFile(&quot;file:///Users/yiihua-013/Downloads/tmp/infos.txt&quot;)
+    // 需要导入隐式转换
+    import spark.implicits._
+    val infoDF = rdd.map(_.split(&quot;,&quot;))
+      .map(line =&gt; Info(line(0).toInt, line(1), line(2).toInt))
+      .toDF()
+    infoDF.show()
+
+    // 通过DataFrame API
+    infoDF.filter(infoDF.col(&quot;age&quot;) &gt; 30).show()
+
+    // 将DataFrame注册为临时表之后就可以通过sql的方式进行查询了
+    infoDF.createOrReplaceTempView(&quot;infos&quot;)
+    spark.sql(&quot;select * from infos where age &gt; 30&quot;).show()
+  }
+
+  case class Info(id: Int, name: String, age: Int)
+
+}
+</code></pre>
+<ul>
+<li>反射：case class，需要事先知道字段和字段类型</li>
+<li>编程：Row，事先不知道列</li>
+</ul>
+<blockquote>
+<p>优先选择反射的方式。</p>
+<p>Dataset &gt; DataFrame &gt; SQL,可以更早抛出错误，可以在编译时发现错误而不是在运行时。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-dataset-dataframe-sql.png" alt="Dataset&DataFrame&SQL" title>
+                </div>
+                <div class="image-caption">Dataset&DataFrame&SQL</div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/column-storage.png" alt="列式存储示意图" title>
+                </div>
+                <div class="image-caption">列式存储示意图</div>
+            </figure>
+<p>列式存储的优点：每一列可以单独压缩，访问同列有更小的IO。</p>
+<p>大数据调优（忽略掉一些不必要的信息）：</p>
+<ul>
+<li>列式存储，列裁剪</li>
+<li>分区裁剪</li>
+<li>使用min/max统计信息</li>
+<li>条件下压到数据源（例如将where下压到jdbc）</li>
+</ul>
+<p>其实DataFrame和SQL都会采用Catalyst引擎使用上面的策略进行优化，运行效率是一样的。</p>
+<h1 id="数据处理流程"><a href="#数据处理流程" class="headerlink" title="数据处理流程"></a>数据处理流程</h1><ul>
+<li>数据采集：Flume，日志写入到HDFS</li>
+<li>数据清洗：Spark,Hive,MapReduce或者其他分布式计算框架清理脏数据，清理之后的数据可以放在HDFS上（Hive，SparkSQL）</li>
+<li>数据处理：Spark,Hive,MapReduce或者其他分布式计算框架，按照业务进行统计分析</li>
+<li>处理结果入库：结果可以放在RDBMS,NoSQL</li>
+<li>数据可视化展示：Echarts,HUE,Zeppelin</li>
+</ul>
+<h2 id="Spark-on-Yarn"><a href="#Spark-on-Yarn" class="headerlink" title="Spark on Yarn"></a>Spark on Yarn</h2><p>spark支持4种运行模式：</p>
+<p>local:本地开发<br>standalone:spark自带的，如果一个集群是standalone的话，那么就需要在多台机器上部署spark环境，比较麻烦<br>yarn:生产环境推荐使用，统一使用yarn进行整个集群作业（MapReduce,Spark）的资源调度<br>mesos:国内用的不多</p>
+<blockquote>
+<p>不管使用什么模式，spark应用程序的代码是一模一样的，只需要在提交的时候使用<code>--master</code>参数即可指定运行模式即可。</p>
+</blockquote>
+<p>client:Dirver运行在client端（提交spark作业的机器），client会和请求到的container进行通信来完成作业的调度和执行，client是不能退出的。日志信息在控制台输出，便于测试<br>cluster:Driver运行在ApplicationMaster中，client只要提交完作业就可以关掉,因为作业已经在spark上运行了。日志只能通过<code>yarn logs -applicationId application_1540378428255_0002</code>来查看</p>
+<pre><code class="lang-bash">./bin/spark-submit \
+--class org.apache.spark.examples.SparkPi \
+--master yarn \
+--executor-memory 1G \
+--total-executor-cores 1 \
+/home/hadoop/app/spark-2.1.0-bin-2.6.0-cdh5.7.0/examples/jars/spark-examples_2.11-2.1.0.jar \
+4
+
+./bin/spark-submit \
+--class org.apache.spark.examples.SparkPi \
+--master yarn-cluster \
+--executor-memory 1G \
+--total-executor-cores 1 \
+/home/hadoop/app/spark-2.1.0-bin-2.6.0-cdh5.7.0/examples/jars/spark-examples_2.11-2.1.0.jar \
+4
+</code></pre>
+<blockquote>
+<p>大数据压缩格式的可分割性在hadoop中很重要如果支持分割，就可以分隔成多块并行执行task（执行作业时map的启动个数）。</p>
+</blockquote>
+<ul>
+<li>bzip2压缩效果最好，但是压缩速度慢，支持分割</li>
+<li>gzip压缩和解压比bzip2快，不支持分割</li>
+<li>lzo压缩效果不如bzip2和gzip，但压缩和解压速度最好，支持分割</li>
+</ul>
+<p>参数调优</p>
+<pre><code>spark.sql.shuffle.partitions=300 # 并行度
+spark.sql.sources.partitionColumnTypeInference.enabled=false # 禁用分区字段类型推测
+</code></pre><blockquote>
+<p>大数据处理神器Beam可以使用相同的代码可以运行在MR，Spark，Flink上。</p>
+</blockquote>
+<h1 id="常见问题："><a href="#常见问题：" class="headerlink" title="常见问题："></a>常见问题：</h1><ul>
+<li><a href="http://blog.51cto.com/hsbxxl/2066487" target="_blank" rel="noopener">重新format namenode后，datanode无法正常启动</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.011Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/10/15/spark-sql/" target="_blank" rel="external">https://consoles.fun/2018/10/15/spark-sql/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hdfs/">hdfs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/15/spark-sql/&title=《大数据基础之SparkSQL》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/15/spark-sql/&title=《大数据基础之SparkSQL》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/15/spark-sql/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《大数据基础之SparkSQL》 — 雨碎江南&url=https://consoles.fun/2018/10/15/spark-sql/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/15/spark-sql/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/10/21/game-programming/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">游戏编程算法与技巧</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/04/15/excellent-words/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">字字珠玑</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/15/spark-sql/&title=《大数据基础之SparkSQL》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/15/spark-sql/&title=《大数据基础之SparkSQL》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/15/spark-sql/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《大数据基础之SparkSQL》 — 雨碎江南&url=https://consoles.fun/2018/10/15/spark-sql/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/15/spark-sql/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAAByElEQVR42u3aQQ7CMAwEQP7/6XLl0rK2m1CkyQlVhUw4rBI7r1c8jo/x+SR/8/rJzQMXF3fMPS5Hwr3+fPbk+vnpknBxcTdyzxLj7J1kAWdTVmMRFxf3v7jJm5Nv4eLi/gu3F1L5hgkXF/c53OTwk3yrF15Lzmq4uLgDbl6lXPd5SX0XFxe3xT2Ko9oayTdD0ey4uLhbuHmgVDdA1UZs3tzFxcVdzb2OmKRpOi+wJn/NK8lLXFzcBdxeGSJh9YqthR0ZLi7urdzeBL2i6m3Bh4uL+yNur3o5qXwWFoyLi7uYO7lgUQ2m+WJwcXH3cK8Trne5Ki+SVpsxuLi4+7n5j+ZXNJKySxKguLi4v+LeG1uTJRVyFxcXdzG32tKYX9vKl1Q+LeHi4o65vQnyBm0eXpEEFxd3Izff6PSOLsn2JTr84OLibuRWr1glbdG8DVN4BxcXdzH3KI7kcFL9ncLRCBcXdwt3ciUin2xyXaO5GFxc3DG3F1759iWhFIoyuLi4G7nzoJmEWvmshouL+0hucpipFlgLJzZcXNxHcquljV7x9EvnBxcXdzG3WtzMY6sabV/+LFxc3C3capTMi6d5e2ZU38XFxe1w3x9tKfiBlRSvAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

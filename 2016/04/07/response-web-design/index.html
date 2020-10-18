@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>响应式web设计 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="html5,css">
+    <meta name="description" content="固定宽度布局的缺点我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核">
+<meta name="keywords" content="html5,css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="响应式web设计">
+<meta property="og:url" content="https://consoles.fun/2016/04/07/response-web-design/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="固定宽度布局的缺点我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.003Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="响应式web设计">
+<meta name="twitter:description" content="固定宽度布局的缺点我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">响应式web设计</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">响应式web设计</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-04-07T12:05:32.000Z" itemprop="datePublished" class="page-time">
+  2016-04-07
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#固定宽度布局的缺点"><span class="post-toc-text">固定宽度布局的缺点</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#百分比宽度的计算"><span class="post-toc-text">百分比宽度的计算</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#使用em替代像素"><span class="post-toc-text">使用em替代像素</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#弹性图片"><span class="post-toc-text">弹性图片</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#CSS3实用技巧"><span class="post-toc-text">CSS3实用技巧</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#元素的透明度"><span class="post-toc-text">元素的透明度</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#使用CSS3创作绚丽的效果"><span class="post-toc-text">使用CSS3创作绚丽的效果</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#模拟书籍页边距的光晕效果"><span class="post-toc-text">模拟书籍页边距的光晕效果</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文字浮雕"><span class="post-toc-text">文字浮雕</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#过渡动画"><span class="post-toc-text">过渡动画</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CSS3针对表单的伪类选择器"><span class="post-toc-text">CSS3针对表单的伪类选择器</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#html5新特性"><span class="post-toc-text">html5新特性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自动联想词"><span class="post-toc-text">自动联想词</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#不支持html的浏览器的渐进增强"><span class="post-toc-text">不支持html的浏览器的渐进增强</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#一些常见的DOM方法"><span class="post-toc-text">一些常见的DOM方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考链接"><span class="post-toc-text">参考链接</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-response-web-design"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">响应式web设计</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-04-07 20:05:32" datetime="2016-04-07T12:05:32.000Z"  itemprop="datePublished">2016-04-07</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="固定宽度布局的缺点"><a href="#固定宽度布局的缺点" class="headerlink" title="固定宽度布局的缺点"></a>固定宽度布局的缺点</h1><p>我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核心是<strong>移动优先</strong>.</p>
+<blockquote>
+<p>在使用CSS3属性的时候需要注意浏览器前缀,并且将不带有前缀的添加到最后,这样如果该属性可用就会覆盖之前的声明.</p>
+</blockquote>
+<h1 id="百分比宽度的计算"><a href="#百分比宽度的计算" class="headerlink" title="百分比宽度的计算"></a>百分比宽度的计算</h1><p>百分比宽度 = 目标元素宽度 / 上下文元素宽度,例如我们有以下的固定宽度的布局:</p>
+<pre><code class="lang-html">&lt;div id=&quot;wrapper&quot;&gt;
+  &lt;header&gt;
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href=&quot;&quot;&gt;link1&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;&quot;&gt;link2&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;aside&gt;
+    &lt;p&gt;this is aside&lt;/p&gt;
+  &lt;/aside&gt;
+  &lt;article&gt;
+    &lt;p&gt;this is content&lt;/p&gt;
+  &lt;/article&gt;
+  &lt;footer&gt;
+    &lt;p&gt;this is footer&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+&lt;style&gt;
+#wrapper{
+  margin-left: auto;
+  margin-right: auto;
+  width: 960px;
+}
+nav{
+  width: 940px;
+  margin: 26px 0 0 -10px;
+  padding: 25px 10px 0 10px;
+}
+nav ul li{
+  display: inline-block;
+}
+aside{
+  border: none;
+  border-right: #e8e8e8 solid 2px;
+  margin: 58px 10px 0 10px;
+  padding-right: 10px;
+  float: left;
+  width: 220px;
+}
+article{
+  margin: 58px 10px 0 0;
+  float: right;
+  width: 698px;    
+}
+footer{
+  float: left;
+  margin: 20px 10px 0 10px;
+  clear: both;
+  width: 940px;
+}
+&lt;/style&gt;
+</code></pre>
+<p>根据经验,我们将最外层的#wrapper的宽度设置为96%,那么nav的宽度应该设置多少?我们用940/960 = 97.91666666666666%,所谓的上下文元素就是被参照的元素,我们也可以简单理解为<strong>具有特定宽度</strong>的父元素或者祖宗元素.</p>
+<h1 id="使用em替代像素"><a href="#使用em替代像素" class="headerlink" title="使用em替代像素"></a>使用em替代像素</h1><p>几年前,使用em替代px主要是为了实现文字缩放.em的实际大小是相对于上下文字体而言的.如果给body的font-size设置为100%,其他文字单位都使用相对单位em,那些文字都将受到body上初始声明的影响.现代浏览器中默认文字大小是16px,因此在body中声明以下的3条css等效:</p>
+<pre><code class="lang-css">body{
+  font-size: 100%;
+  font-size: 16px;
+  font-size: 1em;
+}
+</code></pre>
+<h1 id="弹性图片"><a href="#弹性图片" class="headerlink" title="弹性图片"></a>弹性图片</h1><p>在IE7+实现图片随流式布局自动缩放非常简单:</p>
+<pre><code class="lang-css">img{
+  max-width: 100%;
+}
+</code></pre>
+<p>同理,该css属性还可以拓展到<code>&lt;object&gt;</code>,<code>&lt;video&gt;</code>,<code>&lt;embed&gt;</code>等其他多媒体元素</p>
+<h1 id="CSS3实用技巧"><a href="#CSS3实用技巧" class="headerlink" title="CSS3实用技巧"></a>CSS3实用技巧</h1><ul>
+<li>类似报纸排版的多栏布局<code>column-count</code></li>
+<li>文字换行<code>word-wrap:break-word</code>,需要给外层容器添加此属性,中间内容将自动换行(不会生成水平滚动条)</li>
+</ul>
+<p>水平导航的最佳实践:</p>
+<pre><code class="lang-html">&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;&quot;&gt;link 1&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;&quot;&gt;link 2&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;&quot;&gt;link 3&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;&quot;&gt;link 4&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;&quot;&gt;link 5&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;style&gt;
+  nav{
+    display: table;
+  }
+  nav ul{
+    display: table-row;
+  }
+  nav ul li{
+    display: table-cell;
+  }
+  nav ul li:first-child{
+    text-align: left;
+  }
+  nav ul li:last-child{
+    text-align: right;
+  }
+&lt;/style&gt;
+</code></pre>
+<ul>
+<li>首字下沉效果.得益于伪元素选择器.<code>::first-letter</code>,同理<code>::first-line</code>用于选择首行.</li>
+</ul>
+<h1 id="元素的透明度"><a href="#元素的透明度" class="headerlink" title="元素的透明度"></a>元素的透明度</h1><p>说道透明度我们一般会想到<code>opacity</code>这个属性.但是给一个容器设置了透明度后,它的内容也就变得透明了,因此我们可以使用透明的背景色:<code>rgba</code>或者<code>hsla</code></p>
+<h1 id="使用CSS3创作绚丽的效果"><a href="#使用CSS3创作绚丽的效果" class="headerlink" title="使用CSS3创作绚丽的效果"></a>使用CSS3创作绚丽的效果</h1><h2 id="模拟书籍页边距的光晕效果"><a href="#模拟书籍页边距的光晕效果" class="headerlink" title="模拟书籍页边距的光晕效果"></a>模拟书籍页边距的光晕效果</h2><p>使用多重内阴影:</p>
+<pre><code class="lang-css">box-shadow:inset 0 0 30px hsl(0,0%,0%),
+          inset 0 0 70px hsla(0,97%,53%,1);
+</code></pre>
+<h2 id="文字浮雕"><a href="#文字浮雕" class="headerlink" title="文字浮雕"></a>文字浮雕</h2><pre><code class="lang-css">text-shadow:0px 1px #fff,
+            4px 4px 0px #dad7d7;
+</code></pre>
+<h2 id="过渡动画"><a href="#过渡动画" class="headerlink" title="过渡动画"></a>过渡动画</h2><p>除了常见的<code>transition:all 1s ease 0s</code>外我们也可以为不同的属性指定不同的过渡(也就是说步调可以任意),例如:</p>
+<pre><code class="lang-css">button{
+  transition-property: border,color,text-shadow;
+  transition-duration: 2s,3s,8s;
+}
+</code></pre>
+<p>以上的效果是2s完成border,3s完成color,8s完成text-shadow.</p>
+<h2 id="CSS3针对表单的伪类选择器"><a href="#CSS3针对表单的伪类选择器" class="headerlink" title="CSS3针对表单的伪类选择器"></a>CSS3针对表单的伪类选择器</h2><ul>
+<li><code>input:required</code>,必填表单域</li>
+<li><code>input:focus:invalid</code>,处于焦点并输入了非法值的表单域,同理,有<code>input:focus:valid</code></li>
+</ul>
+<p>使用上面的3个选择器可以制作响应式的表单:</p>
+<pre><code class="lang-css">input:required{
+  border: 1px solid rgba(253, 8, 8, 0.3);
+}
+input:focus:invalid{
+  background: url(&#39;error.png&#39;) no-repeat right;
+}
+input:focus:valid{
+  background: url(&#39;ok.png&#39;) no-repeat right;
+}
+</code></pre>
+<h1 id="html5新特性"><a href="#html5新特性" class="headerlink" title="html5新特性"></a>html5新特性</h1><h2 id="自动联想词"><a href="#自动联想词" class="headerlink" title="自动联想词"></a>自动联想词</h2><pre><code class="lang-html">&lt;div&gt;
+  &lt;label for=&quot;username&quot;&gt;用户名&lt;/label&gt;
+  &lt;input type=&quot;text&quot; id=&quot;username&quot; list=&quot;usernames&quot;&gt;
+  &lt;datalist id=&quot;usernames&quot;&gt;
+    &lt;select&gt;
+      &lt;option value=&quot;a&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;aa&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;abc&quot;&gt;&lt;/option&gt;
+      &lt;option value=&quot;bb&quot;&gt;&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/datalist&gt;
+&lt;/div&gt;
+</code></pre>
+<p>以上的代码当我们输入字符的时候会自动从下面的<code>datalist</code>标签中进行筛选.</p>
+<h2 id="不支持html的浏览器的渐进增强"><a href="#不支持html的浏览器的渐进增强" class="headerlink" title="不支持html的浏览器的渐进增强"></a>不支持html的浏览器的渐进增强</h2><pre><code class="lang-html">&lt;script src=&quot;js/jquery-1.7.1.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;js-webshim/minified/extras/modernizr-custom.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;js-webshim/minified/polyfiller.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+//加载补丁
+$.webshims.polyfill();
+&lt;/script&gt;
+</code></pre>
+<h2 id="一些常见的DOM方法"><a href="#一些常见的DOM方法" class="headerlink" title="一些常见的DOM方法"></a>一些常见的DOM方法</h2><ul>
+<li>document.images: 页面上所有的图片元素</li>
+<li>document.links : 所有a标签元素</li>
+<li>document.forms : 所有表单</li>
+<li>document.forms[0].elements : 页面上第一个表单中的所有域</li>
+</ul>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="http://www.andthewinnerisnt.com/" target="_blank" rel="noopener">响应式web设计</a><br><a href="http://webdesignerwall.com/trends/47-amazing-css3-animation-demos" target="_blank" rel="noopener">47个迷人的CSS3动画</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.003Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/04/07/response-web-design/" target="_blank" rel="external">https://consoles.fun/2016/04/07/response-web-design/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/html5/">html5</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/04/07/response-web-design/&title=《响应式web设计》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/04/07/response-web-design/&title=《响应式web设计》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/04/07/response-web-design/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《响应式web设计》 — 雨碎江南&url=https://consoles.fun/2016/04/07/response-web-design/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/04/07/response-web-design/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/04/16/linux-regexp/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Shell基础-正则表达式</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/04/04/linux-shell-operator/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Shell基础-运算符</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/04/07/response-web-design/&title=《响应式web设计》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/04/07/response-web-design/&title=《响应式web设计》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/04/07/response-web-design/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《响应式web设计》 — 雨碎江南&url=https://consoles.fun/2016/04/07/response-web-design/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/04/07/response-web-design/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACHklEQVR42u3ay26DQAwF0Pz/T9NtN8C1PanKcFhVFSE+RLLGj88nvo6TK7n/93/Onnb2qcUXBgbGYxnH5ZWHlX9LEkMeGwYGxnsYZ4/OA50nzeuXdRMzBgYGRpB8J/dXXx8GBgZGlVHlXR/yMDAwMCZF7PxQOHlly2pxDAyMBzLy8vLv//7KfAMDA+NRjKN4zYvbJAWXo8LAwNiaMTn2zZtliweiGBgYL2Pkqba6JDFp5JW7hhgYGBsxEkA+AOgdFnstv1MMBgbGRoxem746EshXK3qDBAwMjL0Z+VdOUmS+lpFHctPIw8DA2I6RH/USxqS51hstYGBg7M2oJsT5/fkTCisgGBgYWzPmW1V5Gi2PJKtlMwYGxqaM649NQkmaaPlLaa5ZYGBgbMSYjySrCxar0i4GBsYbGNWkOW+r5SPJ0XIYBgbGdowk9Hww0NxHax1Gy78ABgbGAxnVMrI3bkzA1bSOgYHxHkY+gOyNAaqDyWo5jYGB8TZGtXGftNhyZJ6UTzEYGBivYfRI1QFDtOY1mcdiYGBsyiiktmIoSRncez4GBsYbGEfxmh/4VhWuN8NLDAyMjRi9MWfvs6uK3lE8GBgYj2WsHQOsHQ+UVy4wMDC2Zixb0mo14JbV4hgYGBjBYbF6Z56mb6gYGBgYreCqYVXBX0+4GBgY/4yRFLEJuFrQJrDysgUGBsZ2jElzv5AQi0GsLX0xMDAey/gBdrkD8UCxGVUAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>表单的常见操作 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="javascript">
+    <meta name="description" content="如何防止重复提交表单在金融消费等敏感领域,重复提交表单将会导致费用翻倍.最常见的解决方案就是在提交一次之后禁用提交按钮（当然后端接口也要进行严密判断）。 form.addEventListener(&amp;#39;submit&amp;#39;,function(ev){   var target = ev.target   // 取得提交按钮   var submitBtn = target.elements">
+<meta name="keywords" content="javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="表单的常见操作">
+<meta property="og:url" content="https://consoles.fun/2016/03/22/form/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="如何防止重复提交表单在金融消费等敏感领域,重复提交表单将会导致费用翻倍.最常见的解决方案就是在提交一次之后禁用提交按钮（当然后端接口也要进行严密判断）。 form.addEventListener(&amp;#39;submit&amp;#39;,function(ev){   var target = ev.target   // 取得提交按钮   var submitBtn = target.elements">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.955Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="表单的常见操作">
+<meta name="twitter:description" content="如何防止重复提交表单在金融消费等敏感领域,重复提交表单将会导致费用翻倍.最常见的解决方案就是在提交一次之后禁用提交按钮（当然后端接口也要进行严密判断）。 form.addEventListener(&amp;#39;submit&amp;#39;,function(ev){   var target = ev.target   // 取得提交按钮   var submitBtn = target.elements">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">表单的常见操作</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">表单的常见操作</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-22T13:58:19.000Z" itemprop="datePublished" class="page-time">
+  2016-03-22
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何防止重复提交表单"><span class="post-toc-text">如何防止重复提交表单</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#过滤输入"><span class="post-toc-text">过滤输入</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#过滤字符"><span class="post-toc-text">过滤字符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#操作剪切板"><span class="post-toc-text">操作剪切板</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#自动切换焦点"><span class="post-toc-text">自动切换焦点</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#表单序列化"><span class="post-toc-text">表单序列化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#富文本编辑器"><span class="post-toc-text">富文本编辑器</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-form"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">表单的常见操作</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-22 21:58:19" datetime="2016-03-22T13:58:19.000Z"  itemprop="datePublished">2016-03-22</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="如何防止重复提交表单"><a href="#如何防止重复提交表单" class="headerlink" title="如何防止重复提交表单"></a>如何防止重复提交表单</h2><p>在金融消费等敏感领域,重复提交表单将会导致费用翻倍.最常见的解决方案就是在提交一次之后禁用提交按钮（当然后端接口也要进行严密判断）。</p>
+<pre><code class="lang-js">form.addEventListener(&#39;submit&#39;,function(ev){
+  var target = ev.target
+  // 取得提交按钮
+  var submitBtn = target.elements[&#39;submitBtn&#39;] // 通过name属性
+  // disable it
+  submitBtn.disabled = true
+})
+</code></pre>
+<p>需要注意的是:<em>不能通过onclick</em>来实现,因为不同浏览器之间存在”时差”,换言之:<code>onlick</code>和<code>submit</code>的触发顺序是不确定的.</p>
+<blockquote>
+<p>html5为表单新增了<code>autofocus</code>属性,表单字段将自动得到焦点.</p>
+</blockquote>
+<h2 id="过滤输入"><a href="#过滤输入" class="headerlink" title="过滤输入"></a>过滤输入</h2><h3 id="过滤字符"><a href="#过滤字符" class="headerlink" title="过滤字符"></a>过滤字符</h3><p>考虑这样一种需求:电话号码中不能包含非数字字符.因此我们需要监听<code>keypress</code>事件,并阻止其默认行为,极端情况下可以屏蔽所有的按键操作.</p>
+<pre><code class="lang-js">text.addEventListener(&#39;keypress&#39;,function(ev){
+    var target = ev.target
+    var charCode = ev.charCode
+    // 字符编码转字符串,保证不阻止基本键
+    if(!/\d/.test(String.fromCharCode(charCode)) &amp;&amp; charCode &gt; 9 &amp;&amp; !ev.ctrlKey)
+      ev.preventDefault()
+})
+</code></pre>
+<h3 id="操作剪切板"><a href="#操作剪切板" class="headerlink" title="操作剪切板"></a>操作剪切板</h3><p>提供以下的6个事件:</p>
+<ul>
+<li>beforecopy</li>
+<li>copy</li>
+<li>beforecut</li>
+<li>cut</li>
+<li>beforepaste</li>
+<li>paste</li>
+</ul>
+<p>注意,通过beforeXXX可以在XXX事件之前向剪切板发送或者取得剪切板中的数据之前修改数据,取消beforeXXX方法并不会取消对剪切板的操作,只有取消copy,cut,paste事件才能阻止相应操作发生.</p>
+<p>取得剪切板中的数据可以使用<code>clipboardData</code>对象,在IE中它是window的属性,而其他浏览器中它是对应event对象的属性.该对象有3个方法:<code>setData()</code>,<code>getData()</code>和<code>clearData()</code>.</p>
+<h3 id="自动切换焦点"><a href="#自动切换焦点" class="headerlink" title="自动切换焦点"></a>自动切换焦点</h3><p>例如我们常见的软件的激活码,当输入特定字符后光标会自动切换到下一个输入框,极大强化了用户体验.我们可以通过以下的方法来模拟:</p>
+<pre><code class="lang-html">&lt;input type=&quot;text&quot; id=&quot;tel1&quot; maxlength=&quot;3&quot;&gt;
+&lt;input type=&quot;text&quot; id=&quot;tel2&quot; maxlength=&quot;3&quot;&gt;
+&lt;input type=&quot;text&quot; id=&quot;tel3&quot; maxlength=&quot;4&quot;&gt;
+&lt;script&gt;
+  (function(){
+    function tabForward(ev){
+      var target = ev.target
+      if(target.value.length === target.maxLength){
+        var form = target.form
+        for(var i= 0,len = form.elements.length;i &lt; len;i++){
+          if(form.elements[i] === target){
+            // 找到下一个表单字段,并获得焦点
+            if(form.elements[i+1]){
+              form.elements[i+1].focus()
+            }
+            return
+          }
+        }
+      }
+    }
+    var txt1 = document.getElementById(&#39;tel1&#39;)
+    var txt2 = document.getElementById(&#39;tel2&#39;)
+    var txt3 = document.getElementById(&#39;tel3&#39;)
+
+    txt1.addEventListener(&#39;keyup&#39;,tabForward)
+    txt2.addEventListener(&#39;keyup&#39;,tabForward)
+    txt3.addEventListener(&#39;keyup&#39;,tabForward)
+  }())
+&lt;/script&gt;
+</code></pre>
+<h2 id="表单序列化"><a href="#表单序列化" class="headerlink" title="表单序列化"></a>表单序列化</h2><p>首先思考这样一个问题:浏览器怎样将数据发送给服务器?</p>
+<ul>
+<li>对表单字段的key和value进行url编码,使用<code>&amp;</code>分隔</li>
+<li>不发送禁用的表单字段</li>
+<li>只发送勾选的的复选框和单选按钮</li>
+<li>不发送type为reset和button的按钮</li>
+<li>多选选择框中的每个选中的值单独一个条目</li>
+<li>在单击提交按钮提交表单的情况下,也会发送提交按钮;否则,不发送提交按钮</li>
+<li><code>&lt;select&gt;</code>元素的值,就是选中的<code>&lt;option&gt;</code>元素的<code>value</code>特性的值。如果<code>&lt;option&gt;</code>元素没有<code>value</code>特性,则是`<option>``元素的文本值。</option></li>
+</ul>
+<p>以下是序列化函数:</p>
+<pre><code class="lang-js">function serialize(form){
+  var parts = [],
+      field = null,
+      i,
+      len,
+      j,
+      optLen,
+      option,
+      optValue;
+
+      for(i = 0,len = form.elements.length;i &lt; len;i++){
+        field = form.elements[i]
+
+        switch(field.type){
+          case &#39;select-one&#39;:
+          case &#39;select-multiple&#39;:
+
+          if(field.name.length){
+            for(j = 0,optLen = field.options.length;j &lt; optLen;j++){
+              option = field.options[j]
+              if(option.selected){
+                optValue = &#39;&#39;
+                if(option.hasAttribute){
+                  optValue = (option.hasAttribute(&#39;value&#39;) ? option.value : option.text)
+                } else {
+                  optValue = (option.attributes[&#39;value&#39;.specified] ? option.value : option.text)
+                }
+                parts.push(encodeURICompenent(field.name) + &#39;=&#39; + encodeURIComponent(optValue))
+              }
+            }
+          }
+            break
+
+          case undefined: // 字段集
+          case &#39;file&#39;:
+          case &#39;submit&#39;:
+          case &#39;reset&#39;:
+          case &#39;button&#39;:
+            break
+
+          case &#39;radio&#39;:
+          case &#39;checkbox&#39;:
+            if(!field.checked)
+              break
+          default:
+            // 不包含没有名字的表单字段
+            if(field.name.length){
+              parts.push(encodeURIComponent(field.name) + &#39;=&#39; + encodeURIComponent(field.value))
+            }   
+        }
+      }
+      return parts.join(&#39;&amp;&#39;)
+}
+</code></pre>
+<h3 id="富文本编辑器"><a href="#富文本编辑器" class="headerlink" title="富文本编辑器"></a>富文本编辑器</h3><p>WYSIWYG(what you see is what you get),所见即所得.本质是在页面中嵌入一个包含空html页面的<code>iframe</code>,通过设置<code>designMode</code>属性,这个空白html可以被编辑,而编辑对象则是该页面的<code>&lt;body&gt;</code>元素的html代码;另外的一种实现是将元素设置为<code>contenteditable</code></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.955Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/22/form/" target="_blank" rel="external">https://consoles.fun/2016/03/22/form/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/22/form/&title=《表单的常见操作》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/22/form/&title=《表单的常见操作》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/22/form/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《表单的常见操作》 — 雨碎江南&url=https://consoles.fun/2016/03/22/form/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/22/form/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/22/canvas/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">html5 canvas的基本操作</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/19/event/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">DOM与事件</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/22/form/&title=《表单的常见操作》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/22/form/&title=《表单的常见操作》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/22/form/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《表单的常见操作》 — 雨碎江南&url=https://consoles.fun/2016/03/22/form/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/22/form/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aS27DMAwFwNz/0ukB0sqPpKwYxXhlJLY12hDi5/WKr/fHlT/5+VbyndGFi4s75lYXqC62/k5uwMXFPc9NlslZ69//4kbfxMXFfSR3fb8OQ8l3cHFx/wd31y+4uLhP4ybJT+9wMwmCuLi43+L2Sht772+p7+Li4ra47+K1q9PRXB0XF/cIt1oMTVog1S2Vn8TFxX0AdzJ4US2CRCvi4uLezF0j1o2QaniaH3pwcXFPcnuHm3n5Y/3ML//i4uIe4SYtjWrbIzkS5Q2bi+QHFxf3Bu6kvZoHuF7b5iL5wcXFPc7No2CePuXBsRzIcHFxt3J3TTvkW0qSnGqBFRcXdy+3eqDJh7fyYkdh87i4uEe4vZZn3gIpH1OSYisuLu5xbrUdkiQqefCKtoqLi3uQO8mZkpJH/tbFuri4uMe5eQG0MFA1TqLKZy5cXNwBtzdIMUmH8kIqLi7ut7gbRiIGZdbeMQgXF/cMdzKelRc+kmAXBUpcXNyD3DzQRK3QXh6WDGzh4uI+mFtttfbGLwo7xsXFfRi316btDWTg4uKe5PaKpMmWqqHtYqu4uLhHuOVQMqi/5lvdUN/FxcXtcH8ADzUp+L2ClcQAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

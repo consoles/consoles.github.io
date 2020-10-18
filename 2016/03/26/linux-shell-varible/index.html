@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Shell基础-变量和配置文件 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux,shell">
+    <meta name="description" content="一直以为Unix时间戳和JavaScript中的Date.now()的结果一致，但是最近才发现，Date.now()是精确到毫秒级的，去掉末尾的3位就可以和时间戳完美匹配。 用户自定义变量变量定义name=value  注意等号的前后不能有空格,如果value是字符串且有空格必须使用引号.例如以下的定义都是非法的! x= 1 x =1 x = 1 x=hello world  因为如果有空格的话,">
+<meta name="keywords" content="linux,shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell基础-变量和配置文件">
+<meta property="og:url" content="https://consoles.fun/2016/03/26/linux-shell-varible/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="一直以为Unix时间戳和JavaScript中的Date.now()的结果一致，但是最近才发现，Date.now()是精确到毫秒级的，去掉末尾的3位就可以和时间戳完美匹配。 用户自定义变量变量定义name=value  注意等号的前后不能有空格,如果value是字符串且有空格必须使用引号.例如以下的定义都是非法的! x= 1 x =1 x = 1 x=hello world  因为如果有空格的话,">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-ps1-env.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-position-varible.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-sys-define-varible.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-config-file-load-sequence.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.980Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shell基础-变量和配置文件">
+<meta name="twitter:description" content="一直以为Unix时间戳和JavaScript中的Date.now()的结果一致，但是最近才发现，Date.now()是精确到毫秒级的，去掉末尾的3位就可以和时间戳完美匹配。 用户自定义变量变量定义name=value  注意等号的前后不能有空格,如果value是字符串且有空格必须使用引号.例如以下的定义都是非法的! x= 1 x =1 x = 1 x=hello world  因为如果有空格的话,">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-ps1-env.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Shell基础-变量和配置文件</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Shell基础-变量和配置文件</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-26T13:54:06.000Z" itemprop="datePublished" class="page-time">
+  2016-03-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#用户自定义变量"><span class="post-toc-text">用户自定义变量</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#变量定义"><span class="post-toc-text">变量定义</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#变量叠加"><span class="post-toc-text">变量叠加</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#变量删除"><span class="post-toc-text">变量删除</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Bash环境变量"><span class="post-toc-text">Bash环境变量</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#设置环境变量"><span class="post-toc-text">设置环境变量</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#PS1环境变量"><span class="post-toc-text">PS1环境变量</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#语系变量"><span class="post-toc-text">语系变量</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#位置参数变量"><span class="post-toc-text">位置参数变量</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#预定义变量"><span class="post-toc-text">预定义变量</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#read命令"><span class="post-toc-text">read命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境变量配置文件"><span class="post-toc-text">环境变量配置文件</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Shell中输出多行文本可以使用here-document（cat-EOF）"><span class="post-toc-text">Shell中输出多行文本可以使用here document（cat EOF）</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-linux-shell-varible"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Shell基础-变量和配置文件</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-26 21:54:06" datetime="2016-03-26T13:54:06.000Z"  itemprop="datePublished">2016-03-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>一直以为Unix时间戳和JavaScript中的<code>Date.now()</code>的结果一致，但是最近才发现，<code>Date.now()</code>是精确到毫秒级的，去掉末尾的3位就可以和时间戳完美匹配。</p>
+<h1 id="用户自定义变量"><a href="#用户自定义变量" class="headerlink" title="用户自定义变量"></a>用户自定义变量</h1><h2 id="变量定义"><a href="#变量定义" class="headerlink" title="变量定义"></a>变量定义</h2><pre><code class="lang-bash">name=value
+</code></pre>
+<p>注意等号的前后不能有空格,如果value是字符串且有空格必须使用引号.例如以下的定义都是非法的!</p>
+<pre><code class="lang-bash">x= 1
+x =1
+x = 1
+x=hello world
+</code></pre>
+<p>因为如果有空格的话,前面的单词会被解析为系统命令,而后面的参数会被解析为选项.</p>
+<p>使用变量只需要在变量前面加上<code>$</code>即可,例如:</p>
+<pre><code class="lang-bash">a=1
+echo $a # 1
+</code></pre>
+<p><em>注意:</em>双引号和单引号的区别:单引号中的变量相当于ES6中的模板字符串,而单引号中的内容完全就是字符串,丧失了原有的变量替换.<br><em>注意:</em>shell中的变量默认都是字符串,例如:</p>
+<pre><code class="lang-bash">x=1
+y=2
+z=$x+$y # 1+2
+echo $z
+</code></pre>
+<h2 id="变量叠加"><a href="#变量叠加" class="headerlink" title="变量叠加"></a>变量叠加</h2><p>相当于拼接字符串,例如:</p>
+<pre><code class="lang-bash">x=123
+x=&quot;$x&quot;456
+echo $x # 123456
+# 我们也可以使用下面的方式
+x=${x}789
+echo $x # 123456789
+</code></pre>
+<p>Tips:使用<code>set -u</code>命令后,如果我们使用未定义的变量将会得到明确的错误信息(默认显示为空),可以帮助我们排错.</p>
+<h2 id="变量删除"><a href="#变量删除" class="headerlink" title="变量删除"></a>变量删除</h2><pre><code class="lang-bash">a=1
+echo $a
+unset a # 删除变量
+</code></pre>
+<h1 id="Bash环境变量"><a href="#Bash环境变量" class="headerlink" title="Bash环境变量"></a>Bash环境变量</h1><p>首先我们要明确一点:<em>环境变量是全局变量(当前shell和子shell),而用户自定义变量是局部变量(当前shell)</em>,在shell中我们输入<code>bash</code>或者<code>sh</code>即可进入到子shell.我们可以使用<code>pstree</code>显示进程树得到通过ssh连接上的shell.</p>
+<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><pre><code class="lang-bash">export 变量名=变量值
+# 或
+变量名=变量值
+export 变量名
+</code></pre>
+<p>我们<code>unset</code>子shell中的环境变量,父shell中的环境变量仍然存在.可以使用<code>set</code>或者<code>env</code>得到系统环境变量.</p>
+<h2 id="PS1环境变量"><a href="#PS1环境变量" class="headerlink" title="PS1环境变量"></a>PS1环境变量</h2><pre><code class="lang-bash">echo $PS1 # \u@\h:\w\$
+</code></pre>
+<p>分别表示:用户名@主机名:当期路径 提示符,我们完全可以更改成自己的,例如:</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-ps1-env.png" alt="Linux PS1环境变量" title>
+                </div>
+                <div class="image-caption">Linux PS1环境变量</div>
+            </figure>
+<h2 id="语系变量"><a href="#语系变量" class="headerlink" title="语系变量"></a>语系变量</h2><p>语系变量决定了命令的显示语言</p>
+<pre><code class="lang-bash">$ locale # 查看当前语系,也可以使用echo $LANG命令查看当前语系
+</code></pre>
+<h1 id="位置参数变量"><a href="#位置参数变量" class="headerlink" title="位置参数变量"></a>位置参数变量</h1><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-position-varible.png" alt="linux位置参数变量" title>
+                </div>
+                <div class="image-caption">linux位置参数变量</div>
+            </figure>
+<p>例如有以下的add.sh</p>
+<pre><code class="lang-bash">#!/bin/bash
+num1=$1
+num2=$2
+sum=$(($num1+$num2))
+echo $sum
+</code></pre>
+<p>在命令行中我们之一这样运行脚本:<code>sh add.sh 10 20</code></p>
+<p><code>$*</code>和<code>$@</code>都可以取得命令的所有参数,不同的是<code>$*</code>将参数看做了一个整体,例如有以下的<code>test.sh</code></p>
+<pre><code class="lang-bash">#!/bin/bash
+
+echo &#39;test $*&#39;
+for i in &quot;$*&quot;
+        do
+                echo &quot;The parameter is: $i&quot;
+        done
+
+echo &#39;test $@&#39;
+for y in &quot;$@&quot;
+        do
+                echo &quot;Parameter:$y&quot;
+        done
+
+echo &quot;The length of the parameters is $#&quot;
+</code></pre>
+<p>运行结果:</p>
+<pre><code class="lang-bash">root@iZ28pw6rq5sZ:~# ./test.sh 1 2 3 4 5
+test $*
+The parameter is: 1 2 3 4 5
+test $@
+Parameter:1
+Parameter:2
+Parameter:3
+Parameter:4
+Parameter:5
+The length of the parameters is 5
+</code></pre>
+<h2 id="预定义变量"><a href="#预定义变量" class="headerlink" title="预定义变量"></a>预定义变量</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-sys-define-varible.png" alt="linux预定义变量" title>
+                </div>
+                <div class="image-caption">linux预定义变量</div>
+            </figure>
+<h2 id="read命令"><a href="#read命令" class="headerlink" title="read命令"></a>read命令</h2><p>该命令用于接收标准输入,并将输入保存到变量</p>
+<pre><code class="lang-bash">#!/bin/bash
+read -p &quot;Please input you name: &quot; -t 10 name
+echo &quot;your name is:$name&quot;
+read -p &quot;Please input you password:&quot; -s password
+echo -e &quot;\n&quot;
+echo &quot;your password is:$password&quot;
+read -p &quot;Please input your sex [M/F]&quot; -n 1 sex
+echo -e &quot;\n&quot;
+echo &quot;your sex is $sex&quot;
+</code></pre>
+<p><em>注意:</em>执行脚本的时候使用<code>chmod 755 read.sh</code>然后<code>./read.sh</code>的方式执行,否则会出现参数错误.</p>
+<h2 id="环境变量配置文件"><a href="#环境变量配置文件" class="headerlink" title="环境变量配置文件"></a>环境变量配置文件</h2><blockquote>
+<p><code>source</code>命令让配置文件立即生效,可以简写为<code>.</code></p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/linux-config-file-load-sequence.png" alt="环境变量配置文件的加载顺序" title>
+                </div>
+                <div class="image-caption">环境变量配置文件的加载顺序</div>
+            </figure>
+<p><code>umask</code>查看系统的默认权限.注意:文件的最高权限是666(即创建一个文件默认是没有执行权限的,安全性的考虑),目录的最高权限是777(目录的执行权限表示能否进入这个目录).定义了默认的<em>需要排除的权限</em>,请看下面的例子:</p>
+<pre><code class="lang-bash">$ umask
+$ 002 # -------w-,准备丢弃的权限是 u-w
+$ touch a;ll a # 创建文件
+$ -rw-rw-r-- 1 consoles consoles 0  4月 16 09:14 b # 即从 -rw-rw-rw-中取消的用户的w权限,不能简单理解为数字的减法
+$ mkdir b;ll # 创建目录
+$ drwxrwxr-x   2 consoles consoles   4096  4月 16 09:18 b/ # 即从 drwxrwxrwx中取消用户的w权限
+</code></pre>
+<ul>
+<li>历史命令保存在<code>~/.bash_history</code>,注意:本次登陆的历史命令保存在内存,下一次登陆的时候才会同步到此文件.</li>
+<li><em>本地</em>终端前欢迎信息<code>/etc/issue</code>,详见<a href="http://blog.csdn.net/gao5528/article/details/17217737" target="_blank" rel="noopener">自定义登陆欢迎信息</a>.</li>
+<li><em>远程</em>终端前欢迎信息<code>/etc/issue.net</code>,但是不支持转义符号,是否显示此欢迎信息由ssh配置(<code>/etc/ssh/ssh_config</code>)决定,在此文件的最后追加<code>Banner /etc/issue.net</code>才可生效</li>
+<li>登陆后欢迎信息<code>/etc/motd</code></li>
+</ul>
+<h1 id="Shell中输出多行文本可以使用here-document（cat-EOF）"><a href="#Shell中输出多行文本可以使用here-document（cat-EOF）" class="headerlink" title="Shell中输出多行文本可以使用here document（cat EOF）"></a>Shell中输出多行文本可以使用here document（cat EOF）</h1><p>例如<a href="https://github.com/tj/n/blob/master/bin/n#L149" target="_blank" rel="noopener">n模块</a>中的这行代码，使用说明详见<a href="https://my.oschina.net/u/1032146/blog/146941" target="_blank" rel="noopener">git osc</a></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.980Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/26/linux-shell-varible/" target="_blank" rel="external">https://consoles.fun/2016/03/26/linux-shell-varible/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/shell/">shell</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/26/linux-shell-varible/&title=《Shell基础-变量和配置文件》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/26/linux-shell-varible/&title=《Shell基础-变量和配置文件》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/26/linux-shell-varible/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Shell基础-变量和配置文件》 — 雨碎江南&url=https://consoles.fun/2016/03/26/linux-shell-varible/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/26/linux-shell-varible/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/29/nodejs-best-practice/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">nodejs最佳实践</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/03/26/new-api-in-js/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">javascript中的新api</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/26/linux-shell-varible/&title=《Shell基础-变量和配置文件》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/26/linux-shell-varible/&title=《Shell基础-变量和配置文件》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/26/linux-shell-varible/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Shell基础-变量和配置文件》 — 雨碎江南&url=https://consoles.fun/2016/03/26/linux-shell-varible/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/26/linux-shell-varible/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLElEQVR42u3aS27DMAxF0ex/0+60HVi+j3QKSLweBYlr63RA8Pf54Ov6dd39ur6ff757ywuXDBkytmVcy2t9LP5KAlu/5e4eGTJkzGGswyh5ZYdHqA9nliFDhoyb46bsNVWGDBkyvsHoJJT8fhkyZMjgB+JHIYng+gxfrMVlyJCxIaNWav7P56/MN2TIkLEV4wqvWrOMhODOJUOGjLMZPMDVyk6SCPL08eEJMmTIOJTRKVnfKnT5wOD2GxkyZAxgpEsPaRitjQpII+9PwJUhQ8YARvrQWkO/0+Z7SA1lyJAxkkEWttLlCb5UwdNEGTJkTGDwQjRe1QqXvdJiWIYMGRMY/SCYJoX9f0Er+MqQIWNzRq3pVmv911p1nCdDhoxTGaStxr8hr0+fgBJEGTJkHMcgKVeaCNYK19eWLWTIkHEcgw8OeZrYWbNIC13UepMhQ8YRjHQwmY4w04SyuJwhQ4aMMYw4/QpbY/ygrWGADBkyjmbw4FsbcKajCH6PDBkypjHSdLCT/NUWOOIiVoYMGccx0sEkafSTBS/+/IdBpgwZMsYwaila6yil5qAMGTLOZlzh1QmyfM0rXYqVIUPG2YxakkeOkq5c8PZfJ1jLkCFjX0a6NsFHlf0CNRhkypAhYwAj3V5Yh8tO2vdCLS5DhozxDBT+wrTyhRxWhgwZMkIGCbXkr/jzZciQMYGRpnTpUhdpwPGAK0OGjGmMWunYD6k8iL82yJQhQ8Z+jB+1V/oICCwIAgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

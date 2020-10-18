@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>面试套路-操作系统 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js">
+    <meta name="description" content="文件是如何组织的文件系统将硬盘空间以块为单位进行划分，每个文件占据若干个块，然后再通过一个文件控制块 FCB 记录每个文件占据的硬盘数据块。                                                                                              image.png              这个文件控制块在Linux">
+<meta name="keywords" content="node.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试套路-操作系统">
+<meta property="og:url" content="https://consoles.fun/2020/09/08/面试套路-操作系统/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="文件是如何组织的文件系统将硬盘空间以块为单位进行划分，每个文件占据若干个块，然后再通过一个文件控制块 FCB 记录每个文件占据的硬盘数据块。                                                                                              image.png              这个文件控制块在Linux">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/09/08/b3237593-3e45-40d9-be1d-aee9a9bb03fe.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/09/08/2512d95b-8bc6-4156-bafe-c0045bb37c51.png">
+<meta property="og:updated_time" content="2020-10-09T07:24:55.387Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="面试套路-操作系统">
+<meta name="twitter:description" content="文件是如何组织的文件系统将硬盘空间以块为单位进行划分，每个文件占据若干个块，然后再通过一个文件控制块 FCB 记录每个文件占据的硬盘数据块。                                                                                              image.png              这个文件控制块在Linux">
+<meta name="twitter:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/09/08/b3237593-3e45-40d9-be1d-aee9a9bb03fe.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">面试套路-操作系统</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">面试套路-操作系统</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-09-08T13:47:28.000Z" itemprop="datePublished" class="page-time">
+  2020-09-08
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#文件是如何组织的"><span class="post-toc-text">文件是如何组织的</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#进程、线程、协程、管程"><span class="post-toc-text">进程、线程、协程、管程</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#TCP-IP"><span class="post-toc-text">TCP/IP</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考资料"><span class="post-toc-text">参考资料</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-面试套路-操作系统"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">面试套路-操作系统</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-09-08 21:47:28" datetime="2020-09-08T13:47:28.000Z"  itemprop="datePublished">2020-09-08</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="文件是如何组织的"><a href="#文件是如何组织的" class="headerlink" title="文件是如何组织的"></a>文件是如何组织的</h1><p>文件系统将硬盘空间以块为单位进行划分，每个文件占据若干个块，然后再通过一个文件控制块 FCB 记录每个文件占据的硬盘数据块。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/09/08/b3237593-3e45-40d9-be1d-aee9a9bb03fe.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>这个文件控制块在Linux操作系统中就是<code>inode</code>，要想访问文件，就必须获得文件的<code>inode</code>信息，在<code>inode</code>中查找文件数据块索引表，根据索引中记录的硬盘地址信息访问硬盘，读写数据。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/09/08/2512d95b-8bc6-4156-bafe-c0045bb37c51.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p><code>inode</code>中记录着文件权限、所有者、修改时间和文件大小等文件属性信息，以及文件数据块硬盘地址索引。</p>
+<p>RAID5将数据划分为N-1片，再利用N-1片数据进行位运算，得到一片校验数据，然后将这N片数据写入到N个硬盘。这样任何一块硬盘损坏都可以利用校验片的数据和其他片的数据进行计算得到丢失的那个数据，而硬盘的利用率也达到了<code>N-1 / N</code>。这样兼顾了磁盘利用率、读写速度和数据可用性，实际生产中用的最多。</p>
+<blockquote>
+<p>RAID5中校验位的生成采用的是异或运算。所有数据的bit位，逐位进行异或，得到的就是校验位。如果丢失部分数据，用校验数据和其余数据逐位进行异或运算，可到丢失部分数据。举例，5块磁盘做RAID5，四块磁盘上的bit为：0 1 1 1 ，那么异或计算后，校验位为 1，如果丢失了第一块盘上的bit位0，那么校验位1和其他三块盘上的bit位进行异或运算，可以算出0。</p>
+</blockquote>
+<h1 id="进程、线程、协程、管程"><a href="#进程、线程、协程、管程" class="headerlink" title="进程、线程、协程、管程"></a>进程、线程、协程、管程</h1><p>进程：资源分配的基本单位<br>线程：程序执行的基本单位</p>
+<p>线程通过Linux的线程调度器进行调度。线程上下文切换指的是CPU保存原线程现场（一般放在CPU的cache中），执行新线程，恢复现场继续执行原线程的过程。</p>
+<p>线程分为用户线程和内核线程（OS负责创建），JAVA中的每一个线程都是由JVM负责创建，对应OS中的一个内核线程，JVM中的线程和内核线程数量为1:1</p>
+<p>golang在启动的时候会初始化一堆内核线程，goroutine启动之后会放在队列中交给内核线程执行，从这方面来讲go routine更像是一个个task。go routine非常类似Java中的线程池。golang在用户空间模拟了CPU的执行。</p>
+<h1 id="TCP-IP"><a href="#TCP-IP" class="headerlink" title="TCP/IP"></a>TCP/IP</h1><p>面向无连接的方式下可能会有很多的冗余通信。</p>
+<p>为什么IP层面向无连接？</p>
+<p>原因有2点：简化和提速。面向连接比面向无连接处理相对复杂，甚至管理每个连接本身是一个相反繁琐的事情。此外每次通信之前需要实现建立连接又会降低处理速度。需要有连接的时候可以委托上一层提供此项服务。因此IP为了实现简单化和高速化采用面向无连接的方式。</p>
+<p>为了提高可靠性，上一层的TCP采用面向有连接型。</p>
+<p>IP提供尽力服务(Best Effort)：为了把数据包发送到目标地址，尽最大努力，并不做最终收到与否的验证。IP数据包可能在途中丢包、错位、数据量翻倍的问题。</p>
+<p>为什么IP层不提供可靠传输的功能？</p>
+<p>如果要一种协议规定所有的功能和作用，那么该协议的具体实现和编程将会变得非常复杂，相比之下，按照网络分层，明确定义每层协议的作用和责任以后，针对每层协议进行编程会更有利于该协议的实现。</p>
+<p>IP包的首部有1个字节表示TTL，表示可以中转多少路由器。每经过一个路由器，TTL会减少1，变为0则丢弃这个包。可以避免IP包在网络中无限传递的问题。</p>
+<ul>
+<li>IP是分组交换的一种协议，面向无连接，它不具备重发机制，属于非可靠性传输协议。</li>
+<li>TCP/UDP属于传输层的协议，首部使用的源端口和目标端口进行唯一性确认，而IP地址是位于网络层。</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://www.cnblogs.com/mokafamily/p/9975980.html" target="_blank" rel="noopener">Golang并发原理及GPM调度策略</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-09T07:24:55.387Z" itemprop="dateUpdated">2020-10-09 15:24:55</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2020/09/08/面试套路-操作系统/" target="_blank" rel="external">https://consoles.fun/2020/09/08/面试套路-操作系统/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/09/08/面试套路-操作系统/&title=《面试套路-操作系统》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/09/08/面试套路-操作系统/&title=《面试套路-操作系统》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/09/08/面试套路-操作系统/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路-操作系统》 — 雨碎江南&url=https://consoles.fun/2020/09/08/面试套路-操作系统/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/09/08/面试套路-操作系统/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/09/13/MySQL优化总结/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">MySQL优化总结</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/08/21/nginx踩坑/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">nginx踩坑</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/09/08/面试套路-操作系统/&title=《面试套路-操作系统》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/09/08/面试套路-操作系统/&title=《面试套路-操作系统》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/09/08/面试套路-操作系统/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《面试套路-操作系统》 — 雨碎江南&url=https://consoles.fun/2020/09/08/面试套路-操作系统/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/09/08/面试套路-操作系统/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJElEQVR42u3aQW7jMBAEQP//097rAkaU7qEcQGTptFDkFUuHAdkzr1d8vT+u/+8nz3/+6vr+6xsXBgbGYxnvy+unFySYn97VfqbrtWFgYJzDuH5lu9DP5/M7eUHHwMDAuC6veTmeFV8MDAyMdUbLS+5jYGBgXDOSQ+z3wrI/PYtjYGA8kNHGZH/576/0NzAwMB7FeJfXyhYw/0D1qjAwMLZmtNHYeulMtnez9WBgYOzKmA1VzErtLLCLQjcMDIxjGElAPwv621it/RAYGBgnMFbGLPJCmf+qPgBjYGBszWhfMIvGZiMaxSkcAwNja0a71csX2sZnbZkeTmpgYGA8kJE/2oZu+fF4VvqLrSEGBsbDGXmzMNka1jFZyfhlZgQDA2NTxqyk3rXc9igbtR8wMDA2ZbQDFm2sn0T87bAFBgbGOYy8RLah2MpI2VLQhoGBsTWjbSjO2pZ56F98VgwMjK0ZbXGcfZS7Wg7RSjAwMDZl5NH/DHbXiMYvv8LAwDiAkUdjefNyJVyriy8GBsZhjLbdmBTutrzmx2wMDIxzGCsRf97anD1ZDFtgYGBsx3iXV7uBm4155W0GDAyMExhtZ7AdDpsV2XyLWWMwMDAey5jF9/lf8zvRThYDA+Ngxr31u93e3VCyMTAwMMpR16R85/9DtK3EwMDAKIvsrA251EbFwMA4gLFeIvNC3LYHkiKOgYGxNyM/Os7YeZTWBnAYGBgHMP4BDztqmHDlUIwAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

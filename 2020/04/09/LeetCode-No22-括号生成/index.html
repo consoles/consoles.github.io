@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>LeetCode No22.括号生成 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js,javascript,算法">
+    <meta name="description" content="题目描述如下： 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。 示例： 输入：n = 3 输出：[        &amp;quot;((()))&amp;quot;,        &amp;quot;(()())&amp;quot;,        &amp;quot;(())()&amp;quot;,        &amp;quot;()(())&amp;quot;,        &amp;quot;()()(">
+<meta name="keywords" content="node.js,javascript,算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode No22.括号生成">
+<meta property="og:url" content="https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="题目描述如下： 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。 示例： 输入：n = 3 输出：[        &amp;quot;((()))&amp;quot;,        &amp;quot;(()())&amp;quot;,        &amp;quot;(())()&amp;quot;,        &amp;quot;()(())&amp;quot;,        &amp;quot;()()(">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/ea60b020-7a32-11ea-ba6c-834b91f09992.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/0661e0a0-7a33-11ea-ba6c-834b91f09992.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/7040c610-7a35-11ea-ba6c-834b91f09992.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.931Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LeetCode No22.括号生成">
+<meta name="twitter:description" content="题目描述如下： 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。 示例： 输入：n = 3 输出：[        &amp;quot;((()))&amp;quot;,        &amp;quot;(()())&amp;quot;,        &amp;quot;(())()&amp;quot;,        &amp;quot;()(())&amp;quot;,        &amp;quot;()()(">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/ea60b020-7a32-11ea-ba6c-834b91f09992.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">LeetCode No22.括号生成</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">LeetCode No22.括号生成</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-04-09T07:19:01.000Z" itemprop="datePublished" class="page-time">
+  2020-04-09
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#暴力破解"><span class="post-toc-text">暴力破解</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#回溯法"><span class="post-toc-text">回溯法</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#深度优先搜索"><span class="post-toc-text">深度优先搜索</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#广度优先搜索"><span class="post-toc-text">广度优先搜索</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-LeetCode-No22-括号生成"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">LeetCode No22.括号生成</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-04-09 15:19:01" datetime="2020-04-09T07:19:01.000Z"  itemprop="datePublished">2020-04-09</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p><a href="https://leetcode-cn.com/problems/generate-parentheses/" target="_blank" rel="noopener">题目</a>描述如下：</p>
+<p>数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。</p>
+<p>示例：</p>
+<pre><code>输入：n = 3
+输出：[
+       &quot;((()))&quot;,
+       &quot;(()())&quot;,
+       &quot;(())()&quot;,
+       &quot;()(())&quot;,
+       &quot;()()()&quot;
+     ]
+</code></pre><h1 id="暴力破解"><a href="#暴力破解" class="headerlink" title="暴力破解"></a>暴力破解</h1><p>初看这一题，首先想到的是n个左括号和n个右括号的数组进行全排列得到所有的序列，然后从序列中过滤出合法的括号序列和重复序列(因为字符是有重复的，可能导致全排列本身中出现序列重复)，</p>
+<p>代码如下：</p>
+<pre><code class="lang-js">var generateParenthesis = function (n) {
+  // 方案1：获取数组全排列，判断全排列中合法的括号
+  const arr = [];
+  while (n--) {
+    arr.push(&#39;(&#39;);
+    arr.push(&#39;)&#39;);
+  }
+
+  function isValid(arr) {
+    let balance = 0; // 不使用显式的栈
+    for (const c of arr) {
+      if (c === &#39;(&#39;) {
+        balance++;
+      } else if (c === &#39;)&#39;) {
+        balance--;
+        if (balance &lt; 0) return false;
+      }
+    }
+    return balance === 0;
+  }
+
+  const set = new Set();
+
+  function dfs(index) {
+    if (index === arr.length) {
+      set.add(arr.join(&#39;&#39;));
+      return;
+    }
+    for (let i = index; i &lt; arr.length; i++) {
+      [arr[index], arr[i]] = [arr[i], arr[index]];
+      dfs(index + 1);
+      [arr[index], arr[i]] = [arr[i], arr[index]];
+    }
+  }
+
+  dfs(0);
+
+  const ret = [];
+
+  for (const item of set) {
+    if (isValid(item.split(&#39;&#39;))) {
+      ret.push(item);
+    }
+  }
+
+  return ret;
+}
+</code></pre>
+<p>以上暴力破解的复杂度为O(2N!)，提交后超时了。</p>
+<h1 id="回溯法"><a href="#回溯法" class="headerlink" title="回溯法"></a>回溯法</h1><p>方案1的改进，只在序列仍然保持有效时才添加 ‘(‘ or ‘)’，而不是像方案1那样每次添加。我们可以通过跟踪到目前为止放置的左括号和右括号的数目来做到这一点，如果左括号数量小于n，我们可以放一个左括号。如果右括号数量小于左括号的数量，我们可以放一个右括号。</p>
+<pre><code class="lang-js">const res = [];
+function backtrack(s, l, r) {
+    if (s.length === 2 * n) {
+        res.push(s.join(&#39;&#39;));
+        return;
+    }
+    if (l &lt; n) {
+        s.push(&#39;(&#39;);
+        backtrack(s, l + 1, r);
+        s.pop();
+    }
+    if (r &lt; l) {
+        s.push(&#39;)&#39;);
+        backtrack(s, l, r + 1);
+        s.pop();
+    }
+}
+
+backtrack([], 0, 0);
+return res;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/ea60b020-7a32-11ea-ba6c-834b91f09992.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<h1 id="深度优先搜索"><a href="#深度优先搜索" class="headerlink" title="深度优先搜索"></a>深度优先搜索</h1><p>我们以 n = 2 为例，画树形结构图。方法是 “做减法”。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/0661e0a0-7a33-11ea-ba6c-834b91f09992.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>画图以后，可以分析出的结论：</p>
+<ul>
+<li>当前左右括号都有大于0个可以使用的时候，才产生分支；</li>
+<li>产生左分支的时候，只看当前是否还有左括号可以使用；</li>
+<li>产生右分支的时候，还受到左分支的限制，右边剩余可以使用的括号数量一定得在严格大于左边剩余的数量的时候，才可以产生分支；</li>
+<li>在左边和右边剩余的括号数都等于0的时候结算。</li>
+</ul>
+<pre><code class="lang-js">var generateParenthesis = function (n) {
+  // 方案2：DFS
+  const res = [];
+
+  /**
+   * @param curStr 从根节点到当前节点的路径字符串
+   * @param leftRemain 左括号还可以使用的个数
+   * @param rightRemain 右括号还可以使用的个数
+   */
+  function dfs(curStr, leftRemain, rightRemain) {
+    if (leftRemain === 0 &amp;&amp; rightRemain === 0) {
+      res.push(curStr);
+      return;
+    }
+    // 剪枝（如图，左括号可以使用的个数严格大于右括号可以使用的个数，才剪枝，注意这个细节）
+    if (leftRemain &gt; rightRemain) {
+      return;
+    }
+    if (leftRemain &gt; 0) {
+     // 因为每一次尝试，都使用新的字符串变量，所以无需回溯，常用的回溯算法是改变状态，下一次尝试，完成后撤销状态更改            
+      dfs(curStr + &#39;(&#39;, leftRemain - 1, rightRemain);
+    }
+    if (rightRemain &gt; 0) {
+      dfs(curStr + &#39;)&#39;, leftRemain, rightRemain - 1);
+    }
+  }
+
+  dfs(&#39;&#39;, n, n);
+
+  return res;
+};
+</code></pre>
+<p>如果我们不用减法，使用加法，即 leftUsed 表示“左括号用掉几个”，rightUsed 表示“右括号用掉几个”，可以画出另一棵递归树。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/09/7040c610-7a35-11ea-ba6c-834b91f09992.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<pre><code class="lang-js">function dfs2(curStr, leftUsed, rightUsed) {
+    if (leftUsed === n &amp;&amp; rightUsed === n) {
+        res.push(curStr);
+        return;
+    }
+    if (leftUsed &lt; rightUsed) {
+        return;
+    }
+    if (leftUsed &lt; n) {
+        dfs2(curStr + &#39;(&#39;, leftUsed + 1, rightUsed);
+    }
+    if (rightUsed &lt; n) {
+        dfs2(curStr + &#39;)&#39;, leftUsed, rightUsed + 1);
+    }
+}
+</code></pre>
+<h1 id="广度优先搜索"><a href="#广度优先搜索" class="headerlink" title="广度优先搜索"></a>广度优先搜索</h1><p>通过编写广度优先遍历的代码，读者可以体会一下，为什么搜索几乎都是用深度优先遍历（回溯算法）。</p>
+<p>广度优先遍历，得程序员自己编写结点类，显示使用队列这个数据结构。深度优先遍历的时候，就可以直接使用系统栈，在递归方法执行完成的时候，系统栈顶就把我们所需要的状态信息直接弹出，而无须编写结点类和显示使用栈。</p>
+<p>下面的代码，可以把 Queue 换成 Stack，提交以后，也可以得到 Accept。</p>
+<p>读者可以通过比较：</p>
+<p>1、广度优先遍历；</p>
+<p>2、自己使用栈编写深度优先遍历；</p>
+<p>3、使用系统栈的深度优先遍历（回溯算法）。</p>
+<p>来理解 “回溯算法” 作为一种 “搜索算法” 的合理性。</p>
+<p>还是上面的题解配图（1），使用广度优先遍历，结果集都在最后一层，即叶子结点处得到所有的结果集，编写代码如下。</p>
+<pre><code class="lang-js">class Node {
+    constructor(str, leftRemain, rightRemain) {
+        this.str = str;
+        this.leftRemain = leftRemain;
+        this.rightRemain = rightRemain;
+    }
+}
+
+const res = [];
+
+const q = [new Node(&#39;&#39;, n, n)]; // 队列换成栈就变成了深度优先搜索
+while (q.length) {
+    const { str, leftRemain, rightRemain } = q.shift();
+    if (leftRemain === 0 &amp;&amp; rightRemain === 0) {
+        res.push(str);
+    }
+    if (leftRemain &gt; rightRemain) {
+        continue;
+    }
+    if (leftRemain &gt; 0) {
+        q.push(new Node(str + &#39;(&#39;, leftRemain - 1, rightRemain));
+    }
+    if (rightRemain &gt; 0) {
+        q.push(new Node(str + &#39;)&#39;, leftRemain, rightRemain - 1));
+    }
+}
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.931Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2020/04/09/LeetCode-No22-括号生成/" target="_blank" rel="external">https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&title=《LeetCode No22.括号生成》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&title=《LeetCode No22.括号生成》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《LeetCode No22.括号生成》 — 雨碎江南&url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/04/13/LeetCode-No-19-删除链表中的倒数第k个元素/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">LeetCode No.19 删除链表中的倒数第k个元素</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/03/26/如何实现async-await/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">如何实现async/await</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&title=《LeetCode No22.括号生成》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&title=《LeetCode No22.括号生成》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《LeetCode No22.括号生成》 — 雨碎江南&url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/04/09/LeetCode-No22-括号生成/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLElEQVR42u3aQW7DMAwEwPz/0+21QOtkl6oPlsanIFUkjQsQJKXXK36+3j4/x7wffzXy969edzwYGBiPZeRbTDZ6tYnZDMUqGBgYBzCuFs5D5NWYdpX381x+j4GBgREHwSQ4tmEdAwMDo2W0xWeCydfFwMA4mZE3yNqwm/fK2uCOgYFxDmN9mfs+33K+gYGB8SjGrBCdlabJCxruCgMDY2tGHuBWUsZ2nnY/GBgYZzLa0JkHzfZgoDgQxcDA2JSRL5CMb6vLduZLDAYGxgGMlZIyOlyMy9fkVf6BxMDAOIAxKyBnATq/rjG8ZoGBgbE1I99c3gKbNdfy1BMDA+NkRhsQ20PKqNGfz4yBgXEAYxY08wRupaxdqsUxMDA2ZRQJ2dvtJoEyCfFRBoiBgbE1Y700TZa8I0GsMRgYGI9lrDTU2qRwpen24RsMDIxjGHkTP79+mvx1llx+eLsYGBhbM2bg9jpFm1YOL1tgYGBswUhKx/VE8H+DcvQ/wcDA2JrRXhSbHXCuzHk5PwYGxjGMtrm/UtbmaV9U0GJgYBzMaK9i5BudXZu4/BUGBsamjK/ySUrNvCU3S0Pr3BYDA+PhjFmYy5tibTcsaeGtBGsMDIznMtorFyvlaJt63tI1xMDAeCyjPZ5c+Zxf16hrcQwMDIwy+CaNuX/LYTEwMDAWmmXJ4ejsMHUpNcTAwHggY3YtrG2K5VuvQzkGBsbWjDbvao8wZ5tI0kQMDIwDGN/JovoIZcjbpwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

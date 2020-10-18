@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>javascript中的元素大小 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="css">
+    <meta name="description" content="偏移量offset dimension包括元素在屏幕上占用的所见空间的大小．元素的可见大小由宽高，内边距，滚动条和边框确定，注意：不包含外边距． 如图所示：                                                                                              offset　dimension">
+<meta name="keywords" content="css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript中的元素大小">
+<meta property="og:url" content="https://consoles.fun/2016/03/19/elements-size/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="偏移量offset dimension包括元素在屏幕上占用的所见空间的大小．元素的可见大小由宽高，内边距，滚动条和边框确定，注意：不包含外边距． 如图所示：                                                                                              offset　dimension">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/offest.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/client-dimension.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/scroll-dimension.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.948Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="javascript中的元素大小">
+<meta name="twitter:description" content="偏移量offset dimension包括元素在屏幕上占用的所见空间的大小．元素的可见大小由宽高，内边距，滚动条和边框确定，注意：不包含外边距． 如图所示：                                                                                              offset　dimension">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/offest.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">javascript中的元素大小</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">javascript中的元素大小</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-03-19T04:04:12.000Z" itemprop="datePublished" class="page-time">
+  2016-03-19
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#偏移量"><span class="post-toc-text">偏移量</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#客户区大小"><span class="post-toc-text">客户区大小</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#滚动大小"><span class="post-toc-text">滚动大小</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#obj-style-width和obj-offsetWidth的区别"><span class="post-toc-text">obj.style.width和obj.offsetWidth的区别</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-elements-size"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">javascript中的元素大小</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-03-19 12:04:12" datetime="2016-03-19T04:04:12.000Z"  itemprop="datePublished">2016-03-19</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="偏移量"><a href="#偏移量" class="headerlink" title="偏移量"></a>偏移量</h1><p>offset dimension包括元素在屏幕上占用的所见空间的大小．元素的可见大小由宽高，内边距，滚动条和边框确定，注意：<em>不包含外边距．</em></p>
+<p>如图所示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/offest.png" alt="offset　dimension" title>
+                </div>
+                <div class="image-caption">offset　dimension</div>
+            </figure>
+<p><code>offsetLeft</code>和<code>offsetTop</code>属性与包含元素有关,包含元素的引用保存在<code>offsetParent</code>属性中。<code>offsetParent</code>属性不一定与<code>parentNode</code>的值相等。例如,<code>&lt;td&gt;</code>元素的<code>offsetParent</code>是作为其祖先元素的<code>&lt;table&gt;</code>元素,因为<code>&lt;table&gt;</code>是在DOM层次中距<code>&lt;td&gt;</code>最近的一个<em>具有大小</em>的元素。</p>
+<p>要想取得某个元素在<strong>页面上的偏移量</strong>，就可以将这个元素的<code>offsetLeft</code>和<code>offsetParent.offsetLeft</code>相加，如此循环直到根元素就可以得到一个基本准确的值：</p>
+<pre><code class="lang-js">function getElementLeft(element) {
+  var actualLeft = element.offsetLeft;
+  var current = element.offsetParent;
+  while (current !== null) {
+      actualLeft += current.offsetLeft;
+      current = current.offsetParent;
+  }
+  return actualLeft;
+}
+</code></pre>
+<h1 id="客户区大小"><a href="#客户区大小" class="headerlink" title="客户区大小"></a>客户区大小</h1><p>client dimension，指的是元素内容及其内边距所占据的空间大小．它有２个属性<code>clientWidth</code>和<code>clientHeight</code>．如下所示：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/client-dimension.png" alt="client-dimension" title>
+                </div>
+                <div class="image-caption">client-dimension</div>
+            </figure>
+<p>从字面意思来讲：客户区大小就是元素内部的空间大小，因此滚动条占用的空间不计算在内．最常用的情况是确定浏览器视口大小．</p>
+<pre><code class="lang-js">function getViewport() {
+    // IE 7之前的混杂模式，现代浏览器一般支持的是标准模式
+  if (document.compatMode == &quot;BackCompat&quot;) {
+    return {
+      width: document.body.clientWidth,
+      height: document.body.clientHeight
+    };
+  } else {
+    return {
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight
+    };
+  }
+}
+</code></pre>
+<h1 id="滚动大小"><a href="#滚动大小" class="headerlink" title="滚动大小"></a>滚动大小</h1><p>scroll dimension,包含滚动内容的元素的大小．有些元素（例如<code>&lt;html&gt;</code>元素）即使在没有执行任何代码的时候也能自动添加滚动条；另外一些元素，则需要通过CSS的<code>overflow</code>属性进行设置才能滚动．</p>
+<ul>
+<li>scrollHeight:在没有滚动条的情况下，元素内容的总高度</li>
+<li>scrollWidth:在没有滚动条的情况下，元素内容总宽度</li>
+<li>scrollTop:被隐藏在内容区域上方的像素数。通过设置这个属性可以改变元素的滚动位置。</li>
+<li>scrollLeft：被隐藏在内容区域左侧的像素数。通过设置这个属性可以改变元素的滚动位置</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/scroll-dimension.png" alt="scroll-dimension" title>
+                </div>
+                <div class="image-caption">scroll-dimension</div>
+            </figure>
+<p>由于浏览器的兼容性，在取得页面的总高度时必须取得<code>scrollHeight</code>和<code>clientHeight</code>中的最大值才能保证精确的结果，举个栗子：</p>
+<pre><code class="lang-js">var docHeight = Math.max(document.documentElement.scrollHeight,document.documentElement.clientHeight);
+</code></pre>
+<p><em>注意：</em>以上的代码在IE混杂模式下用<code>document.body</code>代替<code>document.documentElement</code>．</p>
+<p>通过<code>document.body.scrollTop</code>属性我们可以实现＊回到顶部＊效果,将其值设置为０即可．</p>
+<p><em>总结：</em><br>－　每个元素都有关联一个<code>style</code>对象，用来确定和修改行内样式．<br>－　要确定某个元素的计算样式（非内联样式），可以使用<code>getComputedStyle()</code>方法，对于IE可以使用<code>currentStyle</code>属性<br>－　可以通过<code>document.styleSheets</code>集合获取样式表．</p>
+<h1 id="obj-style-width和obj-offsetWidth的区别"><a href="#obj-style-width和obj-offsetWidth的区别" class="headerlink" title="obj.style.width和obj.offsetWidth的区别"></a><code>obj.style.width</code>和<code>obj.offsetWidth</code>的区别</h1><p>style用于取得内联样式,<code>offsetWidth</code>取得渲染出来的宽度(包括边框和内边距),前者可读写,后者只读,前者带有单位<code>px</code>,后者不带单位.</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.948Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/03/19/elements-size/" target="_blank" rel="external">https://consoles.fun/2016/03/19/elements-size/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/19/elements-size/&title=《javascript中的元素大小》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/19/elements-size/&title=《javascript中的元素大小》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/19/elements-size/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript中的元素大小》 — 雨碎江南&url=https://consoles.fun/2016/03/19/elements-size/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/19/elements-size/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/03/19/event/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">DOM与事件</h4>
+      </a>
+    </div>
+  
+
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/03/19/elements-size/&title=《javascript中的元素大小》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/03/19/elements-size/&title=《javascript中的元素大小》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/03/19/elements-size/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《javascript中的元素大小》 — 雨碎江南&url=https://consoles.fun/2016/03/19/elements-size/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/03/19/elements-size/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3a22rDQAxF0fz/T6evhWJ7H2lSiLT9FFw7MysFocu8Xvh6g+vq+d93yOe/33bskiFDxtcyyObI1vkqZA98bzJkyNjDuPrq+7B4v3AnZvK9yZAhQ0aHeg+7vy9DhgwZ/YBbC76152XIkCGDF7GdMvVsGipDhoxtDF5e/v/nj8w3ZMiQ8VWMd3jxhj5JDa82He9KhgwZoxm1tI9sgm+Rp48PaagMGTKGMkig5KG21lbjI4TLOzJkyBjNIGGx1hq7fz4dIQT/ExkyZIxjdNrx6XZ5E42/JUOGjA0M0hpLk8jPhWA0QpAhQ8Y4Bgmm6TO14QFPUtFpERkyZAxi1ApInkSm7bM0EXzoHcqQIWMco/ZyrdzlY0sSxGXIkDGbkQ4veaAkP82xgxoyZMhYwyCFa2exsz+KDBkytjH4iJG32MjznUMbaDAgQ4aMEYx+sOObS98tXjJkyBjKSAcDQfhrZG5pA06GDBmzGbUWWHpojAfoWpooQ4aM2Yz06ENteNA5qIGCrwwZMhYwOkcoSMBNE8RiwJUhQ8YCBl+sVmTyQWla3MqQIWMqo5ac1f6KjqLi4xoPhy1kyJAxiNGfD3aCbK3o5Uc9ZMiQMYmRlqzpAp3CNUhPZciQsYBBAuWpJt0pZFxVy5AhYw0jzSs7QTwYr8qQIUMGXp4XvXyL6EkZMmQsYKQpHVmm1ozjUVSGDBl7GDy944B0bFk7liFDhowFjB9BXiLgCDtmuAAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

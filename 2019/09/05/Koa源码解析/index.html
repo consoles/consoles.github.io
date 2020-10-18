@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Koa源码解析 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js,javascript">
+    <meta name="description" content="洋葱圈的实现我们这样使用中间件： const Koa = require(&amp;#39;koa&amp;#39;); const app = new Koa();  // logger  app.use(async (ctx, next) =&amp;gt; {   await next(); // 1   const rt = ctx.response.get(&amp;#39;X-Response-Time&amp;#39;);">
+<meta name="keywords" content="node.js,javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Koa源码解析">
+<meta property="og:url" content="https://consoles.fun/2019/09/05/Koa源码解析/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="洋葱圈的实现我们这样使用中间件： const Koa = require(&amp;#39;koa&amp;#39;); const app = new Koa();  // logger  app.use(async (ctx, next) =&amp;gt; {   await next(); // 1   const rt = ctx.response.get(&amp;#39;X-Response-Time&amp;#39;);">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.926Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Koa源码解析">
+<meta name="twitter:description" content="洋葱圈的实现我们这样使用中间件： const Koa = require(&amp;#39;koa&amp;#39;); const app = new Koa();  // logger  app.use(async (ctx, next) =&amp;gt; {   await next(); // 1   const rt = ctx.response.get(&amp;#39;X-Response-Time&amp;#39;);">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Koa源码解析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Koa源码解析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-05T05:43:27.000Z" itemprop="datePublished" class="page-time">
+  2019-09-05
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#洋葱圈的实现"><span class="post-toc-text">洋葱圈的实现</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Koa源码解析"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Koa源码解析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-05 13:43:27" datetime="2019-09-05T05:43:27.000Z"  itemprop="datePublished">2019-09-05</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="洋葱圈的实现"><a href="#洋葱圈的实现" class="headerlink" title="洋葱圈的实现"></a>洋葱圈的实现</h1><p>我们这样使用中间件：</p>
+<pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+
+// logger
+
+app.use(async (ctx, next) =&gt; {
+  await next(); // 1
+  const rt = ctx.response.get(&#39;X-Response-Time&#39;); // 2
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+// x-response-time
+
+app.use(async (ctx, next) =&gt; {
+  const start = Date.now(); // 3
+  await next(); // 4
+  const ms = Date.now() - start; // 5
+  ctx.set(&#39;X-Response-Time&#39;, `${ms}ms`);
+});
+
+// response
+
+app.use(async ctx =&gt; {
+  ctx.body = &#39;Hello World&#39;; // 6
+});
+
+app.listen(3000);
+</code></pre>
+<p>中间件都是async函数，koa能够保证这些中间件是按照你加入中间件的顺序执行，这到底是怎么做到的？app.use的方法将所有的函数放入了自身维护的middleware数组。app.listen创建了一个httpServer并将onRequest回调指定为app.callback，app.callback主要做了2件事：添加onerror，处理用户请求：</p>
+<pre><code class="lang-js">callback() {
+// 组合中间件    
+    const fn = compose(this.middleware);
+// 处理onerror
+    if (!this.listeners(&#39;error&#39;).length) this.on(&#39;error&#39;, this.onerror);
+
+    const handleRequest = (req, res) =&gt; {
+        const ctx = this.createContext(req, res);
+        return this.handleRequest(ctx, fn);
+    };
+// 请求处理器
+    return handleRequest;
+}
+</code></pre>
+<p>可以看出组合中间件的方法中使用了compose，这个函数的实现如下（在koa-compose模块中）：</p>
+<pre><code class="lang-js">function compose(middleware) {
+    // 检测
+    if (!Array.isArray(middleware)) throw new TypeError(&#39;Middleware stack must be an array!&#39;)
+    for (const fn of middleware) {
+        if (typeof fn !== &#39;function&#39;) throw new TypeError(&#39;Middleware must be composed of functions!&#39;)
+    }
+
+    /**
+     * @param {Object} context
+     * @return {Promise}
+     * @api public
+     */
+
+    return function (context, next) {
+        // last called middleware #
+        let index = -1
+        return dispatch(0)
+
+        function dispatch(i) {
+            if (i &lt;= index) return Promise.reject(new Error(&#39;next() called multiple times&#39;))
+            index = i
+            let fn = middleware[i]
+            if (i === middleware.length) fn = next
+            if (!fn) return Promise.resolve()
+            try {
+                return Promise.resolve(fn(context, function next() {
+                    return dispatch(i + 1)
+                }))
+            } catch (err) {
+                return Promise.reject(err)
+            }
+        }
+    }
+}
+</code></pre>
+<p>以上的高阶函数内部递归调用了dispatch函数，一直迭代所有的中间件。本文开篇的那个例子中1处的<code>await next</code>将代码的执行权交给了2处记录下开始时间，接着执行4处的await，将代码的执行权交给了6接下来4处的await执行完了执行5，最后1处的await执行完了，至此中间完成了。</p>
+<p>原理如下：</p>
+<p>首先，我们在写中间时会有<code>await next()</code>的用法（注意，<code>await</code>会等到后面的<code>Promise resolve</code>或<code>reject</code>后才厚向下继续执行），那么执行<code>await next()</code>就会转而执行<code>dispatch(i + 1)</code> ，直到最后一个中间件；当执行到最后一个再执行<code>dispatch</code>时，会触发<code>if(!fn) return Promise.resolve()</code>, 最后一个中间件开始执行<code>await next()</code>后面的逻辑，完成后，执行倒数第二个，依次执行到第一个中间件。</p>
+<p>注意，当中间件中有两处<code>await next()</code>时，会触发<code>if(i &lt;= index) return Promise.reject(new Error(&#39;next() called multiple times&#39;))</code>, 抛出错误。</p>
+<p>这个过程有点像深度优先遍历，递归到树的最深处，然后逐层返回，最后的结果是初始调用第一层的结果（对应在koa中是我们use的第一个中间件）。其实和下面的代码是一个意思：</p>
+<pre><code class="lang-js">function fn1(next) {
+  console.log(&#39;fn1 start&#39;);
+  next();
+  console.log(&#39;fn1 end&#39;);
+  return 1;
+}
+
+function fn2(next) {
+  console.log(&#39;fn2 start&#39;);
+  next();
+  console.log(&#39;fn2 end&#39;);
+  return 2;
+}
+
+function fn3() {
+  console.log(&#39;fn3&#39;);
+  return 3;
+}
+
+const ret = fn1(() =&gt; fn2(() =&gt; fn3()));
+console.log(ret);
+</code></pre>
+<p>输出：</p>
+<pre><code class="lang-txt">fn1 start
+fn2 start
+fn3
+fn2 end
+fn1 end
+1
+</code></pre>
+<p>整个函数的返回值是最外层函数的值。改写成递归就是如下：</p>
+<pre><code class="lang-js">const fns = [fn1, fn2, fn3];
+
+function compose(fns) {
+
+  function dfs(i) {
+    let fn = fns[i];
+    if (!fn) return;
+    return fn(function next() {
+
+      return dfs(i + 1);
+    });
+    // 可以进一步简化
+    // return fn(dfs.bind(null,i+1));
+  }
+
+  return dfs(0);
+}
+
+compose(fns);
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.926Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/09/05/Koa源码解析/" target="_blank" rel="external">https://consoles.fun/2019/09/05/Koa源码解析/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/">javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/09/05/Koa源码解析/&title=《Koa源码解析》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/09/05/Koa源码解析/&title=《Koa源码解析》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/09/05/Koa源码解析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Koa源码解析》 — 雨碎江南&url=https://consoles.fun/2019/09/05/Koa源码解析/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/09/05/Koa源码解析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/10/一些生活技能/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">一些生活技能</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/09/02/消息推送系统的设计与实现/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">消息推送系统的设计与实现</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/09/05/Koa源码解析/&title=《Koa源码解析》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/09/05/Koa源码解析/&title=《Koa源码解析》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/09/05/Koa源码解析/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Koa源码解析》 — 雨碎江南&url=https://consoles.fun/2019/09/05/Koa源码解析/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/09/05/Koa源码解析/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMUlEQVR42u3aQW7DMAwEwPz/0+m1QGFlV1KL2hqdgsCxNT4wFMnXK17vH+v79+Prf145/nx1zw0LAwPjtoz3cLXbSp4yBoy/v6RiYGAcwLh68NU1V7fLg2b7sj7sGQMDA6MMgnnCd/UiMDAwMNYZY1ISUpNgjYGBgbESQJNiXPT4OFncdhbHwMC4ISOvuv/951/pb2BgYNyK8S7X3tQwD98fdoWBgfFoxkoDsg3H+dDG5H4wMDAeyhiXvfJj50ogTloIH77BwMA4jLF3W3PjX20SiYGBcQIjqV+16d1cw7JtJEQ9WAwMjJsz9vYW8nZjG1gjPAYGxgGMfEirLZO1QxJROpj7MDAwbs5YCXP58Fb+RicbDxgYGMcwkrLayoBFew5NGgMYGBjnMObCX1tcW0k6P9wfAwPjGEaS2LWP2TCz1gZcDAyMxzE2/LgsnM0V9aLSGwYGxpGM5MeTg1wBtW6mYmBgHMDIQ+16ypgH1iLFxMDAeDSjDX/t+MVKWW1upgIDA+N5jLnAlx9rc2R7VK7P4hgYGDdntMWvtjE5Nyg2fgoGBgZGEijbQ+bcC0qei4GB8VTGu1xtAa69Q/sqX0lcx8DAuDljpc2ZB9y2SZlsfVu3FgMD4yaMJMjONSx3pYB11RADA+OhjLnAN3fEXUdiYGBgtClaXmhbGdQofBgYGBjx9e04RVva2/y/gYGB8e8ZbUrXJnBjfLsHDAyM0xi78q4kdCaBdVcyioGB8QjGF1y4+ggC8lI0AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Shell基础-正则表达式 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="linux,正则表达式,shell">
+    <meta name="description" content="常用正则$ grep -n &amp;quot;^$&amp;quot; test.txt # 空白行 [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} # yyyy-mm-dd [0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\} # ip   在vi中按Esc键后d G可以清空光标起的所有内容。  字符截取命令cut命令例如我们有用户信息">
+<meta name="keywords" content="linux,正则表达式,shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell基础-正则表达式">
+<meta property="og:url" content="https://consoles.fun/2016/04/16/linux-regexp/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="常用正则$ grep -n &amp;quot;^$&amp;quot; test.txt # 空白行 [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} # yyyy-mm-dd [0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\} # ip   在vi中按Esc键后d G可以清空光标起的所有内容。  字符截取命令cut命令例如我们有用户信息">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.974Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shell基础-正则表达式">
+<meta name="twitter:description" content="常用正则$ grep -n &amp;quot;^$&amp;quot; test.txt # 空白行 [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} # yyyy-mm-dd [0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\} # ip   在vi中按Esc键后d G可以清空光标起的所有内容。  字符截取命令cut命令例如我们有用户信息">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Shell基础-正则表达式</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Shell基础-正则表达式</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-04-16T02:23:12.000Z" itemprop="datePublished" class="page-time">
+  2016-04-16
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#常用正则"><span class="post-toc-text">常用正则</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#字符截取命令"><span class="post-toc-text">字符截取命令</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#cut命令"><span class="post-toc-text">cut命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#awk命令"><span class="post-toc-text">awk命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#sed命令"><span class="post-toc-text">sed命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件查找"><span class="post-toc-text">文件查找</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#buffer和cache"><span class="post-toc-text">buffer和cache</span></a></li></ol></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-linux-regexp"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Shell基础-正则表达式</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-04-16 10:23:12" datetime="2016-04-16T02:23:12.000Z"  itemprop="datePublished">2016-04-16</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/运维/">运维</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="常用正则"><a href="#常用正则" class="headerlink" title="常用正则"></a>常用正则</h1><pre><code class="lang-bash">$ grep -n &quot;^$&quot; test.txt # 空白行
+[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} # yyyy-mm-dd
+[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\} # ip
+</code></pre>
+<blockquote>
+<p>在vi中按Esc键后d G可以清空光标起的所有内容。</p>
+</blockquote>
+<h1 id="字符截取命令"><a href="#字符截取命令" class="headerlink" title="字符截取命令"></a>字符截取命令</h1><h2 id="cut命令"><a href="#cut命令" class="headerlink" title="cut命令"></a>cut命令</h2><p>例如我们有用户信息文件<code>/etc/passwd</code>,</p>
+<pre><code class="lang-bash">$ useradd user1
+$ useradd user2
+</code></pre>
+<p>假设我们要删除上面创建的用户user1和user2,当然我们可以使用<code>userdel</code>命令,但是有的时候是程序执行的,所以我们需要在<code>/etc/passwd</code>中提取出新创建的2个普通用户,使用<code>grep</code>进行行提取</p>
+<pre><code class="lang-bash">$ grep &quot;user&quot; /etc/passwd | grep -v &quot;system&quot; # -v表示取反
+user1:x:1001:1001::/home/user1:
+user2:x:1002:1002::/home/user2:
+</code></pre>
+<p>接下来我们看下<code>cut</code>命令进行列提取,假设有以下的csv文件(注意:分隔符号是制表符):</p>
+<pre><code class="lang-bash">id      name    gender  mark
+1       furong  f       85
+2       fengj   f       60
+3       cang    f       70
+</code></pre>
+<pre><code class="lang-bash">$ cut -f 2 students.csv # 截取第二列(name)
+$ cut -f 2,4 students.csv # 截取name和mark
+</code></pre>
+<p>再回到上一个从<code>/etc/passwd</code>中截取用户名的程序中,我们只需要这样:</p>
+<pre><code class="lang-bash">$ grep &quot;user&quot; /etc/passwd | grep -v &quot;system&quot; | cut -f 1 -d &quot;:&quot; # -d指明分隔符
+</code></pre>
+<p>提取用户名和uid</p>
+<pre><code class="lang-bash">$ cut -d &quot;:&quot; -f 1,3 /etc/passwd
+</code></pre>
+<pre><code class="lang-bash">$ printf &#39;%s\t%s\t%s\t%s\n&#39;  $(cat student.csv) # 使用printf输出student.csv中的内容
+</code></pre>
+<h2 id="awk命令"><a href="#awk命令" class="headerlink" title="awk命令"></a>awk命令</h2><p><code>awk &#39;条件1{动作1}条件2{动作2}...&#39; 文件名</code></p>
+<ul>
+<li>条件(Pattern):一般使用关系表达式,例如:x&gt;10,x&gt;=10</li>
+<li>动作(Action):格式化输出或者流程控制语句</li>
+</ul>
+<pre><code class="lang-bash">$ awk &#39;{printf $2 &quot;\t&quot; $4 &quot;\n&quot;}&#39; student.csv # 输出第2和4列
+name    mark
+furong    85
+fengj    60
+cang    70
+$ df -h | awk &#39;{print $1 &quot;\t&quot; $3}&#39; # 输出df -h命令的第一列和第三列
+文件系统    已用
+/dev/sda8    20G
+none    0
+udev    4.0K
+tmpfs    1.2M
+none    0
+none    40M
+none    56K
+$ df -h | grep &quot;/dev/sda8&quot; | awk &#39;{print $1 &quot;\t&quot; $5}&#39;
+/dev/sda8    21%
+$ df -h | grep &quot;/dev/sda8&quot; | awk &#39;{print $5}&#39; | cut -f 1 -d &quot;%&quot;
+21
+
+# BEGIN和END用于在整个文件的前面或者后面输出某个内容
+$ awk &#39;BEGIN{print &quot;---the begin---&quot;}END{print &quot;---the end---&quot;}{printf $2 &quot;\t&quot; $4 &quot;\n&quot;}&#39; student.csv
+---the begin---
+name    mark
+furong    85
+fengj    60
+cang    70
+---the end---
+# 使用awk命令输出用户名和uid
+$ cat /etc/passwd | awk &#39;{FS=&quot;:&quot;}{print $1 &quot;\t&quot; $3}&#39;
+# 输出student.csv中成绩大于70的学生姓名(中间的grep -v表示去掉表头表示的行)
+$ cat student.csv | grep -v id | awk &#39;$4 &gt;= 70 {printf $2 &quot;\n&quot;}&#39;
+</code></pre>
+<p>awk中<code>$0</code>表示的是文件名,awk的执行是按照<em>行</em>进行提取,把每一个数据变换成<code>$1,$2,$3</code>等字段,然后判断Pattern,条件满足则执行Action接下来是第二行,以此类推.</p>
+<h2 id="sed命令"><a href="#sed命令" class="headerlink" title="sed命令"></a>sed命令</h2><p>文本替换和过滤的流式编辑器</p>
+<pre><code class="lang-bash"># sed中-n选项的作用,不加-n则不仅打印匹配的行而且打印整篇文档
+consoles@linux:~$ sed &#39;2p&#39; student.csv
+id    name    gender    mark
+1    furong    f    85
+1    furong    f    85
+2    fengj    f    60
+3    cang    f    70
+consoles@linux:~$ sed -n &#39;2p&#39; student.csv
+1    furong    f    85
+$ sed  &#39;2d&#39; student.csv # 从原始数据中过滤掉第2行
+id    name    gender    mark
+2    fengj    f    60
+3    cang    f    70
+$ sed  &#39;2,4d&#39; student.csv # 从原始数据中过滤掉第2到4行
+id    name    gender    mark
+$ sed  &#39;2a 漂亮就是任性&#39; student.csv # 在第二行后面追加(如果选项是i则表示在前面插入)
+id    name    gender    mark
+1    furong    f    85
+漂亮就是任性
+2    fengj    f    60
+3    cang    f    70
+$ sed &#39;4c 苍老师成绩不及格&#39; student.csv  # 替换第四行
+id    name    gender    mark
+1    furong    f    85
+2    fengj    f    60
+3    cang    f    70
+$ sed &#39;4s/70/100/g&#39; student.csv # 将苍老师的成绩改为满分,我们可以使用`sed -i`将操作保存到硬盘
+id    name    gender    mark
+1    furong    f    85
+2    fengj    f    60
+3    cang    f    100
+</code></pre>
+<p><a href="http://blog.csdn.net/guxch/article/details/7041052" target="_blank" rel="noopener">Unix Domain Socket</a>用于IPC（同一台主机间的进程通信），不需要经过网络协议栈，不需要打包拆包、计算校验和、维护序号和应答等，只是将应用层数据从一个进程拷贝到另一个进程。UNIX Domain Socket有SOCK_DGRAM或SOCK_STREAM两种工作模式，类似于UDP和TCP，但是面向消息的UNIX Domain Socket也是可靠的，消息既不会丢失也不会顺序错乱。</p>
+<p>UNIX Domain Socket可用于两个没有亲缘关系的进程，是全双工的，是目前使用最广泛的IPC机制，比如X Window服务器和GUI程序之间就是通过UNIX Domain Socket通讯的。使用node可以创建<a href="https://nodejs.org/dist/latest-v4.x/docs/api/net.html#net_net_createserver_options_connectionlistener" target="_blank" rel="noopener">Unix Domain Server</a></p>
+<h2 id="文件查找"><a href="#文件查找" class="headerlink" title="文件查找"></a>文件查找</h2><pre><code class="lang-bash">$ find /usr -name &quot;redis.conf&quot;
+</code></pre>
+<h3 id="buffer和cache"><a href="#buffer和cache" class="headerlink" title="buffer和cache"></a>buffer和cache</h3><p>这两个术语经常被混用，原因在于他们都在内存中可以提高IO性能。但是严格来说buffer是用于存放要输出到disk（块设备）的数据的，而cache是存放从disk上读出的数据。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.974Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/04/16/linux-regexp/" target="_blank" rel="external">https://consoles.fun/2016/04/16/linux-regexp/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/shell/">shell</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/正则表达式/">正则表达式</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/04/16/linux-regexp/&title=《Shell基础-正则表达式》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/04/16/linux-regexp/&title=《Shell基础-正则表达式》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/04/16/linux-regexp/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Shell基础-正则表达式》 — 雨碎江南&url=https://consoles.fun/2016/04/16/linux-regexp/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/04/16/linux-regexp/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/04/25/secret-in-js/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">javascript语言精粹</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/04/07/response-web-design/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">响应式web设计</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/04/16/linux-regexp/&title=《Shell基础-正则表达式》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/04/16/linux-regexp/&title=《Shell基础-正则表达式》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/04/16/linux-regexp/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Shell基础-正则表达式》 — 雨碎江南&url=https://consoles.fun/2016/04/16/linux-regexp/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/04/16/linux-regexp/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLklEQVR42u3aS27jQAwFQN//0sp2gInkR1IKoO7qlWFEcteG4e/zic/x3/n3+7PP109df/954mBgYLyWcVye/IfPLtFj53fDwMDYh3EWwa7/Jr9u/obkdzEwMDCqjCM4+ZsxMDAw5oykoM0LYAwMDIyckRSx1yEyKjWLQfaRWhwDA+OFjLzr/vefH5lvYGBgvIpxFE+vTdZ7tnArDAyMpRnVpn9v6Hgv+7QAxsDA2ICRN7/uCsG9Blyh3YaBgbEEY9IU65W+k/Wv0/tgYGBswMi7WF+SsyJ1PsLEwMDA6I0w8+vmRXJzWwQDA2M5xnyF4jodrBa3SUKJgYGxA2PUiC8G0yTVqwbrG+YbGBgYSzAmK6SjhK/Kw8DA2IYxT/tyWLXRNspzMTAwXsuYL0MkKeMkQEfDVAwMjA0Y+c9UT74w0dto+2VnBAMDY1FGkvxVV7h6YbeaaEZiDAyMJRi9QWPeuJ+8OWrAYWBgLM3IVxzyMFru9hXTxC9dQwwMjKUZ1UTtKJ7es8k/BgwMjD0ZCWAyTshDbaEIx8DA2IBRvXreOOstXpTfjIGBsSjjifSuN7ysJoJfli0wMDAWYvTWJvKFid44cz6QwMDAWI+RN7zyQUI1NaymjOUEEQMDYwnGbUtacRuuWvRGeS4GBgZGsblWDc3VhbObAy4GBsZCjHyE0Bs/JO88LWIxMDCWZlQXs3J8tQDOAy4GBsY+jEnpWB00zhcsRoNMDAyM9zF+ALm/vCqxA/8lAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>大数据基础之SparkStreaming | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="spark,流处理">
+    <meta name="description" content="我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 — 周星驰  流处理概述环境配置参考spark-sql中的环境配置，目录结构同上，jdk和spark版本升级如下： jdk:1.8spark:2.2 实时流处理框架和架构 Strom: 真实时，来一条处理一条 Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理 Kafka:国内使用较少 Flink：">
+<meta name="keywords" content="spark,流处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据基础之SparkStreaming">
+<meta property="og:url" content="https://consoles.fun/2018/10/30/spark-streaming/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 — 周星驰  流处理概述环境配置参考spark-sql中的环境配置，目录结构同上，jdk和spark版本升级如下： jdk:1.8spark:2.2 实时流处理框架和架构 Strom: 真实时，来一条处理一条 Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理 Kafka:国内使用较少 Flink：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-streaming-arch.png">
+<meta property="og:image" content="https://flume.apache.org/_images/DevGuide_image00.png">
+<meta property="og:image" content="https://flume.apache.org/_images/UserGuide_image02.png">
+<meta property="og:image" content="https://flume.apache.org/_images/UserGuide_image03.png">
+<meta property="og:image" content="https://kafka.apache.org/20/images/kafka-apis.png">
+<meta property="og:image" content="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/kafka-zero-copy.png">
+<meta property="og:image" content="http://archive.cloudera.com/cdh5/cdh/5/flume-ng-1.6.0-cdh5.7.0/FlumeUserGuide.html">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-streaming-process.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.011Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大数据基础之SparkStreaming">
+<meta name="twitter:description" content="我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 — 周星驰  流处理概述环境配置参考spark-sql中的环境配置，目录结构同上，jdk和spark版本升级如下： jdk:1.8spark:2.2 实时流处理框架和架构 Strom: 真实时，来一条处理一条 Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理 Kafka:国内使用较少 Flink：">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-streaming-arch.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">大数据基础之SparkStreaming</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">大数据基础之SparkStreaming</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-10-30T04:39:55.000Z" itemprop="datePublished" class="page-time">
+  2018-10-30
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#流处理概述"><span class="post-toc-text">流处理概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境配置"><span class="post-toc-text">环境配置</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实时流处理框架和架构"><span class="post-toc-text">实时流处理框架和架构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实时流处理的应用"><span class="post-toc-text">实时流处理的应用</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#分布式日志收集框架Flume"><span class="post-toc-text">分布式日志收集框架Flume</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#解决什么问题"><span class="post-toc-text">解决什么问题</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#架构和核心组件"><span class="post-toc-text">架构和核心组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#环境部署"><span class="post-toc-text">环境部署</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#从指定端口收集数据到控制台"><span class="post-toc-text">从指定端口收集数据到控制台</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实时监控文件采集新增数据到控制台"><span class="post-toc-text">实时监控文件采集新增数据到控制台</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#将A服务器上的日志实时采集到B服务器"><span class="post-toc-text">将A服务器上的日志实时采集到B服务器</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#消息队列Kafka"><span class="post-toc-text">消息队列Kafka</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#架构及核心概念"><span class="post-toc-text">架构及核心概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#部署和使用"><span class="post-toc-text">部署和使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#单节点单broker"><span class="post-toc-text">单节点单broker</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#单节点多broker"><span class="post-toc-text">单节点多broker</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#容错性测试"><span class="post-toc-text">容错性测试</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Kafka高级特性"><span class="post-toc-text">Kafka高级特性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#消息事务"><span class="post-toc-text">消息事务</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#零拷贝"><span class="post-toc-text">零拷贝</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#整合Flume完成数据采集"><span class="post-toc-text">整合Flume完成数据采集</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Spark-Streaming环境搭建"><span class="post-toc-text">Spark-Streaming环境搭建</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Hbase的配置"><span class="post-toc-text">Hbase的配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Spark-Streaming核心概念和编程"><span class="post-toc-text">Spark-Streaming核心概念和编程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#入门"><span class="post-toc-text">入门</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#处理Socket数据"><span class="post-toc-text">处理Socket数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#处理文件数据"><span class="post-toc-text">处理文件数据</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-spark-streaming"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">大数据基础之SparkStreaming</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-10-30 12:39:55" datetime="2018-10-30T04:39:55.000Z"  itemprop="datePublished">2018-10-30</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 — 周星驰</p>
+</blockquote>
+<h1 id="流处理概述"><a href="#流处理概述" class="headerlink" title="流处理概述"></a>流处理概述</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>参考<a href="https://consoles.github.io/2018/10/15/spark-learning/#Hadoop%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA" target="_blank" rel="noopener">spark-sql中的环境配置</a>，目录结构同上，jdk和spark版本升级如下：</p>
+<p>jdk:1.8<br>spark:2.2</p>
+<h2 id="实时流处理框架和架构"><a href="#实时流处理框架和架构" class="headerlink" title="实时流处理框架和架构"></a>实时流处理框架和架构</h2><ul>
+<li>Strom: 真实时，来一条处理一条</li>
+<li>Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理</li>
+<li>Kafka:国内使用较少</li>
+<li>Flink：离线批处理 + 实时</li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-streaming-arch.png" alt="实时流处理架构" title>
+                </div>
+                <div class="image-caption">实时流处理架构</div>
+            </figure>
+<p>为什么要将Flume收集的日志放入Kafka而不是直接丢给实时处理系统？</p>
+<p>一般情况下业务有高峰期和低峰期，高峰期如果大量日志直接命中实时流处理系统，流处理系统可能扛不住压力，所以一般情况下会加一层MQ用来缓冲。</p>
+<h2 id="实时流处理的应用"><a href="#实时流处理的应用" class="headerlink" title="实时流处理的应用"></a>实时流处理的应用</h2><p>电信行业，如果用户流量快用完的时候发短信订购流量包<br>电商行业，双十一大屏；搜索A商品的时候可能会向你推荐B商品，因为A和B可能有关联关系</p>
+<p>大数据分析可以提高转化率。</p>
+<h1 id="分布式日志收集框架Flume"><a href="#分布式日志收集框架Flume" class="headerlink" title="分布式日志收集框架Flume"></a>分布式日志收集框架Flume</h1><h2 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h2><blockquote>
+<p>Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. </p>
+</blockquote>
+<p>有多台服务器上运行着我们的应用程序，各个机器上有os日志，web server日志，application的日志。假设我们需要将这些日志要收集到hadoop集群上就需要定时执行scp。实时性和容错性得不到保证，文本文件的格式一般需要压缩传输。这些问题flume都帮我们解决了。只需要配置文件就OK了。类似框架还可以使用LogStash。</p>
+<h2 id="架构和核心组件"><a href="#架构和核心组件" class="headerlink" title="架构和核心组件"></a>架构和核心组件</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://flume.apache.org/_images/DevGuide_image00.png" alt="架构和核心组件" title>
+                </div>
+                <div class="image-caption">架构和核心组件</div>
+            </figure>
+<p>source：采集<br>channel：聚集，类似于数据的缓存池，临时存放的地方<br>sink：输出</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://flume.apache.org/_images/UserGuide_image02.png" alt="常用架构" title>
+                </div>
+                <div class="image-caption">常用架构</div>
+            </figure>
+<h2 id="环境部署"><a href="#环境部署" class="headerlink" title="环境部署"></a>环境部署</h2><p>下载解压，配置系统环境变量：</p>
+<pre><code class="lang-bash">export FLUME_HOME=/home/hadoop/app/apache-flume-1.6.0-cdh5.7.6-bin
+PATH=$FLUME_HOME/bin:$PATH
+</code></pre>
+<p>配置文件在conf目录下，<code>cp flume-env.sh.template flume-env.sh</code>，导出<code>$JAVA_HOME</code>.</p>
+<h2 id="从指定端口收集数据到控制台"><a href="#从指定端口收集数据到控制台" class="headerlink" title="从指定端口收集数据到控制台"></a>从指定端口收集数据到控制台</h2><p><a href="https://flume.apache.org/FlumeUserGuide.html#a-simple-example" target="_blank" rel="noopener">一个简单的例子</a></p>
+<p>a1:agent的名称<br>r1:source的名称<br>k1:sink的名称<br>c1:channel的名称</p>
+<p>example.conf</p>
+<pre><code class="lang-bash"># example.conf: A single-node Flume configuration
+
+# Name the components on this agent
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+
+# Describe/configure the source
+a1.sources.r1.type = netcat
+a1.sources.r1.bind = hadoop001
+a1.sources.r1.port = 44444
+
+# Describe the sink
+a1.sinks.k1.type = logger
+
+# Use a channel which buffers events in memory
+a1.channels.c1.type = memory
+
+# Bind the source and sink to the channel
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel = c1
+</code></pre>
+<pre><code class="lang-bash">flume-ng agent --conf $FLUME_HOME/conf --conf-file $FLUME_HOME/conf/example.conf --name a1 -Dflume.root.logger=INFO,console
+</code></pre>
+<p>使用telnet连接到<code>hadoop001 44444</code>并发送数据，可以看到agent输出。</p>
+<pre><code class="lang-bash">(SinkRunner-PollingRunner-DefaultSinkProcessor) [INFO - org.apache.flume.sink.LoggerSink.process(LoggerSink.java:94)] Event: { headers:{} body: 68 65 6C 6C 6F 0D                               hello. }
+</code></pre>
+<p>Event是Flume数据传输的基本单环，Event = 可选的header + byte array</p>
+<h2 id="实时监控文件采集新增数据到控制台"><a href="#实时监控文件采集新增数据到控制台" class="headerlink" title="实时监控文件采集新增数据到控制台"></a>实时监控文件采集新增数据到控制台</h2><p>agent选型:exec source + memory channel + logger sink</p>
+<p>example.conf</p>
+<pre><code class="lang-bash"># example.conf: A single-node Flume configuration
+
+# Name the components on this agent
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+
+# Describe/configure the source
+a1.sources.r1.type = exec
+a1.sources.r1.command = tail -F /home/hadoop/data/data.log
+a1.sources.r1.shell = /bin/sh -c
+
+# Describe the sink
+a1.sinks.k1.type = logger
+
+# Use a channel which buffers events in memory
+a1.channels.c1.type = memory
+
+# Bind the source and sink to the channel
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel = c1
+</code></pre>
+<h2 id="将A服务器上的日志实时采集到B服务器"><a href="#将A服务器上的日志实时采集到B服务器" class="headerlink" title="将A服务器上的日志实时采集到B服务器"></a>将A服务器上的日志实时采集到B服务器</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://flume.apache.org/_images/UserGuide_image03.png" alt="一个agent的输出作为另一个agent的输入" title>
+                </div>
+                <div class="image-caption">一个agent的输出作为另一个agent的输入</div>
+            </figure>
+<p>exec source + memory channel + avro sink<br>avro source + memory channel + logger sink</p>
+<pre><code class="lang-bash"># exec-memory-avro.conf
+exec-memory-avro.sources = exec-source
+exec-memory-avro.sinks = avro-sink
+exec-memory-avro.channels = memory-channel
+
+exec-memory-avro.sources.exec-source.type = exec
+exec-memory-avro.sources.exec-source.command = tail -F /home/hadoop/data/data.log
+exec-memory-avro.sources.exec-source.shell = /bin/sh -c
+
+exec-memory-avro.sinks.avro-sink.type = avro
+exec-memory-avro.sinks.avro-sink.hostname = hadoop001
+exec-memory-avro.sinks.avro-sink.port = 44444
+
+exec-memory-avro.channels.memory-channel.type = memory
+
+exec-memory-avro.sources.exec-source.channels = memory-channel
+exec-memory-avro.sinks.avro-sink.channel = memory-channel
+
+# avro-memory-logger.conf 这个要先启动
+avro-memory-logger.sources = avro-source
+avro-memory-logger.sinks = logger-sink
+avro-memory-logger.channels = memory-channel
+
+avro-memory-logger.sources.avro-source.type = avro
+avro-memory-logger.sources.avro-source.bind = hadoop001
+avro-memory-logger.sources.avro-source.port = 44444
+
+avro-memory-logger.sinks.logger-sink.type = logger
+
+avro-memory-logger.channels.memory-channel.type = memory
+
+avro-memory-logger.sources.avro-source.channels = memory-channel
+avro-memory-logger.sinks.logger-sink.channel = memory-channel
+</code></pre>
+<h1 id="消息队列Kafka"><a href="#消息队列Kafka" class="headerlink" title="消息队列Kafka"></a>消息队列Kafka</h1><h2 id="架构及核心概念"><a href="#架构及核心概念" class="headerlink" title="架构及核心概念"></a>架构及核心概念</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://kafka.apache.org/20/images/kafka-apis.png" alt="Kafka架构" title>
+                </div>
+                <div class="image-caption">Kafka架构</div>
+            </figure>
+<p>每一条消息记录由key，value和timestamp组成。topic用于给消息记录打标签，消费者可以按照指定的标签进行消费。</p>
+<h2 id="部署和使用"><a href="#部署和使用" class="headerlink" title="部署和使用"></a>部署和使用</h2><p>先安装zookeeper，配置<code>$ZK_HOME</code>。<code>cp zoo_sample.cfg zoo.cfg</code>，配置<code>dataDir=/home/hadoop/app/tmp/zk</code>。</p>
+<p>使用<code>./zkServer.sh start</code>启动服务器之后就可以使用<code>./zkCli.sh</code>连接到服务器。zk-cli命令<code>ls /</code> ，<code>ls /zookeeper</code>。</p>
+<p>kafka版本kafka_2.11-0.9.0.0，下载解压并配置KAFKA_HOME。</p>
+<h3 id="单节点单broker"><a href="#单节点单broker" class="headerlink" title="单节点单broker"></a>单节点单broker</h3><p>config/server.properties</p>
+<pre><code class="lang-bash">broker.id=0
+listeners=PLAINTEXT://:9092
+log.dirs=/home/hadoop/app/tmp/kafka-logs
+zookeeper.connect=hadoop001:2181
+</code></pre>
+<pre><code class="lang-bash"># 启动kafka
+kafka-server-start.sh /home/hadoop/app/kafka_2.11-0.9.0.0/config/server.properties
+# 创建topic
+kafka-topics.sh --create --zookeeper hadoop001:2181 --replication-factor 1 --partitions 1 --topic hello_topic
+# 查看所有topic
+kafka-topics.sh --list --zookeeper hadoop001:2181
+
+# 生产消息
+kafka-console-producer.sh --broker-list hadoop001:9092 --topic hello_topic
+# 启动一个消费者消费消息(注意官方文档中的--bootstrap-server要换成--zookeeper)
+kafka-console-consumer.sh --zookeeper hadoop001:2181 --topic hello_topic --from-beginning
+
+# 查看描述
+kafka-topics.sh --describe --zookeeper hadoop001:2181
+</code></pre>
+<p>启动生产者和消费者之后就可以在生产者所在tty发送消息了，从而消费者可以收到消息。上面的cmd中消费者加了参数<code>--from-beginning</code>，消费者重启之后以前的消息会再次收到。</p>
+<h3 id="单节点多broker"><a href="#单节点多broker" class="headerlink" title="单节点多broker"></a>单节点多broker</h3><p>在单台服务器上配置多台kafka。</p>
+<p>将server.properties复制为server-1.properties，server-2.properties，server-3.properties并修改对应的broker.id,listeners,log.dirs</p>
+<pre><code class="lang-bash">kafka-server-start.sh -daemon $KAFKA_HOME/config/server-1.properties &amp;
+kafka-server-start.sh -daemon $KAFKA_HOME/config/server-2.properties &amp;
+kafka-server-start.sh -daemon $KAFKA_HOME/config/server-3.properties &amp;
+
+# 因为此时启动了3个broker所以replication-factor为3
+kafka-topics.sh --create --zookeeper hadoop001:2181 --replication-factor 3 --partitions 1 --topic my-replicated-topic
+kafka-console-producer.sh --broker-list hadoop001:9093,hadoop001:9094,hadoop001:9095 --topic my-replicated-topic
+kafka-console-consumer.sh --zookeeper hadoop001:2181 --topic my-replicated-topic
+</code></pre>
+<h3 id="容错性测试"><a href="#容错性测试" class="headerlink" title="容错性测试"></a>容错性测试</h3><pre><code class="lang-bash">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic
+Topic:my-replicated-topic          PartitionCount:1           ReplicationFactor:3        Configs:
+Topic: my-replicated-topic         Partition: 0       Leader: 1          Replicas: 1,2,3    Isr: 1,2,3
+</code></pre>
+<p>上面的描述信息显示1号broker是主，现在使用<code>kill -9</code>干掉2号（pid可以使用jps -m查看）</p>
+<pre><code class="lang-bash">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic
+Topic:my-replicated-topic          PartitionCount:1           ReplicationFactor:3        Configs:
+Topic: my-replicated-topic         Partition: 0       Leader: 1          Replicas: 1,2,3    Isr: 1,3
+</code></pre>
+<p>Isr中2不见了。接下来干掉1号broker。可以发现消费者终端中出现了warning，但是发的消息还是可以收到。</p>
+<pre><code class="lang-bash">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic
+Topic:my-replicated-topic          PartitionCount:1           ReplicationFactor:3        Configs:
+Topic: my-replicated-topic         Partition: 0       Leader: 3          Replicas: 1,2,3    Isr: 3
+</code></pre>
+<p>Leader由1变成了3，因此只要有一个broker正常就可以了。</p>
+<h3 id="Kafka高级特性"><a href="#Kafka高级特性" class="headerlink" title="Kafka高级特性"></a>Kafka高级特性</h3><h4 id="消息事务"><a href="#消息事务" class="headerlink" title="消息事务"></a>消息事务</h4><p>为什么要支持事务？满足：“读取-处理-写入”模式。</p>
+<p>数据传输的事务定义：</p>
+<p>最多一次：消息不会被重复发送，最多被传输一次（可能一次也不传输）<br>最少一次：消息不会被漏发送，最少被传输一次(可能被重复传输),目前多数消息系统采用<br>精确的一次：Exactly Once,不会被漏传输也不会重复传输，每个消息都被传输一次而且仅仅被传输一次，这是大家所期望的。</p>
+<p>Kafka保证事务的机制：</p>
+<ul>
+<li>内部重试：Producer幂等处理</li>
+<li>多分区原子写入</li>
+<li>避免僵尸实例</li>
+</ul>
+<h4 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h4><p>java nio中的<code>channel.transforTo()</code>方法，底层系统调用是<code>sendfile</code>。将磁盘上的一个文件块发送到网络上需要经过这样的几步：</p>
+<ol>
+<li>OS将数据从磁盘读入到内核空间的页缓存</li>
+<li>应用程序将数据从内核空间读入到用户空间的缓存中</li>
+<li>应用程序将数据写回到内核空间的socket缓存中</li>
+<li>OS将数据从socket缓冲区复制到网卡缓冲区，以便将数据发送出去</li>
+</ol>
+<p>以上数据经过了4次拷贝，如果采用零拷贝机制则只有以下几步：</p>
+<ol>
+<li>OS将数据从磁盘读入到内核空间的页缓存</li>
+<li>将数据的位置和长度信息的描述符增加内核空间(socket缓冲区)</li>
+<li>OS将数据从内核拷贝到网卡缓冲区，以便将数据经过网络发出</li>
+</ol>
+<p>数据只经过了2次拷贝！零拷贝指的是：内核空间和用户空间之间的拷贝次数是0。</p>
+<p><img src="https://git-hexo-blog.oss-cn-beijing.aliyuncs.com/kafka-zero-copy.png" alt="Kafka零拷贝"></p>
+<h3 id="整合Flume完成数据采集"><a href="#整合Flume完成数据采集" class="headerlink" title="整合Flume完成数据采集"></a>整合Flume完成数据采集</h3><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://archive.cloudera.com/cdh5/cdh/5/flume-ng-1.6.0-cdh5.7.0/FlumeUserGuide.html" alt="Flume cdh版本的soure-sink配置" title>
+                </div>
+                <div class="image-caption">Flume cdh版本的soure-sink配置</div>
+            </figure>
+<pre><code class="lang-bash"># avro-memory-kafka.conf
+avro-memory-kafka.sources = avro-source
+avro-memory-kafka.sinks = kafka-sink
+avro-memory-kafka.channels = memory-channel
+
+avro-memory-kafka.sources.avro-source.type = avro
+avro-memory-kafka.sources.avro-source.bind = hadoop001
+avro-memory-kafka.sources.avro-source.port = 44444
+
+avro-memory-kafka.sinks.kafka-sink.type = org.apache.flume.sink.kafka.KafkaSink
+avro-memory-kafka.sinks.kafka-sink.brokerList = hadoop001:9092
+avro-memory-kafka.sinks.kafka-sink.topic = hello_topic
+avro-memory-kafka.sinks.kafka-sink.batchSize = 5
+avro-memory-kafka.sinks.kafka-sink.requiredAcks = 1
+
+avro-memory-kafka.channels.memory-channel.type = memory
+
+avro-memory-kafka.sources.avro-source.channels = memory-channel
+avro-memory-kafka.sinks.kafka-sink.channel = memory-channel
+</code></pre>
+<pre><code class="lang-bash">flume-ng agent --conf $FLUME_HOME/conf --conf-file $FLUME_HOME/conf/avro-memory-kafka.conf --name avro-memory-kafka -Dflume.root.logger=INFO,console
+flume-ng agent --conf $FLUME_HOME/conf --conf-file $FLUME_HOME/conf/exec-memory-avro.conf --name exec-memory-avro -Dflume.root.logger=INFO,console
+</code></pre>
+<h1 id="Spark-Streaming环境搭建"><a href="#Spark-Streaming环境搭建" class="headerlink" title="Spark-Streaming环境搭建"></a>Spark-Streaming环境搭建</h1><p>下载scala2.11.8配置<code>$SCALA_HOME</code>环境变量。</p>
+<h2 id="Hbase的配置"><a href="#Hbase的配置" class="headerlink" title="Hbase的配置"></a>Hbase的配置</h2><p>配置<code>$HBASE_HOME</code>系统变量。</p>
+<p>修改conf/hbase-env.sh中的<code>JAVA_HOME</code>并设置<code>HBASE_MANAGES_ZK=false</code>。<br>修改conf/hbase-site.xml</p>
+<pre><code class="lang-xml">&lt;property&gt;
+    &lt;name&gt;hbase.rootdir&lt;/name&gt;
+    &lt;value&gt;hdfs://hadoop001:8020/hbase&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;hbase.cluster.distributed&lt;/name&gt;
+    &lt;value&gt;true&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;hbase.zookeeper.quorum&lt;/name&gt;
+    &lt;value&gt;hadoop001:2181&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+   &lt;name&gt;hbase.zookeeper.property.dataDir&lt;/name&gt;
+   &lt;value&gt;/home/hadoop/app/tmp&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<p>修改conf/regionservers为<code>hadoop001</code>。</p>
+<p>启动<code>bin/start-hbase.sh</code>，WebUI地址<code>http://hadoop001:60010</code>。</p>
+<p>启动hbase客户端</p>
+<pre><code class="lang-bash">./bin/hbase shell
+version
+status
+create &#39;member&#39;,&#39;info&#39;,&#39;address&#39;
+list
+describe &#39;member&#39;
+</code></pre>
+<h1 id="Spark-Streaming核心概念和编程"><a href="#Spark-Streaming核心概念和编程" class="headerlink" title="Spark-Streaming核心概念和编程"></a>Spark-Streaming核心概念和编程</h1><h2 id="入门"><a href="#入门" class="headerlink" title="入门"></a>入门</h2><p>one stack to rule them all.一栈式解决。</p>
+<p><a href="https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/streaming/NetworkWordCount.scala" target="_blank" rel="noopener">官网的例子</a></p>
+<p>使用spark-submit提交（生产）</p>
+<pre><code class="lang-bash">nc -lk 9999
+spark-submit --master local[2] --class org.apache.spark.examples.streaming.NetworkWordCount --name NetworkWordCount /home/hadoop/app/spark-2.2.0-bin-2.6.0-cdh5.7.0/examples/jars/spark-examples_2.11-2.2.0.jar hadoop001 9999
+# nc中输入的一行数据会实时在spark-shell中进行wordcount展示
+</code></pre>
+<p>使用spark-shell提交（开发）</p>
+<pre><code class="lang-bash">spark-shell --master local[2]
+</code></pre>
+<p>将下面的代码粘贴到spark-shell中即可：</p>
+<pre><code class="lang-scala">import org.apache.spark.streaming.{Seconds, StreamingContext}
+val ssc = new StreamingContext(sc, Seconds(1))
+val lines = ssc.socketTextStream(&quot;hadoop001&quot;, 9999)
+val words = lines.flatMap(_.split(&quot; &quot;))
+val wordCounts = words.map(x =&gt; (x, 1)).reduceByKey(_ + _)
+wordCounts.print()
+ssc.start()
+ssc.awaitTermination()
+</code></pre>
+<p>Spark Streaming接收到实时数据流，把数据按照指定时间段切成一片片的小数据块，把小数据块交给SparkEngine处理。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/spark-streaming-process.png" alt="SparkStreaming工作原理" title>
+                </div>
+                <div class="image-caption">SparkStreaming工作原理</div>
+            </figure>
+<p>Spark应用程序运行在Driver端，Driver端会要求Executor启动一些接收器，Receiver启动之后会将InputStream拆分成小的Block存放在内存中（如果设置了多副本的话还会拷贝到其他机器），之后Receiver会将block信息高速StreamingContext，每隔指定的时间周期StreamingContext会通知SparkContext应该启动一些jobs了，接下来SparkContext将jobs分发到Executor执行。</p>
+<p>DStreams:</p>
+<p>Discretized Streams (DStreams)： a DStream is represented by a continuous series of RDDs,  a DStream is represented by a continuous series of RDDs, which is Spark’s abstraction of an immutable, distributed dataset.</p>
+<p>InputStreams &amp; Receivers:</p>
+<p>Every input DStream (except file stream, discussed later in this section) is associated with a Receiver (Scala doc, Java doc) object which receives the data from a source and stores it in Spark’s memory for processing.</p>
+<h2 id="处理Socket数据"><a href="#处理Socket数据" class="headerlink" title="处理Socket数据"></a>处理Socket数据</h2><pre><code class="lang-scala">/**
+  * SparkStreaming处理Socket数据
+  * 测试:nc -lk 6789 并输入数据
+  */
+object NetworkWordCount {
+
+  // Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: com.fasterxml.jackson.module.scala.deser.BigDecimalDeserializer$.handledType()Ljava/lang/Class;
+  // 在pom中添加com.fasterxml.jackson依赖(jar包冲突)
+  // java.lang.NoClassDefFoundError: net/jpountz/util/SafeUtils
+  //
+  def main(args: Array[String]) {
+    // 设置为local或者local[1]无法执行,因为只有一个线程获取不到资源(从socket接收数据需要启动一个Receiver)
+    val sparkConf = new SparkConf().setMaster(&quot;local[2]&quot;).setAppName(&quot;NetworkWordCount&quot;)
+    val ssc = new StreamingContext(sparkConf, Seconds(5))
+    val lines = ssc.socketTextStream(&quot;localhost&quot;, 6789)
+    val result = lines.flatMap(_.split(&quot; &quot;)).map((_, 1)).reduceByKey(_ + _)
+    result.print()
+
+    ssc.start()
+    ssc.awaitTermination()
+
+  }
+}
+</code></pre>
+<h2 id="处理文件数据"><a href="#处理文件数据" class="headerlink" title="处理文件数据"></a>处理文件数据</h2><pre><code class="lang-scala">object FileWordCount {
+  def main(args: Array[String]) {
+    // 不需要Receiver,因此local没有问题
+    val sparkConf = new SparkConf().setMaster(&quot;local&quot;).setAppName(&quot;FileWordCount&quot;)
+    val ssc = new StreamingContext(sparkConf, Seconds(5))
+    // tmp/ss目录中的文件一旦被生成,向文件中追加内容将不会被处理
+    val lines = ssc.textFileStream(&quot;file:///tmp/ss&quot;)
+    val result = lines.flatMap(_.split(&quot; &quot;)).map((_, 1)).reduceByKey(_ + _)
+    result.print()
+    ssc.start()
+    ssc.awaitTermination()
+  }
+}
+</code></pre>
+<p>window:定时进行一个时间段内的数据处理。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.011Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2018/10/30/spark-streaming/" target="_blank" rel="external">https://consoles.fun/2018/10/30/spark-streaming/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/流处理/">流处理</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/30/spark-streaming/&title=《大数据基础之SparkStreaming》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/30/spark-streaming/&title=《大数据基础之SparkStreaming》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/30/spark-streaming/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《大数据基础之SparkStreaming》 — 雨碎江南&url=https://consoles.fun/2018/10/30/spark-streaming/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/30/spark-streaming/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/11/10/storm/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">大数据基础之storm</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/10/21/game-programming/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">游戏编程算法与技巧</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2018/10/30/spark-streaming/&title=《大数据基础之SparkStreaming》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2018/10/30/spark-streaming/&title=《大数据基础之SparkStreaming》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2018/10/30/spark-streaming/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《大数据基础之SparkStreaming》 — 雨碎江南&url=https://consoles.fun/2018/10/30/spark-streaming/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2018/10/30/spark-streaming/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLklEQVR42u3awW6DQAxF0fz/T9NtpQi4z56kxXNnVREEc1i4HtuvF17H23q/fnb/7yu1py1bMmTIeCzjuFyrvhMBX7/37B4ZMmTswzh78fU918G0TyV7kyFDhoyze0igJKG29vlkyJAh4/pxfLs81fuDgCtDhowHMtIAeh2ISRKZlvOWncVlyJDxQAY/Xn7/74/0N2TIkPEoxhGutDTWSRaDXcmQIWM0gwc4npalRTqePt40RGXIkDGaUXtlOvjVGQsLkkUZMmQMZXTCaK3QXyur3fBkyJAxlME3lx5NVyWCQaiVIUPGloxOKsl5/Gmnn0aGDBmjGenIRe2oSZ7WKc/JkCFjBwYJf5+YcOiH15uzuAwZMkYwyPGS/8rLZPywit4uQ4aMbRidElvadOQtBBR8ZciQMZpxfZjswzrp5oKZERkyZIxg8Bf3t8ufH1+RIUPGaEZamq+NZdRSxuB/hQwZMkYz0oCbNiBJGa5WaJMhQ8Y+DLJdsgm+0TRBDJqsMmTI2ICxKvzxoFwb1EAzIzJkyBjNSBO7flAme0AtBBkyZGzDSMthtdd3imvB5IgMGTJGMI5wpcMZPMjy8I1yWxkyZAxipG1OXhrrBNl04EOGDBk7MHiJnwe7zpfjVBkyZOzG6AS+tU3N1llchgwZMkDwTQcmePJ3Q5UhQ4aMkFFrWPLC3JcCrgwZMv4Zg6d0nYJ+2hb9yFlchgwZD2TUhiT4ITbdRNrslCFDxmjGD3oSqHYa0dsyAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

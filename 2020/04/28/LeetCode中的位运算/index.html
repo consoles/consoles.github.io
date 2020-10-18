@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>LeetCode中的位运算 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="node.js,算法">
+    <meta name="description" content="No136只出现1次的数字给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？                                                                                              image.png">
+<meta name="keywords" content="node.js,算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode中的位运算">
+<meta property="og:url" content="https://consoles.fun/2020/04/28/LeetCode中的位运算/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="No136只出现1次的数字给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？                                                                                              image.png">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/28/10e25ec0-8919-11ea-a4ce-5fa96f96177c.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/28/b74edd30-891c-11ea-a4ce-5fa96f96177c.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:09.933Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LeetCode中的位运算">
+<meta name="twitter:description" content="No136只出现1次的数字给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？                                                                                              image.png">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/28/10e25ec0-8919-11ea-a4ce-5fa96f96177c.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">LeetCode中的位运算</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">LeetCode中的位运算</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-04-28T07:16:58.000Z" itemprop="datePublished" class="page-time">
+  2020-04-28
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#No136只出现1次的数字"><span class="post-toc-text">No136只出现1次的数字</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用计数器"><span class="post-toc-text">使用计数器</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用Set"><span class="post-toc-text">使用Set</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用数学计算"><span class="post-toc-text">使用数学计算</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#异或运算"><span class="post-toc-text">异或运算</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#面试题56-1"><span class="post-toc-text">面试题56-1</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-LeetCode中的位运算"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">LeetCode中的位运算</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-04-28 15:16:58" datetime="2020-04-28T07:16:58.000Z"  itemprop="datePublished">2020-04-28</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法/">算法</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="No136只出现1次的数字"><a href="#No136只出现1次的数字" class="headerlink" title="No136只出现1次的数字"></a>No136只出现1次的数字</h1><p>给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/28/10e25ec0-8919-11ea-a4ce-5fa96f96177c.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<h2 id="使用计数器"><a href="#使用计数器" class="headerlink" title="使用计数器"></a>使用计数器</h2><p>比较朴素的解法是对每个元素进行计数，最后统计出数量为1的那个数，这种算法比较通用，可以解决任意多元素出现任意次，因为可以解决的问题比较多，所以往往不是最好的算法，需要维护一个HashMap，占用O(N)的空间：</p>
+<pre><code class="lang-js">var singleNumber = function (nums) {
+  const counter = new Map();
+  for (const num of nums) {
+    let count = counter.get(num) || 0;
+    counter.set(num, ++count);
+  }
+  for (const [k, v] of counter) {
+    if (v === 1) {
+      return k;
+    }
+  }
+};
+</code></pre>
+<h2 id="使用Set"><a href="#使用Set" class="headerlink" title="使用Set"></a>使用Set</h2><p>事实上我们也不需要真的用HashMap维护一下元素的数量，因为题目提高只有一个元素只有1个，别的元素都有两个，可以使用Set来巧妙处理：当第一次需要该数字的时候将其放进set，第二次遇到的时候将其移除，这样下来set中保存的就是只出现1次的数字：</p>
+<pre><code class="lang-js">var singleNumber = function (nums) {
+    const set = new Set();
+    for (const num of nums) {
+        if (set.has(num)) {
+            set.delete(num);
+        } else {
+            set.add(num);
+        }
+    }
+    return [...set][0];
+};
+</code></pre>
+<h2 id="使用数学计算"><a href="#使用数学计算" class="headerlink" title="使用数学计算"></a>使用数学计算</h2><p>其基本数学公式是：2*(a+b+c) - (a  + a + b + b + c) = c,我们只需要对原数组去重后求和乘以2再减去原来数组的和。</p>
+<pre><code class="lang-js">var singleNumber = function (nums) {
+    // 数学法:2*(a+b+c) - (a  + a + b + b + c)  = c
+    return 2 * sum([...new Set(nums)]) - sum(nums);
+};
+</code></pre>
+<h2 id="异或运算"><a href="#异或运算" class="headerlink" title="异或运算"></a>异或运算</h2><p>这是这道题效率最高也是最让人惊艳的解法，它基于这样一个事实:a ^ a = 0,a ^ a ^ b = a ^ b ^ a = b，异或运算满足交换律，两个相同的数异或结果为0，0和任何数异或等于任何数本身：</p>
+<pre><code class="lang-js">var singleNumber = function (nums) {
+    // 位操作：异或法
+    let result = 0;
+    for (const num of nums) {
+        result = result ^ num;
+    }
+    return result;
+};
+</code></pre>
+<h1 id="面试题56-1"><a href="#面试题56-1" class="headerlink" title="面试题56-1"></a>面试题56-1</h1><p>一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这<strong>两个只出现一次的数字</strong>。要求时间复杂度是O(n)，空间复杂度是O(1)。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2020/04/28/b74edd30-891c-11ea-a4ce-5fa96f96177c.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>和上道题一样，解法1和解法2也同样可以解决这道题，题目要求空间复杂度为O(1)，也就是不能使用额外的空间，能不能也使用位运算这种骚操作来解决呢？我在评论区找到了一个非常精美的<a href="https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/solution/jie-di-qi-jiang-jie-fen-zu-wei-yun-suan-by-eddievi/" target="_blank" rel="noopener">答案</a>：</p>
+<p>由于数组中存在着两个数字不重复的情况，我们将所有的数字异或操作起来，最终得到的结果是这两个数字的异或结果：(相同的两个数字相互异或，值为0)) 最后结果一定不为0，因为有两个数字不重复。</p>
+<pre><code class="lang-bash">4 ^ 1 ^ 4 ^ 6 =&gt; 1 ^ 6
+
+6 对应的二进制： 110
+1 对应的二进制： 001
+1 ^ 6  二进制： 111
+</code></pre>
+<p>此时我们无法通过 111（二进制），去获得 110 和 001。那么当我们可以把数组分为两组进行异或，那么就可以知道是哪两个数字不同了。我们可以想一下如何分组：</p>
+<ul>
+<li>重复的数字进行分组，很简单，只需要有一个统一的规则，就可以把相同的数字分到同一组了。例如：奇偶分组。因为重复的数字，数值都是一样的，所以一定会分到同一组！</li>
+<li>此时的难点在于，对两个不同数字的分组。此时我们要找到一个操作，让两个数字进行这个操作后，分为两组。我们最容易想到的就是<code>&amp; 1</code>操作， 当我们对奇偶分组时，容易地想到<code>&amp; 1</code>，即用于判断最后一位二进制是否为1。来辨别奇偶。</li>
+</ul>
+<p>你看，通过<code>&amp;</code>运算来判断一位数字不同即可分为两组，那么我们随便两个不同的数字至少也有一位不同吧！我们只需要找出那位不同的数字mask，即可完成分组（<code>&amp; mask</code>）操作。为了操作方便，我们只去找最低位的mask:</p>
+<pre><code class="lang-bash">num1: 101110    110     1111
+num2: 111110    001     1001
+mask: 010000    001     0010
+</code></pre>
+<p>由于<strong>两个数异或的结果就是两个数数位不同结果的直观表现</strong>，所以我们可以通过异或后的结果去找最低位的mask！</p>
+<pre><code class="lang-js">var singleNumbers = function (nums) {
+
+    // 将所有数进行亦或得到的结果就是那两个不同数的结果 1^4^4^6 = 1^6
+    let k = 0;
+    for (const num of nums) {
+        k ^= num;
+    }
+
+    // 获得k中最低位的1
+    // mask = k &amp; (-k) 这种方法也可以得到mask（树状数组的lowbit函数），具体原因百度 哈哈哈哈哈
+    let mask = 1;
+    while ((k &amp; mask) === 0) {
+        mask &lt;&lt;= 1;
+    }
+
+    let a = 0, b = 0;
+    for (const num of nums) {
+        if ((num &amp; mask) === 0) {
+            a ^= num;
+        } else {
+            b ^= num;
+        }
+    }
+
+    return [a, b];
+};
+</code></pre>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:09.933Z" itemprop="dateUpdated">2020-10-05 14:33:09</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2020/04/28/LeetCode中的位运算/" target="_blank" rel="external">https://consoles.fun/2020/04/28/LeetCode中的位运算/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node-js/">node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&title=《LeetCode中的位运算》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&title=《LeetCode中的位运算》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/04/28/LeetCode中的位运算/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《LeetCode中的位运算》 — 雨碎江南&url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/04/29/你真的会二分查找么/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">你真的会二分查找么</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/04/17/LeetCode-No55跳跃游戏/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">LeetCode No55跳跃游戏</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&title=《LeetCode中的位运算》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&title=《LeetCode中的位运算》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2020/04/28/LeetCode中的位运算/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《LeetCode中的位运算》 — 雨碎江南&url=https://consoles.fun/2020/04/28/LeetCode中的位运算/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2020/04/28/LeetCode中的位运算/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3ay46CQBAFUP//p51kViYT4VYVmqH7sCII2MdF2fV4POLj+Xu8nr8ef6+/u/P10+M3Pz5xYGBg3JbxPDySe3rLTaj5+zEwMHZg5EF2sqwclq8NAwMDo7roPIxWvwsDAwMjZyQJZy/RxcDAwDhm5CEyD7jzn+YjuTgGBsYNGb3GwHfOP97fwMDA+PeMSaG/2oDsNTKjVWFgYCzN6G3vqgMZ1Wfz6FrImzEwMG7L6KWU+T3zQlsU7jEwMDZgVFuM1UJYvvTq3wAGBgZGL+H8TuJ6kotjYGAsyugNSeTh+Di5Hb0ZAwNjaUZSzMo3f72l95qaGBgY+zCSBDIp4veu9Bqfb5NYDAyMRRm9jV01EU0Yk4kvDAyMtRnVRVQLc5NFF5oKGBgY2zDylDVPOAtRvzVsUe6vYmBg3JCRP9wrn+WFs/k5BgbGqow8OF61QayW/qP3Y2BgbMCoFteqG8cc0xw1w8DAWJoxSWsngxdz6skbMDAwFmIkaWc1uc2fqhbmThoDGBgYGzCuTWiTsYleCI52uBgYGAsx8kHSvGSWJLf50stbRgwMjOUYow3ZRchJKMfAwNiB0QtzVy0xH1otNwYwMDCWY1RT1uqX5Ulp9ToGBsZujMkmL2ln5oxmLo6BgYFx6YBF/mkSrDEwMDDy5DO5Xm1qFsI0BgbGBozqaEVvqCL5yaqDYhgYGDsweqljUnrLm475prPZvMTAwLgr4wcx9GcM2wIDQwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

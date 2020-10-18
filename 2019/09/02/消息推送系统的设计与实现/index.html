@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>消息推送系统的设计与实现 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="设计模式,游戏,nio,网络编程,golang,高并发">
+    <meta name="description" content="所有真理的成长都需要经过3个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为100W，每秒发送的弹幕数量为1000条，据此可以推算出单个直播间的吞吐量要达到100W1000条 = 10亿条/秒，把问题延伸到N个直播间，则系统的吞吐量为 N10亿/秒。 根据经验值，Linux系统在处理TCP网络调">
+<meta name="keywords" content="设计模式,游戏,nio,网络编程,golang,高并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="消息推送系统的设计与实现">
+<meta property="og:url" content="https://consoles.fun/2019/09/02/消息推送系统的设计与实现/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="所有真理的成长都需要经过3个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为100W，每秒发送的弹幕数量为1000条，据此可以推算出单个直播间的吞吐量要达到100W1000条 = 10亿条/秒，把问题延伸到N个直播间，则系统的吞吐量为 N10亿/秒。 根据经验值，Linux系统在处理TCP网络调">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/04/42c108b0-cf24-11e9-9935-abafe8495676.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/04/38bbf620-cf26-11e9-9935-abafe8495676.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/02/4c2ea510-cd94-11e9-9935-abafe8495676.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/03/db29a250-ce5d-11e9-9935-abafe8495676.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/03/f92da7b0-ce5d-11e9-9935-abafe8495676.png">
+<meta property="og:updated_time" content="2020-10-07T07:03:40.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="消息推送系统的设计与实现">
+<meta name="twitter:description" content="所有真理的成长都需要经过3个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为100W，每秒发送的弹幕数量为1000条，据此可以推算出单个直播间的吞吐量要达到100W1000条 = 10亿条/秒，把问题延伸到N个直播间，则系统的吞吐量为 N10亿/秒。 根据经验值，Linux系统在处理TCP网络调">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/04/42c108b0-cf24-11e9-9935-abafe8495676.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">消息推送系统的设计与实现</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">消息推送系统的设计与实现</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-09-02T15:13:22.000Z" itemprop="datePublished" class="page-time">
+  2019-09-02
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#弹幕系统的技术挑战"><span class="post-toc-text">弹幕系统的技术挑战</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#技术复杂度"><span class="post-toc-text">技术复杂度</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#系统调用的瓶颈"><span class="post-toc-text">系统调用的瓶颈</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#锁瓶颈"><span class="post-toc-text">锁瓶颈</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CPU瓶颈"><span class="post-toc-text">CPU瓶颈</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单机架构的瓶颈"><span class="post-toc-text">单机架构的瓶颈</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#pull-or-push"><span class="post-toc-text">pull or push</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#WebSocket协议"><span class="post-toc-text">WebSocket协议</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通讯流程"><span class="post-toc-text">通讯流程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#抓包观察"><span class="post-toc-text">抓包观察</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-消息推送系统的设计与实现"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">消息推送系统的设计与实现</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-09-02 23:13:22" datetime="2019-09-02T15:13:22.000Z"  itemprop="datePublished">2019-09-02</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>所有真理的成长都需要经过3个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。</p>
+</blockquote>
+<h1 id="弹幕系统的技术挑战"><a href="#弹幕系统的技术挑战" class="headerlink" title="弹幕系统的技术挑战"></a>弹幕系统的技术挑战</h1><h2 id="技术复杂度"><a href="#技术复杂度" class="headerlink" title="技术复杂度"></a>技术复杂度</h2><h3 id="系统调用的瓶颈"><a href="#系统调用的瓶颈" class="headerlink" title="系统调用的瓶颈"></a>系统调用的瓶颈</h3><p>以一个直播间为例，假设在线人数为100W，每秒发送的弹幕数量为1000条，据此可以推算出单个直播间的吞吐量要达到100W<em>1000条 = 10亿条/秒，把问题延伸到N个直播间，则系统的吞吐量为 N</em>10亿/秒。</p>
+<p>根据经验值，Linux系统在处理TCP网络调用的时候大概每秒只能处理100W左右的包，这么看的话发送一条弹幕就达到了单机的处理能力上限，这是第一个难点。</p>
+<p>解决：假设在线人数为100W，推送1条消息就达到了系统极限，假设推送100条消息仍旧使用单机处理，如何优化呢？很简单：将100条消息合并成1条消息进行发送，这样对于100W人在线的系统推送吞吐量<em>固定</em>为每秒100W次。当然合并消息不可能无限大，当超过一定<a href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E4%BC%A0%E8%BE%93%E5%8D%95%E5%85%83" target="_blank" rel="noopener">阈值</a>之后，TCP/IP层会进行大包拆分，此时底层实际包频就会超过每秒100万次，再次到达系统调用的极限。</p>
+<h3 id="锁瓶颈"><a href="#锁瓶颈" class="headerlink" title="锁瓶颈"></a>锁瓶颈</h3><p>在推送的时候，需要遍历所有的在线连接，这些连接通常放在一个集合里。遍历100万个连接去发送消息，肯定需要花费一个可观的时间，而在推送期间客户端仍旧在不停的上线与下线，所以这个集合是需要上锁做并发保护的。可见，遍历期间上锁的时间会非常长，而且只能有一个线程顺序遍历集合，这个耗时是无法接受的。</p>
+<p>解决：在做海量服务架构设计的时候，一个很有用的思路就是：<strong>分而治之</strong>。既然100万连接放在一个集合里导致锁粒度太大，那么我们就可以把连接通过哈希的方式散列到多个集合中，每个集合有自己的锁。当我们推送的时候，可以通过多个线程，分别负责若干个集合的推送任务。因为推送的集合不同，所以线程之间没有锁竞争关系。而对于同一个集合并发推送多条不同的消息，我们可以把互斥锁换成读写锁，从而支持多线程并发遍历同一个集合发送不同的消息。其实操作系统管理CPU也是分时的，就像我们的推送任务被拆分成若干小集合一样，每个集合只需要占用一点点的时间片快速完成，而多个集合则尽可能的利用多核的优势实现真并行。</p>
+<h3 id="CPU瓶颈"><a href="#CPU瓶颈" class="headerlink" title="CPU瓶颈"></a>CPU瓶颈</h3><p>一般客户端和服务器是基于JSON协议进行通信，给每个客户端推消息的时候需要对消息进行JSON Encode。当在线连接比较少（比如1万）而推送消息比较频繁（每秒10万条）的情况下，我们可以计算得到每秒要json encode编码的次数是：10000 * 100000 = 10^9次。即便我们提前对10万条消息做json encode后，再向1万个连接做分发，那么每秒也需要10万次的编码。JSON编码是一个纯CPU计算行为，非常耗费CPU，我们仍旧面临不小的优化压力。</p>
+<p>解决：其实当我们通过消息合并的方式减少网络系统调用的时候，我们已经完成了对<strong>sys cpu</strong>的优化，操作系统用来处理网络系统调用的CPU时间大幅减少。但是<strong>user CPU</strong>需要我们继续做优化，我们如果在每个连接级别做json encode，那么1条消息就会带来100万次encode，是完全无法接受的性能。因为业务上消息推送分2类，一种是按客户端关注的主题做推送，一种是推送给所有客户端。基于上述特点，我们可以把消息合并动作提前到消息入口层，即把近一段时间所有要推往某个主题、推给所有在线的消息做消息合并成batch，每个batch可能包含100条消息。当1个batch塞满后或者超时后，经过对其进行一次json encode编码后，即可直接向目标客户端做遍历分发。经过消息合并前置，编码的CPU消耗不再与在线的连接数有关，也不再直接与要推送的消息条数有关，而是与打包后的batch个数有关，具有量级上的锐减效果。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/04/42c108b0-cf24-11e9-9935-abafe8495676.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<h2 id="单机架构的瓶颈"><a href="#单机架构的瓶颈" class="headerlink" title="单机架构的瓶颈"></a>单机架构的瓶颈</h2><ul>
+<li>维护海量长连接会花费不少内存</li>
+<li>消息推送瞬时会消耗大量CPU资源</li>
+<li>消息推送瞬时带宽高达400~600MB(4~6Gbits，一般的服务器网卡是千兆网卡只能跑到100MB)，<strong>带宽是主要瓶颈</strong>！</li>
+</ul>
+<blockquote>
+<p>HTTP2支持连接复用，用作RPC性能更佳，例如google的gRPC。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/04/38bbf620-cf26-11e9-9935-abafe8495676.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>上面的这个架构定向向某个用户推送的时候需要将逻辑层的消息广播到网关层，一般可以在逻辑服务器后面加一层session层，记录用户在哪个gateway上，从而减少不必要的广播。</p>
+<blockquote>
+<p>负载均衡设备为什么不存在性能瓶颈？负载均衡可以配置多个，前端通过DNS控制。</p>
+</blockquote>
+<h2 id="pull-or-push"><a href="#pull-or-push" class="headerlink" title="pull or push"></a>pull or push</h2><p>拉模型比较简单，客户端定时轮询获取最新的数据，但是拉模式存在以下弊病：</p>
+<ul>
+<li>如果数据更新频率低，则大多数请求是无效的</li>
+<li>在线数量多，则服务端的查询负载很高（每秒百万次请求，相当于DDOS攻击，几乎不可能实现）</li>
+<li>无法满足时效性</li>
+</ul>
+<p>综上所述，推模型比较靠谱。</p>
+<h1 id="WebSocket协议"><a href="#WebSocket协议" class="headerlink" title="WebSocket协议"></a>WebSocket协议</h1><h2 id="通讯流程"><a href="#通讯流程" class="headerlink" title="通讯流程"></a>通讯流程</h2><p>客户端和服务器首先要完成一次握手，握手的本身是基于HTTP调用完成的：客户端首先发起一个HTTP请求到服务端，这个请求的特殊之处在于其在header中带了upgrade字段告诉服务器想升级成websocket协议，服务器收到之后就会给客户端发送一个握手的确认switching(允许向websocket协议转换)，协议升级后会继续复用HTTP底层的socket完成后续通信，服务器和客户端可以进行全双工通信。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/02/4c2ea510-cd94-11e9-9935-abafe8495676.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>message底层被分成多个Frame帧传输，我们编程的时候只需关注message即可，至于发送的消息会不会被切分成小的帧是由协议和库本身去做。</p>
+<h2 id="抓包观察"><a href="#抓包观察" class="headerlink" title="抓包观察"></a>抓包观察</h2><p>服务器代码如下：</p>
+<pre><code class="lang-js">const WebSocket = require(&#39;ws&#39;);
+
+const wss = new WebSocket.Server({port: 7777});
+
+wss.on(&#39;connection&#39;, function connection(ws) {
+  let seq = 0;
+  ws.on(&#39;message&#39;, function incoming(message) {
+    ws.send(`echo:${message},now = ${new Date().toString()}`);
+  });
+  setInterval(() =&gt; {
+    ws.send(`heartbeat from server,seq = ${seq++},now = ${new Date().toString()}`);
+  }, 2e3);
+});
+</code></pre>
+<p>客户端</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;script&gt;
+    window.addEventListener(&quot;load&quot;, function(evt) {
+      var output = document.getElementById(&quot;output&quot;);
+      var input = document.getElementById(&quot;input&quot;);
+      var ws;
+      var print = function(message) {
+        var d = document.createElement(&quot;div&quot;);
+        d.innerHTML = message;
+        output.appendChild(d);
+      };
+      document.getElementById(&quot;open&quot;).onclick = function(evt) {
+        if (ws) {
+          return false;
+        }
+        ws = new WebSocket(&quot;ws://localhost:7777/connect&quot;);
+        ws.onopen = function(evt) {
+          print(&quot;OPEN&quot;);
+        };
+        ws.onclose = function(evt) {
+          print(&quot;CLOSE&quot;);
+          ws = null;
+        };
+        ws.onmessage = function(evt) {
+          print(&quot;RESPONSE: &quot; + evt.data);
+        };
+        ws.onerror = function(evt) {
+          print(&quot;ERROR: &quot; + evt.data);
+        };
+        setInterval(function() {
+          ws.send(JSON.stringify({type: &quot;PING&quot;, data: {}}))
+        }, 10000);
+        return false;
+      };
+      document.getElementById(&quot;close&quot;).onclick = function(evt) {
+        if (!ws) {
+          return false;
+        }
+        ws.close();
+        return false;
+      };
+      document.getElementById(&quot;join&quot;).onclick = function(evt) {
+        if (!ws) {
+          return false;
+        }
+        print(&quot;JOIN: &quot; + input.value);
+        ws.send(JSON.stringify({type: &quot;JOIN&quot;, data: {room: input.value}}));
+        return false;
+      };
+      document.getElementById(&quot;leave&quot;).onclick = function(evt) {
+        if (!ws) {
+          return false;
+        }
+        print(&quot;LEVAE: &quot; + input.value);
+        ws.send(JSON.stringify({type: &quot;LEAVE&quot;, data: {room: input.value}}));
+        return false;
+      };
+    });
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;table&gt;
+  &lt;tr&gt;&lt;td valign=&quot;top&quot; width=&quot;50%&quot;&gt;
+    &lt;p&gt;Click &quot;Open&quot; to create a connection to the server,
+      &quot;Send&quot; to send a message to the server and &quot;Close&quot; to close the connection.
+      You can change the message and send multiple times.
+    &lt;/p&gt;
+    &lt;form&gt;
+      &lt;button id=&quot;open&quot;&gt;Open&lt;/button&gt;
+      &lt;button id=&quot;close&quot;&gt;Close&lt;/button&gt;
+      &lt;input id=&quot;input&quot; type=&quot;text&quot; value=&quot;默认房间&quot;&gt;
+      &lt;button id=&quot;join&quot;&gt;JOIN&lt;/button&gt;
+      &lt;button id=&quot;leave&quot;&gt;LEAVE&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/td&gt;&lt;td valign=&quot;top&quot; width=&quot;50%&quot;&gt;
+    &lt;div id=&quot;output&quot;&gt;&lt;/div&gt;
+  &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/03/db29a250-ce5d-11e9-9935-abafe8495676.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+<p>注意GET请求头中有个Upgrade字段，值为websocket，响应头中也有个Upgrade字段，值为websocket，表示服务器允许客户端进行服务升级，经过这一轮握手协议之后后续就是基于websocket通信了。返回码为101。websocket的底层最小传输单元是Frame，见下图：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/09/03/f92da7b0-ce5d-11e9-9935-abafe8495676.png" alt="image.png" title>
+                </div>
+                <div class="image-caption">image.png</div>
+            </figure>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-07T07:03:40.372Z" itemprop="dateUpdated">2020-10-07 15:03:40</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/09/02/消息推送系统的设计与实现/" target="_blank" rel="external">https://consoles.fun/2019/09/02/消息推送系统的设计与实现/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nio/">nio</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/游戏/">游戏</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络编程/">网络编程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高并发/">高并发</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&title=《消息推送系统的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&title=《消息推送系统的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《消息推送系统的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/05/Koa源码解析/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Koa源码解析</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/26/秒杀系统的设计与实现/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">秒杀系统的设计与实现</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&title=《消息推送系统的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&title=《消息推送系统的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《消息推送系统的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/09/02/消息推送系统的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtklEQVR42u3aQW7jQAwEQP//08l1gcRSkxw6WqB0MiLDmtJhhmny9Yqvr3+u67///Hx99/pZP6/XxoWHh4c3WPq7n6suNP9+FVl+BXh4eHhrvHcPuN7urx8/P356LwUPDw/vybzqEj9TjuPh4eH9X7y84E7KcTw8PLwn86olcjUsuOYlscJ61oKHh4e30EV6zueV/h4eHh7euKtebYbloUN+d7RaPDw8vAVevuH2kHlQm0QbvXXi4eHh7fHyYyDZsnvbev6b+UvEw8PDO8vL20jJY+ZNrCry5mDDw8PDW+DloW2+fZ8KJnrBbkTFw8PDG/PyYyBZRPVu/vrysS08PDy8v+VVI9RqNNx7fYVjCQ8PD2+BNx/Gqra+eoVyHkng4eHhfYZXDSDy4ruarPai5EJhjYeHhzfg9crQ5ITpjV71Rg0KMxF4eHh4C7z5P//zwjovtW9eOh4eHt4Cr1rO5iFs/vhk0aNpCDw8PLwP8iZRbK8Nlg8TFJpqeHh4eAu8fPtOwNXgNW99VdeJh4eHt8Grtp164WyzI1c8NgrTZHh4eHiHeJPlVg+SXksseRFvDwY8PDy8Q7wkeK2W0fmenLysfEzhZvQKDw8P7xBvHpXmw1LVJeYxRDR0hYeHh3eIVw1bz34nL7uTp9xEEnh4eHjLvGowUb2bj3P1fiGqzfHw8PDGvEmJPGmk5QFEMxzBw8PDW+Plm2/vSFjZ9KudMTw8PLwx76t45Vt/Etrm32kOcuHh4eEt8A6MNLUCjnyM4Lq8PjWwhYeHh1fl5U2pXumcb99JwV0ed8DDw8Nb4+WFb6+h1Qxh40Pr5mDAw8PDexivGlgksN4R8sv38fDw8B7DqyYcvYGDXkGPh4eH9xneZLiqV3znZXceJb89GPDw8PCO8nr/8E+OlrPl+LG5Mzw8PLx73jdojZxxootUvQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>sass与compass实战 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="css,sass,compass">
+    <meta name="description" content="Sass，Compass与CSS3者的关系 曾经有一位古人说过：“如果你有一把锤子，那么所有的东西都会看起来像钉子。”；还有一位今人说过：“如果你有一颗钉子，那么你就会满大街找锤子。”。无论锤子亦或是钉子都是工具，而Compass和SASS恰恰扮演的就是锤子和钉子的角色，CSS则对应使用锤子和钉子最后完成的作品。——慕课网讲师·刘炬光 人们走进喧闹中去，是为了忘记孤寂。 人生不止眼前的苟且，还有诗">
+<meta name="keywords" content="css,sass,compass">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sass与compass实战">
+<meta property="og:url" content="https://consoles.fun/2016/06/18/sass-compass/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="Sass，Compass与CSS3者的关系 曾经有一位古人说过：“如果你有一把锤子，那么所有的东西都会看起来像钉子。”；还有一位今人说过：“如果你有一颗钉子，那么你就会满大街找锤子。”。无论锤子亦或是钉子都是工具，而Compass和SASS恰恰扮演的就是锤子和钉子的角色，CSS则对应使用锤子和钉子最后完成的作品。——慕课网讲师·刘炬光 人们走进喧闹中去，是为了忘记孤寂。 人生不止眼前的苟且，还有诗">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/compass-core-module.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.005Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sass与compass实战">
+<meta name="twitter:description" content="Sass，Compass与CSS3者的关系 曾经有一位古人说过：“如果你有一把锤子，那么所有的东西都会看起来像钉子。”；还有一位今人说过：“如果你有一颗钉子，那么你就会满大街找锤子。”。无论锤子亦或是钉子都是工具，而Compass和SASS恰恰扮演的就是锤子和钉子的角色，CSS则对应使用锤子和钉子最后完成的作品。——慕课网讲师·刘炬光 人们走进喧闹中去，是为了忘记孤寂。 人生不止眼前的苟且，还有诗">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/compass-core-module.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">sass与compass实战</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">sass与compass实战</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2016-06-18T12:31:24.000Z" itemprop="datePublished" class="page-time">
+  2016-06-18
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#Sass，Compass与CSS3者的关系"><span class="post-toc-text">Sass，Compass与CSS3者的关系</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#compass初窥"><span class="post-toc-text">compass初窥</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#compass核心模块概述"><span class="post-toc-text">compass核心模块概述</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#layout模块"><span class="post-toc-text">layout模块</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#css3模块和browser-support模块"><span class="post-toc-text">css3模块和browser support模块</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Typography"><span class="post-toc-text">Typography</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一些小技巧"><span class="post-toc-text">一些小技巧</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#扩展阅读"><span class="post-toc-text">扩展阅读</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-sass-compass"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">sass与compass实战</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2016-06-18 20:31:24" datetime="2016-06-18T12:31:24.000Z"  itemprop="datePublished">2016-06-18</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/前端开发/">前端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="Sass，Compass与CSS3者的关系"><a href="#Sass，Compass与CSS3者的关系" class="headerlink" title="Sass，Compass与CSS3者的关系"></a>Sass，Compass与CSS3者的关系</h1><blockquote>
+<p>曾经有一位古人说过：“如果你有一把锤子，那么所有的东西都会看起来像钉子。”；还有一位今人说过：“如果你有一颗钉子，那么你就会满大街找锤子。”。无论锤子亦或是钉子都是工具，而Compass和SASS恰恰扮演的就是锤子和钉子的角色，CSS则对应使用锤子和钉子最后完成的作品。——慕课网讲师·刘炬光</p>
+<p>人们走进喧闹中去，是为了忘记孤寂。</p>
+<p>人生不止眼前的苟且，还有诗和远方。——高晓松</p>
+</blockquote>
+<h1 id="compass初窥"><a href="#compass初窥" class="headerlink" title="compass初窥"></a>compass初窥</h1><p>安装好sass和compass后创建compass项目<code>compass create compass-in-action</code>(更多命令可以使用<code>compass --help</code>查看)</p>
+<p>接下来我们在项目根目录下可以使用<code>compass watch</code>命令监听sass文件的变化</p>
+<h1 id="compass核心模块概述"><a href="#compass核心模块概述" class="headerlink" title="compass核心模块概述"></a>compass核心模块概述</h1><p>我们只要执行了<code>@import &quot;compass&quot;</code>就会引入核心的5个模块，依次是：CSS3，Helpers（多是函数），Typography，Utilities（多事mixin）和Browser（配置默认支持哪些浏览器）。但是以下的2歌模块需要明确引入：</p>
+<ul>
+<li>reset:<code>@import &quot;compass/reset&quot;</code></li>
+<li>layout:<code>@import &quot;compass/layout&quot;</code></li>
+</ul>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/compass-core-module.png" alt="compass核心模块" title>
+                </div>
+                <div class="image-caption">compass核心模块</div>
+            </figure>
+<p><a href="http://compass-style.org/reference" target="_blank" rel="noopener">compass</a>的周边生态非常丰富，我们可以使用<code>gem install compass-normalize</code>来安装normalize插件来替代默认的reset。然后修改<code>config.rb</code>即可。</p>
+<h2 id="layout模块"><a href="#layout模块" class="headerlink" title="layout模块"></a>layout模块</h2><p>该模块又引入了3个子模块：</p>
+<ul>
+<li>grid-background：根据指定的颜色生成背景填充。</li>
+<li>sticky-footer:footer自动位于底部。</li>
+<li>stretching:绝对定位并且可以设定上右下左的值。</li>
+</ul>
+<h2 id="css3模块和browser-support模块"><a href="#css3模块和browser-support模块" class="headerlink" title="css3模块和browser support模块"></a>css3模块和browser support模块</h2><p>该模块提供了跨浏览器的CSS3的支持，compass为我们封装了针对浏览器差异的mixin，只需要调用即可，不必关心具体差异。</p>
+<p>有时候我们只需要兼容webkit内核（例如webapp），不需要兼容moz和opera，这时我们可以配置brower support模块，让它针对某个浏览器的特定版本生成代码。</p>
+<h2 id="Typography"><a href="#Typography" class="headerlink" title="Typography"></a>Typography</h2><p>该模块主要用于修饰文本样式、垂直韵律等。</p>
+<h1 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧"></a>一些小技巧</h1><ul>
+<li>sass中通过<code>@include</code>指令调用mixin。</li>
+<li>sass两种语法的转换可以使用<code>sass-convert</code>命令。</li>
+<li>css要注意语义化。例如对于一个错误消息红色字体，我们一般的做法是定义一个<code>.red</code>类，但是更推荐的做法是定义一个<code>.error</code>类。</li>
+<li>可以使用<code>@debug</code>指令生成日志。</li>
+<li>可以使用<code>compass interactive</code>进入compass的REPL模式进行交互。</li>
+<li>隐藏文字，可以将text-indent设置为无穷，overflow:hidden；还可以将字体设置为0，颜色设置为透明。</li>
+<li>表格的第一行和表格的第一列都要使用<code>&lt;th&gt;</code>标签，都是表头。</li>
+<li>图标字体可以在<a href="https://icomoon.io/" target="_blank" rel="noopener">icomoon</a>上找到。</li>
+<li>注意：<code>::after</code>和<code>::before</code>这样的伪元素必须指明<code>content</code>这个属性,<code>content</code>中的换行可以使用<code>\A</code>并设置<code>white-space: pre;</code>。</li>
+<li>滚动条大部分是位于html上的，而对于像chrome这样的浏览器，它是位于body上的。</li>
+<li>快速填充文本产生滚动条，可以巧用emmenet语法：<code>p{text}*100</code>。</li>
+</ul>
+<p>本节代码可以到：<a href="https://coding.net/u/consoles/p/compass-sass/git/tree/master" target="_blank" rel="noopener">coding.net</a>找到。</p>
+<h1 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h1><p>Q1:css中原生的<code>@import</code>指令有什么弊端？<br>A1:该指令必须放在最前面；最性能不利，浏览器解析到高指令的时候将会被阻塞去下载被引入的css。</p>
+<p>Q2:为什么CSS选择符越长，渲染性能越低下？<br>A2:因为浏览器渲染样式的时候总是从最内侧的样式渲染到最外面，直到遇到html这个标记。所以CSS选择符不应该过多嵌套，最佳实践是取较长的CSS类名代替嵌套，但是这样代码的结构又变得不太清晰，sass的<code>@at-root</code>指令很好解决了这个问题。虽然我们嵌套书写了，但是最终生成的CSS却是不包含嵌套的。</p>
+<p>Q3:<a href="http://requirejs.org/" target="_blank" rel="noopener">require.js</a>存在的意义是什么？<br>A3：①将代码封装在模块内部，可以避免命名冲突（项目的后期新加入一些童鞋可能变量命名和前面的重复了）；②声明不同js文件之间的依赖；③可以让我们写出模块化的JavaScript代码，方便以后的复用，也便于职责分工。</p>
+<p><em>我们可以使用<a href="http://koala-app.com/index-zh.html" target="_blank" rel="noopener">koala图形化工具</a>来实时编译less、sass和coffee</em></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.005Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2016/06/18/sass-compass/" target="_blank" rel="external">https://consoles.fun/2016/06/18/sass-compass/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/compass/">compass</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sass/">sass</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/06/18/sass-compass/&title=《sass与compass实战》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/06/18/sass-compass/&title=《sass与compass实战》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/06/18/sass-compass/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《sass与compass实战》 — 雨碎江南&url=https://consoles.fun/2016/06/18/sass-compass/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/06/18/sass-compass/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2016/06/20/D2-frontend/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">D2前端</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2016/06/17/learn-swift-basic/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">swift学习</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2016/06/18/sass-compass/&title=《sass与compass实战》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2016/06/18/sass-compass/&title=《sass与compass实战》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2016/06/18/sass-compass/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《sass与compass实战》 — 雨碎江南&url=https://consoles.fun/2016/06/18/sass-compass/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2016/06/18/sass-compass/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKUlEQVR42u3a3WrDMAwG0L7/S2+3g5Lkk9QVbJ9clbVxfDIQ+vHrFV8/t9ff39z//urb97+//uPCwMBYlpFvMd/6+/rJ5+S5l1QMDIwDGFcRbPL4ahi9X+dhzxgYGBhxEEyC4/1GMTAwMOaMakitlqwYGBgYkyI2oT6Umrcv5Uu1OAYGxoKMvOv+/c//Mt/AwMBYivGpQnSyrST4PuwKAwNja0Ye4PK0LE8NJwEXAwPjNMak0dYbRk4acIX0EQMDYwtGvlz+yF4zbjTsxMDAOIaRbPdTvN6LKEd3DAyMLRjV23opY7X0zVe7XBMDA2M7Rn64IRkV9FLMPNwXKm8MDIwtGL20LD/UlTf980bbZRGLgYGxKWOyicmoslqaJsEdAwNjV0akbDXRqkcxekVs5Z+FgYGxKqP6sF4gno8KRuMBDAyMxRm9weS8AfepUD46M4KBgbEUI7+5dywsD7tJatg8kYGBgbEsoxzaiklkb4RZHUtgYGCcwJgcUU3AvYCb1KcYGBgnM6qp5KS4rZbHlxgMDIxjGPPkb1Lu9gaiGBgY5zB6S1dL0F4uVyhiMTAwtmPMk7PksEWvQB3lthgYGBsxqtPA74wz84BexmBgYCzL6DW5krBbfTV5yoiBgXEmIw981UFmNcj28BgYGBi9YxBJgVq996HphoGBgTEeJ+Svphy+MTAwDmAkoXDSYquG4HIhjYGBsTWjesRhEnx7rbR8LIqBgbEd4xcXMZNhfs6OPgAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>

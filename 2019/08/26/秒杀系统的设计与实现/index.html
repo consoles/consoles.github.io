@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>秒杀系统的设计与实现 | 雨碎江南 | 为者常成，行者常至</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="高可用,高并发,秒杀">
+    <meta name="description" content="特征与难点 Redis单机单进程可以达到10W QPS。                                                                                               QPS分析               抢购人数远多于库存，读写并发巨大 库存小，有效写少（真正形成订单的比较少） 写强一致性：抢购商品的时候不能出现超卖">
+<meta name="keywords" content="高可用,高并发,秒杀">
+<meta property="og:type" content="article">
+<meta property="og:title" content="秒杀系统的设计与实现">
+<meta property="og:url" content="https://consoles.fun/2019/08/26/秒杀系统的设计与实现/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="特征与难点 Redis单机单进程可以达到10W QPS。                                                                                               QPS分析               抢购人数远多于库存，读写并发巨大 库存小，有效写少（真正形成订单的比较少） 写强一致性：抢购商品的时候不能出现超卖">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/20124bd0-c8d5-11e9-84dc-5b83b5de5b34.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/cdn.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/rate_limit_token_bucket.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/rate_limit_leak_bucket.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/d8f64f30-c8d9-11e9-84dc-5b83b5de5b34.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/c745dc10-c8de-11e9-84dc-5b83b5de5b34.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/91abb690-c8e0-11e9-84dc-5b83b5de5b34.png">
+<meta property="og:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/28/2fb659d0-c9a4-11e9-84dc-5b83b5de5b34.png">
+<meta property="og:updated_time" content="2020-10-05T06:33:10.028Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="秒杀系统的设计与实现">
+<meta name="twitter:description" content="特征与难点 Redis单机单进程可以达到10W QPS。                                                                                               QPS分析               抢购人数远多于库存，读写并发巨大 库存小，有效写少（真正形成订单的比较少） 写强一致性：抢购商品的时候不能出现超卖">
+<meta name="twitter:image" content="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/20124bd0-c8d5-11e9-84dc-5b83b5de5b34.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="雨碎江南" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <link rel="stylesheet" href="/css/prism/prism-tomorrow-night.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-list-ul"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/back_blue.png)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/fong.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">consoles</h5>
+          <a href="mailto:consoles.me@gmail.com" title="consoles.me@gmail.com" class="mail">consoles.me@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives/"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories/"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags/"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/consoles"  >
+                <i class="icon icon-lg icon-github"></i>
+                代码
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about/"  >
+                <i class="icon icon-lg icon-info-circle"></i>
+                关于
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">秒杀系统的设计与实现</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">秒杀系统的设计与实现</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-26T15:40:30.000Z" itemprop="datePublished" class="page-time">
+  2019-08-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#特征与难点"><span class="post-toc-text">特征与难点</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#秒杀原理"><span class="post-toc-text">秒杀原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CDN原理"><span class="post-toc-text">CDN原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#限流算法"><span class="post-toc-text">限流算法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#令牌桶算法"><span class="post-toc-text">令牌桶算法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#漏桶算法"><span class="post-toc-text">漏桶算法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CDN加速的原理"><span class="post-toc-text">CDN加速的原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#常用负载均衡算法"><span class="post-toc-text">常用负载均衡算法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#轮询"><span class="post-toc-text">轮询</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#带权轮询"><span class="post-toc-text">带权轮询</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IP哈希"><span class="post-toc-text">IP哈希</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#架构设计原则"><span class="post-toc-text">架构设计原则</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#秒杀服务核心实现"><span class="post-toc-text">秒杀服务核心实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#扣库存的方案"><span class="post-toc-text">扣库存的方案</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#抢购进度查询的实现"><span class="post-toc-text">抢购进度查询的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#参考链接"><span class="post-toc-text">参考链接</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-秒杀系统的设计与实现"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">秒杀系统的设计与实现</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-26 23:40:30" datetime="2019-08-26T15:40:30.000Z"  itemprop="datePublished">2019-08-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/后端开发/">后端开发</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h1 id="特征与难点"><a href="#特征与难点" class="headerlink" title="特征与难点"></a>特征与难点</h1><blockquote>
+<p>Redis单机单进程可以达到10W QPS。</p>
+</blockquote>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/20124bd0-c8d5-11e9-84dc-5b83b5de5b34.png" alt="QPS分析" title>
+                </div>
+                <div class="image-caption">QPS分析</div>
+            </figure>
+<ul>
+<li>抢购人数远多于库存，读写并发巨大</li>
+<li>库存小，有效写少（真正形成订单的比较少）</li>
+<li>写强一致性：抢购商品的时候不能出现超卖现象</li>
+<li>读弱一致性：可能读到有库存，但是实际下单会失败</li>
+</ul>
+<p>难点在于极致性能的实现以及高可用的保证。</p>
+<ul>
+<li>高并发下，某个小依赖可能直接造成雪崩</li>
+<li>流量预估难精确，过高也造成雪崩</li>
+<li>分布式集群，机器多，出故障的概率高</li>
+</ul>
+<h1 id="秒杀原理"><a href="#秒杀原理" class="headerlink" title="秒杀原理"></a>秒杀原理</h1><ul>
+<li>合理利用CDN:例如订单详情页，有效减少回源流量</li>
+<li>nginx限流：过载保护</li>
+<li>异步队列：高并发的流量 -&gt; 均匀的流量</li>
+<li>nginx负载均衡：接入层分摊每个流量到<em>无状态</em>service层提供服务</li>
+</ul>
+<h2 id="CDN原理"><a href="#CDN原理" class="headerlink" title="CDN原理"></a>CDN原理</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/cdn.png" alt="cdn.png" title>
+                </div>
+                <div class="image-caption">cdn.png</div>
+            </figure>
+<ol>
+<li>用户输入访问的域名,操作系统向 LocalDns 查询域名的ip地址.</li>
+<li>LocalDns向 ROOT DNS 查询域名的授权服务器(这里假设LocalDns缓存过期)</li>
+<li>ROOT DNS将域名授权dns记录回应给 LocalDns</li>
+<li>LocalDns得到域名的授权dns记录后,继续向域名授权dns查询域名的ip地址</li>
+<li>域名授权dns查询域名记录后(一般是<em>CNAME</em>)，回应给 LocalDns</li>
+<li>LocalDns得到域名记录后,向智能调度DNS查询域名的ip地址</li>
+<li>智能调度DNS根据一定的算法和策略(比如静态拓扑，容量等),将最适合的CDN节点ip地址回应给 LocalDns</li>
+<li>LocalDns 将得到的域名ip地址，回应给用户端</li>
+<li>用户得到域名ip地址后，访问站点服务器</li>
+<li>CDN节点服务器应答请求，将内容返回给客户端.(缓存服务器一方面在本地进行保存，以备以后使用，二方面把获取的数据返回给客户端，完成数据服务过程)</li>
+</ol>
+<p>为了实现对普通用户透明(使用缓存后用户客户端无需进行任何设置)访问，需要使用DNS(域名解析)来引导用户来访问Cache服务器，以实现透明的加速服务. 由于用户访问网站的第一步就是域名解析,所以通过修改dns来引导用户访问是最简单有效的方式.</p>
+<p>对于普通的Internet用户，每个CDN节点就相当于一个放置在它周围的网站服务器. 通过对dns的接管，用户的请求被透明地指向离他最近的节点，节点中CDN服务器会像网站的原始服务器一样，响应用户的请求. 由于它离用户更近，因而响应时间必然更快.从上面图中虚线圈起来的那块，就是CDN层,这层是位于客户端和源站之间.</p>
+<p>智能调度DNS（例如F5中的3DNS）是CDN服务中的关键系统.当用户访问加入CDN服务的网站时，域名解析请求将最终由 “智能调度DNS”负责处理。它通过一组预先定义好的策略，将当时最接近用户的节点地址提供给用户，使用户可以得到快速的服务。同时它需要与分布在各地的CDN节点保持通信，跟踪各节点的健康状态、容量等信息，确保将用户的请求分配到就近可用的节点上。</p>
+<blockquote>
+<p>CNAME即别名(Canonical Name)。可以用来把一个域名解析到另一个域名，当 DNS 系统在查询 CNAME 左面的名称的时候，都会转向 CNAME 右面的名称再进行查询，一直追踪到最后的 PTR 或 A 名称，成功查询后才会做出回应，否则失败。例如，你有一台服务器上存放了很多资料，你使用docs.example.com去访问这些资源，但又希望通过documents.example.com也能访问到这些资源，那么你就可以在您的DNS解析服务商添加一条CNAME记录，将documents.example.com指向docs.example.com，添加该条CNAME记录后，所有访问documents.example.com的请求都会被转到docs.example.com，获得相同的内容。接入CDN时，在CDN提供商控制台添加完加速域名后，您会得到一个CDN给您分配的CNAME域名， 您需要在您的DNS解析服务商添加CNAME记录，将自己的加速域名指向这个CNAME域名，这样该域名所有的请求才会都将转向CDN的节点，达到加速效果。</p>
+</blockquote>
+<h2 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h2><h3 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h3><p>典型情况下，令牌桶算法用来控制发送到网络上的数据的数目，并<strong>允许突发数据</strong>的发送。</p>
+<p>令牌桶算法的原理是系统会以一个恒定的速度往桶里放入令牌，而如果请求需要被处理，则需要先从桶里获取一个令牌，当桶里没有令牌可取时，则拒绝服务。（因此，如果桶中有足够多的令牌，就可以以峰值流量进行处理，但是长期来看流量速率是恒定的）从原理上看，令牌桶算法和漏桶算法是相反的，一个“进水”，一个是“漏水”。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/rate_limit_token_bucket.png" alt="rate_limit_token_bucket.png" title>
+                </div>
+                <div class="image-caption">rate_limit_token_bucket.png</div>
+            </figure>
+<p>Google的Guava包中的RateLimiter类就是令牌桶算法的解决方案。</p>
+<h3 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h3><p>这种算法可以<em>强制限制数据的传输速率</em>，而令牌桶算法除了能够限制<strong>平均传输速率</strong>，还允许<strong>一定程度的突发传输</strong>。</p>
+<p>漏桶可以看作是一个带有常量服务时间的单服务器队列，如果漏桶（包缓存）溢出，那么数据包会被丢弃。 在网络中，漏桶算法可以控制端口的流量输出速率，平滑网络上的突发流量，实现流量整形，从而为网络提供一个稳定的流量。<br>如图所示，把请求比作是水，水来了都先放进桶里，并以限定的速度出水，当水来得过猛而出水不够快时就会导致水直接溢出，即拒绝服务。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/rate_limit_leak_bucket.png" alt="rate_limit_leak_bucket.png" title>
+                </div>
+                <div class="image-caption">rate_limit_leak_bucket.png</div>
+            </figure>
+<p>可以看出，漏桶算法可以很好的控制流量的访问速度，一旦超过该速度就拒绝服务。</p>
+<p>Nginx按请求速率限速模块使用的是漏桶算法，即能够强行保证请求的实时处理速度不会超过设置的阈值。</p>
+<p>需要注意的是，在某些情况下，漏桶算法不能够有效地使用网络资源，因为漏桶的漏出速率是固定的，所以即使网络中没有发生拥塞，漏桶算法也不能使某一个单独的数据流达到端口速率。因此，漏桶算法对于存在突发特性的流量来说缺乏效率。而令牌桶算法则能够满足这些具有突发特性的流量。通常，漏桶算法与令牌桶算法结合起来为网络流量提供更高效的控制。</p>
+<p>应用层面可以使用计数器限流</p>
+<p><a href="https://www.cnblogs.com/biglittleant/p/8979915.html" target="_blank" rel="noopener">nginx限流配置</a></p>
+<h2 id="CDN加速的原理"><a href="#CDN加速的原理" class="headerlink" title="CDN加速的原理"></a>CDN加速的原理</h2><p><a href="https://www.jianshu.com/p/1dae6e1680ff" target="_blank" rel="noopener">CDN加速原理</a></p>
+<h2 id="常用负载均衡算法"><a href="#常用负载均衡算法" class="headerlink" title="常用负载均衡算法"></a>常用负载均衡算法</h2><p>例如nginx作为接口接入层主要有以下的几种算法</p>
+<h3 id="轮询"><a href="#轮询" class="headerlink" title="轮询"></a>轮询</h3><h3 id="带权轮询"><a href="#带权轮询" class="headerlink" title="带权轮询"></a>带权轮询</h3><p>这种算法用得比较多。</p>
+<pre><code class="lang-js">const ServerWeight = {
+    A: 1, // A服务器权重1
+    B: 3 // B服务器权重3
+};
+
+let wA = wB = 0;
+
+function weightRoundRobin() {
+    wA += ServerWeight.A;
+    wB += ServerWeight.B;
+
+    let target = null;
+    if (wA &gt; wB) {
+        target = &#39;A&#39;;
+        wA -= ServerWeight.A;
+    } else {
+        target = &#39;B&#39;;
+        wB -= ServerWeight.B;
+    }
+    return target;
+}
+</code></pre>
+<p>以上的代码可以用爬楼梯来形象理解：有些人一次能走3步，但是有些人一次只能走一步，每次取走在前面的同学，走得最快的人被取到的次数越多。</p>
+<h3 id="IP哈希"><a href="#IP哈希" class="headerlink" title="IP哈希"></a>IP哈希</h3><p>一个非常大的缺陷：当一个IP作为一个学校的公网出口的时候，命中到后台的服务器的流量可能非常大，并不是一种均匀的策略，比较少使用。</p>
+<h1 id="架构设计原则"><a href="#架构设计原则" class="headerlink" title="架构设计原则"></a>架构设计原则</h1><ul>
+<li>减少第三方依赖，同时自身服务部署也要做到隔离</li>
+<li>压测、降级、限流方案、确保核心服务可用</li>
+<li>需要健康度检查机制（分布式环境中及时摘除有问题的节点），整个链路避免单点</li>
+<li>缩短请求访问路径、减少IO</li>
+<li>减少接口数、降低吞吐数据量、减少请求次数</li>
+</ul>
+<h1 id="秒杀服务核心实现"><a href="#秒杀服务核心实现" class="headerlink" title="秒杀服务核心实现"></a>秒杀服务核心实现</h1><ul>
+<li>满足基本需求，做到单服务的极致性能</li>
+<li>请求链路优化，从客户端到服务器每层的优化（流量是一个逐层衰减的过程）</li>
+</ul>
+<h2 id="扣库存的方案"><a href="#扣库存的方案" class="headerlink" title="扣库存的方案"></a>扣库存的方案</h2><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/d8f64f30-c8d9-11e9-84dc-5b83b5de5b34.png" alt="扣库存的方案" title>
+                </div>
+                <div class="image-caption">扣库存的方案</div>
+            </figure>
+<p>方案一：其中创建订单、扣库存在一个事务中，一个订单肯定会减一个库存，不会超卖，但是可能存在恶意下单但是不支付，这样商品就卖不出去了<br>方案二：支付和扣库存放在一个事务中，可以有效解决方案一中的订单超卖问题，但是可能存在订单超卖的问题，有一部分订单必然是支付不了的<br>方案三：这种方案并发量更大，因为扣库存相对来讲是一个比较简单耗时少的操作，可以尽早拦截无效请求。设置一个订单超时，如果不支付的话订单自动取消</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/c745dc10-c8de-11e9-84dc-5b83b5de5b34.png" alt="扣库存的2种实现" title>
+                </div>
+                <div class="image-caption">扣库存的2种实现</div>
+            </figure>
+<p>去IO之后的减库存直接修改的是内存，并且推送到MQ中的数据只是扣库存成功的用户。性能非常高，IO非常低，并且可以解耦创建订单和减库存。</p>
+<p>单机器如果扛不住请求（即使是内存也有QPS上限）可以把库存分摊到多台服务器。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/27/91abb690-c8e0-11e9-84dc-5b83b5de5b34.png" alt="库存分摊到多个节点" title>
+                </div>
+                <div class="image-caption">库存分摊到多个节点</div>
+            </figure>
+<p>入上图所示，假设有1000个库存，可以10台机器各分配100个库存，通过接入层进行负载均衡。即使客户端来了100W的请求，均摊到每个减库存的服务每个处理10W的量，最后流入MQ中的QPS最多为1000。大部分流量被拦截了。这种方式肯定不会超卖，但是可能存在减库存的时候挂了导致<em>少卖</em>。我们可以采用如下的方式：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://git-hexo-blog.oss-cn-beijing.aliyuncs.com/hexo-client/2019/08/28/2fb659d0-c9a4-11e9-84dc-5b83b5de5b34.png" alt="预留buff统一减库存" title>
+                </div>
+                <div class="image-caption">预留buff统一减库存</div>
+            </figure>
+<p>统一库存如果为1000，有10个节点的本地库存，这10个节点库存总数必须大于1000，最理想的状态是，某个节点挂掉后，其它9个节点的库存加起来还能等于1000，如果没有节点挂点，所有的请求在统一库存那里也会被合理拦截，最终控制在1000，本地库存主要是为了减轻库存查询压力，大于等于实际的库存即可，但是不能超过太多。</p>
+<p>对于这样的恶意用户可以记录下来，让其在以后的秒杀中丧失资格。</p>
+<ol>
+<li>初始化库存到本地</li>
+<li>本地减库存，成功则进行统一减库存（相当于做了一个汇总，防止少卖和超卖），失败则返回</li>
+<li>统一减库存(边界情况下超卖可以用redis lua脚本解决)成功才写入MQ,异步创建订单</li>
+<li>告知用户抢购成功</li>
+</ol>
+<h2 id="抢购进度查询的实现"><a href="#抢购进度查询的实现" class="headerlink" title="抢购进度查询的实现"></a>抢购进度查询的实现</h2><p>假设成功创建订单的有1000个用户。维护一个容量为1000的数组记为A和一个容量为1000的哈希表记为B。</p>
+<ol>
+<li>数组A存储排队中，待创建订单的用户，哈希表B存储uid对应的在A中的索引</li>
+<li>每次从数组A中依次消费数据，并记录最近的消费索引值X</li>
+<li>当用户来查排队进度的时候从哈希表B中取出该uid对应的存储索引值Y</li>
+<li>Y - X即为排队进度</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a href="https://mp.weixin.qq.com/s/veK1nn_0O5HYwkvAEZJG9w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/veK1nn_0O5HYwkvAEZJG9w</a></li>
+</ul>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-10-05T06:33:10.028Z" itemprop="dateUpdated">2020-10-05 14:33:10</time>
+</span><br>
+
+
+        
+        文章发布地址：<a href="/2019/08/26/秒杀系统的设计与实现/" target="_blank" rel="external">https://consoles.fun/2019/08/26/秒杀系统的设计与实现/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="https://consoles.fun">
+            <img src="/img/fong.jpg" alt="consoles">
+            consoles
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/秒杀/">秒杀</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高可用/">高可用</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高并发/">高并发</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&title=《秒杀系统的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&title=《秒杀系统的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《秒杀系统的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/02/消息推送系统的设计与实现/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">消息推送系统的设计与实现</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/26/短地址服务的设计与实现/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">短地址服务的设计与实现</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        感谢支持！
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.png" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+            <p>
+                
+                    <span>
+                        <a href="/atom.xml" target="_blank" class="rss" title="rss">
+                            <i class="icon icon-lg icon-rss"></i>
+                        </a>
+                    </span>
+                    
+                        <span>
+                            博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a>
+                        </span>
+            </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>
+                consoles &copy;
+                    
+                        2018 -
+                            
+                                2020
+            </span>
+            <span>
+                
+                        Power by
+                        <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+                        <a href="https://github.com/abelsu7/hexo-theme-indigo-plus" target="_blank">indigo plus</a>
+                        <p>Hosted by <a href="https://pages.github.com" target="_blank" style="font-weight: bold">Github Pages</a></p>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&title=《秒杀系统的设计与实现》 — 雨碎江南&pic=https://consoles.fun/img/fong.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&title=《秒杀系统的设计与实现》 — 雨碎江南&source=野马也，尘埃也，生物之以息相吹也。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《秒杀系统的设计与实现》 — 雨碎江南&url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/&via=https://consoles.fun" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://consoles.fun/2019/08/26/秒杀系统的设计与实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACuUlEQVR42u3bQY7bMBAEwP3/pxMgpwC7trtnSMcBSidDViQWA4jjHu7XV3z8+nN8/5xc/+jbv4/kDslzhwceHh7eaOiPju/X5GfaJz6f0EdnXkwWHh4e3jXevcUgmbiz/woPDw/vc3iboTwaXLIw5NONh4eH9z/y2rI4+fxBCwMeHh5eGUbkEUNyflPWX8la8PDw8GLepgH2rz6/qb+Hh4eHV3bVkyPfKNBuI2ibXj/cBw8PD+8CL//xvwkX2tZaXppHE42Hh4d3gXeqEdXGsqci4KjgxsPDw3sj72xDq91qkI/qxZV4eHh4R3mbLVP7THX2v1Fs4cLDw8O7zMsL1uSFPiua2+I+ylrw8PDwjvJmw41eynGo0YbI7dPx8PDwzvLaMrqNBjbhQluUFyU1Hh4e3lFeHu9uJmVWdtdbu/Dw8PCu8Z5fNDtfVPRl2Z0sQnh4eHj3eG0YkS8DSWttE+MWDTk8PDy8o7xEnw/97PaptmR/uCTg4eHhHeLlccDsMUkYMYt6o1ADDw8P7+28zaA3386e9cN5PDw8vAu8dkloB3E2VsiLdTw8PLx7vNlWqk34u7lnvaEBDw8P7xpvE7wmbf72dX9sEwMeHh7erf1Rqz+zn91nFli0jTc8PDy8G7znL9lNqJrc+V477SsfBB4eHt789/twg9Rs2UgWlXYiosIaDw8Pb82bhQVtfNBO4iwULnJiPDw8vAVv1pRqj7aw3oTIRWGNh4eHN+LNBtoGr23EkH/7YnnDw8PDu8Cbtbvyl377it9MXFvc4+Hh4W14+WKQN6tOTVDym2DY+sLDw8Nb8/IBtbFv2zBrV60XY8PDw8P7MF4bK7TB7uZKPDw8vE/gbdLRPERISurVIPDw8PAO8dowoh3Kc2rOqAMRPDw8vAu8TQMsuXW7HaGdiAMbCPDw8PBS3m+EnlS5FwFucQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/node-waves@0.7.6/src/js/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="/js/prism.min.js?v=1.7.2"></script>
+<script src="/js/prism-vim.min.js?v=1.7.2"></script>
+</body>
+</html>
