@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>雨碎江南 - 为者常成，行者常至</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="野马也，尘埃也，生物之以息相吹也">
+<meta property="og:type" content="website">
+<meta property="og:title" content="雨碎江南">
+<meta property="og:url" content="https://consoles.fun/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="野马也，尘埃也，生物之以息相吹也">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:author" content="consoles">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '雨碎江南',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><h1 class="title-seo">雨碎江南</h1></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/" title="Nest.js学习">Nest.js学习</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-22T13:55:44.000Z" title="发表于 2025-03-22 13:55:44">2025-03-22</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-22T13:55:44.000Z" title="更新于 2025-03-22 13:55:44">2025-03-22</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Node-js/">Node.js</a></span></div><div class="content">依赖注入是 Nest.js 的核心，使得开发者可以轻松管理应用程序中的依赖关系，提高代码的可测试性和可维护性。DI 是一种设计模式，它可以用来实现控制反转（IoC）—— 对象的创建和依赖关系的管理交给框架来处理而不是在代码中硬编码。 它的依赖注入主要有 3 个核心概念：  Provider: 用于创建和管理的服务、仓库、工厂等的类，使用 @Injectable 装饰器进行标记，并可以在模块中注册。 Injection: 将提供者的实例自动传递给需要它们的类（如控制器、服务等）,通过构造函数注入来实现这一点。 Module: NestJS 应用程序的基本组织单元，每个模块可以包含多个提供者，并且可以在其他模块中导入和使用这些提供者。  依赖注入的优势：  解耦：类之间的依赖关系更加松散，减少了代码的耦合度，提高了代码的可维护性 可测试性：通过依赖注入，可以轻松在测试中替换依赖项，使用模拟对象进行单元测试 可拓展性：新功能可以通过添加新的提供者来实现，而不需要修改现有代码  </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/03/21/React%E5%AD%A6%E4%B9%A0/" title="React学习">React学习</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-21T18:18:29.000Z" title="发表于 2025-03-21 18:18:29">2025-03-21</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-01T23:25:36.000Z" title="更新于 2025-04-01 23:25:36">2025-04-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/React-js/">React.js</a></span></div><div class="content">组件是 React.js 的基础 nest.js 默认使用 page.tsx 作为入口 12/ -&gt; app/page.tsx/test -&gt; app/test/page.tsx  父子组件的通信 父组件 -&gt; 子组件：通过 props 属性传递 子组件 -&gt; 父组件：通过 props 传递函数，触发父组件中的状态更新  组件类组件和函数式组件按照组件的定义方式可以分为类组件和函数式组件。现在推荐使用函数式组件，代码写起来简洁，并且兼容类组件的所有特性，类组件是历史产物。  纯函数：函数组件更容易编写纯函数（即相同的输入总是产生相同的输出，没有副作用）。 不可变性：通过 Hooks（如 useState）管理状态时，状态更新是不可变的，这有助于避免副作用。 组合性：函数组件可以更容易地组合和复用。  React Hooks 是 React 16.8 引入的革命性特性，它允许你在函数组件中使用状态(state)和其他 React 特性，而无需编写 class 组件。 客户端组件和服务端组件组件默认是服务端组件，除非使用 use...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/03/17/%E6%B5%85%E8%B0%88%E5%9C%A8%E7%BA%BF%E6%96%87%E6%A1%A3%E4%B8%AD%E7%9A%84%E5%8D%8F%E5%90%8C%E7%BC%96%E8%BE%91/" title="浅谈在线文档中的协同编辑">浅谈在线文档中的协同编辑</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-17T22:06:41.000Z" title="发表于 2025-03-17 22:06:41">2025-03-17</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-21T00:37:57.000Z" title="更新于 2025-03-21 00:37:57">2025-03-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></span></div><div class="content">这是我在面试一个后端 node.js 工程师的时候遇到的一个场景题目（公司是做 AI 知识库的，可能遇到这些问题）。 我当时回答了如下内容：  每一篇文档有 id, 作者，内容，版本号, 状态(编辑中，已发布) 用户在进入页面的时候，会从 DB 中拉取最新的版本，编辑的时候会向服务器发送一个请求，这个时候服务器将状态改变为编辑中，同时将版本号加一，通知其他所有客户端。将这个改动记录到日志中，便于回档。 其他用户收到消息的时候重新渲染页面。  这个结果的正确性应该是可以保证的，可以通过乐观锁的机制来保证旧版本不会覆盖新版本数据。问题是每次更新都是全量的，多客户端修改频繁，网络 IO, 频繁的 DB 修改都是问题。 抛开性能问题不谈？上面的方案有个核心问题：其他用户怎么看到当前用户的鼠标位置？ 优化的一个方案就是只做增量修改，这方面可以联想到 rsync 的增量同步， git 中的 diff 算法。 下面搜索答案，其实业界有现成的算法 OT (Operational Transformation)广泛应用在 Goole Docs...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/03/13/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3https/" title="深入理解 https">深入理解 https</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-13T20:02:02.000Z" title="发表于 2025-03-13 20:02:02">2025-03-13</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-14T11:44:13.000Z" title="更新于 2025-03-14 11:44:13">2025-03-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/https/">https</a></span></div><div class="content">加密算法对称加密的局限性在对称加密（例如：AES）中，加&#x2F;解密使用相同的秘钥。这会带来 2 个问题：  秘钥分发问题：发送方和接受方必须通过某种安全方式共享秘钥。如果秘钥在传输时被截获，通信安全性就会被破坏。 秘钥管理问题：如果有多对用户需要通信，每对用户都需要一个独立的秘钥，秘钥数量会随着用户规模急剧增加(10个用户需要 45 个秘钥， n*(n-1)&#x2F;2...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/01/19/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/" title="布隆过滤器">布隆过滤器</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-19T21:11:33.000Z" title="发表于 2025-01-19 21:11:33">2025-01-19</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-29T20:38:02.000Z" title="更新于 2025-03-29 20:38:02">2025-03-29</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Redis/">Redis</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></span></div><div class="content">特点 精确判断不存在，但是可能会误判一个不在集合中的元素为存在（即：假阳） 不支持删除元素（几个 hash 函数计算出来的下标可能别的 key 也用到了）  总结来说就是：判断不存在的时候一定不存在，判断存在的时候大概率存在。 误判率可以通过调整参数来降低，但是无法完全消除。 数据结构的组成布隆过滤器由一个 bitSet 和一组 hash 函数组成，是一种空间效率非常高的概率算法和数据结构。在初始化的时候，bitSet 的每一位被初始化为 0，同时会定义一组 hash函数，例如有 3 组 hash 函数，hash1，hash2，hash3. 写入流程当我们要写入一个值时，过程如下，以“jionghui”为例：  首先将“jionghui”跟3组 Hash 函数分别计算，得到 bitSet 的下标为：1、7、10。 将 bitSet 的这3个下标标记为1。  假设我们还有另外两个值：java 和 diaosi，按上面的流程跟 3组 Hash 函数分别计算，结果如下：  java：Hash 函数计算 bitSet 下标为：1、7、11 diaosi：Hash 函数计算 bitSet...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/05/29/PyTorch%E5%AD%A6%E4%B9%A0/" title="PyTorch 学习">PyTorch 学习</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-05-29T19:35:19.000Z" title="发表于 2024-05-29 19:35:19">2024-05-29</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T19:52:13.000Z" title="更新于 2025-04-02 19:52:13">2025-04-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/PyTorch/">PyTorch</a></span></div><div class="content">入门容易，代码浅显易懂，动态图。  ML 中的一些专有名词  偏差(Bias): 模型在样本上的输出与真实值之间的误差 —— 模型本身的精确度 方差(Variance): 模型每一次的输出结果与模型输出期望之间的误差 —— 模型的稳定性  防止过拟合的方法 补充数据集（数据增强） 减少模型参数 Dropout Earlystopping 正则化 &amp; 稀疏化（模型结构变得更简单的一种手段）  防止欠拟合的方法 加大模型参数 减少正则化参数 更充分的训练  在实际的 ML 中可能解决过拟合是更常见的需求。 Tensor标量是 0 维张量，向量是 1 维张量，矩阵是 2 维张量。 PCA 与特征值分解将 n 维特征映射到 k 维上（投影矩阵），这 k 维是全新的正交特征，也被称为主成分，是在原有的 n 维特征的基础上重新构造出来的 k 维特征。 PCA 算法的优化目标：  降维后同一维度的方差最大 不同维度的相关性为 0 协方差矩阵  参考资料 Visdom: 提供了大多数科学计算的可视化工具，支持 PyTorch、Torch、Numpy Torchvision: 独立于...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/12/03/Python3%E5%AD%A6%E4%B9%A0/" title="Python3学习">Python3学习</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-12-03T10:01:44.000Z" title="发表于 2023-12-03 10:01:44">2023-12-03</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-03T10:01:44.000Z" title="更新于 2025-04-03 10:01:44">2025-04-03</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/python/">python</a></span></div><div class="content">注意 py 中声明只有一个元素的元组的时候应该写成 t = (1,) 而不是 (1)。后者会被解释器解释为变量而非元组。 多继承和 java 有着显著区别，python3 的类允许多继承。多继承带来了菱形问题(Diamond Problem):如果多个父类继承同一个基类，可能导致方法调用冲突。如下所示： 12345  A / \B   C \ /  D  12345678910111213141516171819202122class A:    def method(self):        print(&quot;A&quot;)class B(A):    def method(self):        super().method()  # 调用 A.method()        print(&quot;B&quot;)class C(A):    def method(self):        super().method()  # 调用 A.method()        print(&quot;C&quot;)class D(B, C):    def...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/09/26/%E8%82%A1%E7%A5%A8%E6%8A%95%E8%B5%84%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/" title="股票投资从入门到放弃">股票投资从入门到放弃</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-09-26T19:03:37.000Z" title="发表于 2023-09-26 19:03:37">2023-09-26</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T20:23:32.000Z" title="更新于 2025-04-02 20:23:32">2025-04-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%BB%8F%E6%B5%8E%E5%AD%A6/">经济学</a></span></div><div class="content">...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2022/07/14/programming-pearls/" title="编程珠玑">编程珠玑</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-07-14T09:45:24.000Z" title="发表于 2022-07-14 09:45:24">2022-07-14</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T23:13:21.000Z" title="更新于 2025-04-02 23:13:21">2025-04-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%AE%97%E6%B3%95/">算法</a></span></div><div class="content">位图排序 输入：一个包含n个正整数的文件，其中每个正整数都小于n，在这里n &#x3D; 10^7，其中n个整数都是不可重复的。 输出：以升序排列的整数列表 约束：最多1MB内存，无限内存，时间最多几分钟，10s就可认为不需要优化了。  思考：一个整数占用4字节，10^7的整数占用的内存是4*10^7.一次性读取到内存中显然是不可能的。所以我们可以使用10^7&#x2F;2^20 &#x3D; 39趟归并排序，也就需要40次的IO操作，IO无疑是瓶颈。  我们可以使用10位长的字符串表示一个所有元素小于10的非负整数集合（集合3大特性），如：{1,2,3,5,8}可表示为：  10111010010 # 如果对应的位是1表示处于该集合  以上的方法非常巧妙，本来需要4个字节表示的数，仅仅通过一个位就实现了，空间瞬间剩下的几十倍，有不有？ 这样就可以使用10^7个位表示10^7个整数，占用空间为10^7&#x2F;2^20 &#x3D;...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2022/04/02/Typescript%E7%B1%BB%E5%9E%8B%E4%BD%93%E6%93%8D/" title="Typescript 类型体操">Typescript 类型体操</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-02T19:58:46.000Z" title="发表于 2022-04-02 19:58:46">2022-04-02</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T19:58:46.000Z" title="更新于 2025-04-02 19:58:46">2025-04-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Typescript/">Typescript</a></span></div><div class="content">优先使用接口（interface）定义对象结构，类型别名（type）用于联合类型或复杂类型。 元组在 py 中元组是固定类型，固定长度的，但是在 ts 中只固定了类型，仍然通过 push 等方法来改变（设计如此）。 123456let t:[number, string] = [1, &#x27;content&#x27;];// t[0] = &#x27;yes&#x27; // 报错// t[2] = 4 // 报错t.push(100)// t.push(false) // 报错，不兼容 boolean console.log(t) // [ 1, &#x27;content&#x27;, 100 ]  ts 4.0 新增加了命名元组，可以增强代码的可读性。 123456789101112// 命名元组type UserRecord = [id: number, name: string, email: string, createdAt: Date];const users: UserRecord[] = [  [1, &#x27;John&#x27;,...</div></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/#content-inner">10</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">96</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">70</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2017/01/17/oauth2/" title="浅谈第三方登陆">浅谈第三方登陆</a><time datetime="2025-04-03T23:27:25.000Z" title="更新于 2025-04-03 23:27:25">2025-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-04-03T23:26:43.000Z" title="更新于 2025-04-03 23:26:43">2025-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/08/01/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%95%B0%E6%8D%AE%E5%BA%93/" title="面试套路 - 数据库">面试套路 - 数据库</a><time datetime="2025-04-03T23:26:11.000Z" title="更新于 2025-04-03 23:26:11">2025-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/06/15/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-Redis/" title="面试套路 - Redis">面试套路 - Redis</a><time datetime="2025-04-03T23:25:37.000Z" title="更新于 2025-04-03 23:25:37">2025-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/04/17/LeetCode-No55%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8F/" title="LeetCode No.55 跳跃游戏">LeetCode No.55 跳跃游戏</a><time datetime="2025-04-03T23:21:09.000Z" title="更新于 2025-04-03 23:21:09">2025-04-03</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"><span class="card-category-list-name">人工智能</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">前端开发</span><span class="card-category-list-count">16</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">后端开发</span><span class="card-category-list-count">45</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6/"><span class="card-category-list-name">常用软件</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"><span class="card-category-list-name">数据库</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%96%87%E5%AD%A6/"><span class="card-category-list-name">文学</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/"><span class="card-category-list-name">杂记</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">游戏开发</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">移动开发</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/"><span class="card-category-list-name">算法</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/"><span class="card-category-list-name">运维</span><span class="card-category-list-count">12</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Node-js/" style="font-size: 1.42em; color: rgb(167, 71, 180);">Node.js</a><a href="/tags/leetcode/" style="font-size: 1.32em; color: rgb(178, 171, 111);">leetcode</a><a href="/tags/MySQL/" style="font-size: 1.35em; color: rgb(177, 86, 162);">MySQL</a><a href="/tags/PyTorch/" style="font-size: 1.15em; color: rgb(126, 50, 179);">PyTorch</a><a href="/tags/python/" style="font-size: 1.15em; color: rgb(118, 199, 54);">python</a><a href="/tags/React-js/" style="font-size: 1.15em; color: rgb(129, 122, 158);">React.js</a><a href="/tags/Typescript/" style="font-size: 1.15em; color: rgb(190, 50, 75);">Typescript</a><a href="/tags/%E7%88%B1%E6%83%85/" style="font-size: 1.15em; color: rgb(155, 200, 161);">爱情</a><a href="/tags/%E5%A9%9A%E5%A7%BB/" style="font-size: 1.15em; color: rgb(76, 107, 50);">婚姻</a><a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 1.35em; color: rgb(50, 50, 124);">算法</a><a href="/tags/%E6%95%B0%E5%AD%A6%E5%BD%92%E7%BA%B3%E6%B3%95/" style="font-size: 1.15em; color: rgb(115, 62, 125);">数学归纳法</a><a href="/tags/%E6%A6%82%E7%8E%87%E8%AE%BA/" style="font-size: 1.15em; color: rgb(191, 65, 50);">概率论</a><a href="/tags/java/" style="font-size: 1.22em; color: rgb(50, 50, 50);">java</a><a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 1.28em; color: rgb(79, 50, 145);">设计模式</a><a href="/tags/%E6%95%B0%E5%AD%A6/" style="font-size: 1.15em; color: rgb(160, 155, 196);">数学</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 1.22em; color: rgb(50, 172, 162);">软件工程</a><a href="/tags/canvas/" style="font-size: 1.15em; color: rgb(171, 82, 117);">canvas</a><a href="/tags/javascript/" style="font-size: 1.32em; color: rgb(168, 50, 50);">javascript</a><a href="/tags/html5/" style="font-size: 1.18em; color: rgb(116, 159, 111);">html5</a><a href="/tags/Linux/" style="font-size: 1.45em; color: rgb(87, 50, 115);">Linux</a><a href="/tags/dns/" style="font-size: 1.15em; color: rgb(177, 50, 140);">dns</a><a href="/tags/docker/" style="font-size: 1.15em; color: rgb(52, 118, 139);">docker</a><a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 1.15em; color: rgb(50, 142, 184);">微服务</a><a href="/tags/css/" style="font-size: 1.22em; color: rgb(94, 112, 175);">css</a><a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" style="font-size: 1.15em; color: rgb(50, 191, 192);">大数据</a><a href="/tags/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" style="font-size: 1.15em; color: rgb(50, 139, 119);">数据分析</a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.15em; color: rgb(109, 192, 50);">文学</a><a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" style="font-size: 1.15em; color: rgb(60, 50, 50);">函数式编程</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E9%9A%8F%E6%83%B3%E5%BD%95/" style="font-size: 1.15em; color: rgb(163, 164, 50);">软件随想录</a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.18em; color: rgb(50, 50, 168);">游戏</a><a href="/tags/golang/" style="font-size: 1.18em; color: rgb(79, 50, 181);">golang</a><a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/" style="font-size: 1.18em; color: rgb(182, 50, 146);">高可用</a><a href="/tags/nio/" style="font-size: 1.18em; color: rgb(95, 192, 50);">nio</a><a href="/tags/netty/" style="font-size: 1.15em; color: rgb(139, 103, 50);">netty</a><a href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" style="font-size: 1.18em; color: rgb(119, 183, 50);">网络编程</a><a href="/tags/ios/" style="font-size: 1.18em; color: rgb(71, 50, 50);">ios</a><a href="/tags/Redis/" style="font-size: 1.25em; color: rgb(50, 104, 50);">Redis</a><a href="/tags/swift/" style="font-size: 1.15em; color: rgb(126, 68, 126);">swift</a><a href="/tags/Shell/" style="font-size: 1.25em; color: rgb(155, 50, 95);">Shell</a><a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" style="font-size: 1.15em; color: rgb(50, 200, 82);">信息安全</a><a href="/tags/mac/" style="font-size: 1.15em; color: rgb(155, 50, 181);">mac</a><a href="/tags/memcached/" style="font-size: 1.15em; color: rgb(50, 50, 50);">memcached</a><a href="/tags/AI/" style="font-size: 1.15em; color: rgb(140, 50, 159);">AI</a><a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 1.15em; color: rgb(99, 144, 165);">年终总结</a><a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 1.15em; color: rgb(50, 154, 72);">性能优化</a><a href="/tags/%E7%BA%B3%E5%85%B0%E5%AE%B9%E8%8B%A5/" style="font-size: 1.15em; color: rgb(64, 70, 153);">纳兰容若</a><a href="/tags/%E8%AF%97%E8%AF%8D/" style="font-size: 1.15em; color: rgb(150, 106, 121);">诗词</a><a href="/tags/oauth2/" style="font-size: 1.15em; color: rgb(126, 50, 83);">oauth2</a><a href="/tags/ajax/" style="font-size: 1.15em; color: rgb(50, 186, 93);">ajax</a><a href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" style="font-size: 1.22em; color: rgb(54, 50, 196);">高并发</a><a href="/tags/%E7%A7%92%E6%9D%80/" style="font-size: 1.18em; color: rgb(132, 50, 83);">秒杀</a><a href="/tags/sass/" style="font-size: 1.15em; color: rgb(50, 91, 93);">sass</a><a href="/tags/compass/" style="font-size: 1.15em; color: rgb(50, 123, 125);">compass</a><a href="/tags/spark/" style="font-size: 1.18em; color: rgb(157, 192, 72);">spark</a><a href="/tags/hadoop/" style="font-size: 1.15em; color: rgb(116, 50, 50);">hadoop</a><a href="/tags/hive/" style="font-size: 1.15em; color: rgb(50, 135, 56);">hive</a><a href="/tags/hdfs/" style="font-size: 1.15em; color: rgb(50, 111, 50);">hdfs</a><a href="/tags/%E6%B5%81%E5%A4%84%E7%90%86/" style="font-size: 1.18em; color: rgb(50, 50, 83);">流处理</a><a href="/tags/storm/" style="font-size: 1.15em; color: rgb(120, 87, 87);">storm</a><a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" style="font-size: 1.18em; color: rgb(159, 54, 139);">网络安全</a><a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 1.15em; color: rgb(53, 134, 169);">读书笔记</a><a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 1.15em; color: rgb(113, 50, 141);">生活</a><a href="/tags/web/" style="font-size: 1.15em; color: rgb(50, 51, 73);">web</a><a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 1.38em; color: rgb(171, 142, 154);">面试</a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" style="font-size: 1.15em; color: rgb(50, 108, 50);">分布式</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(89, 50, 109);">架构</a><a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 1.18em; color: rgb(156, 137, 60);">网络</a><a href="/tags/https/" style="font-size: 1.15em; color: rgb(83, 110, 169);">https</a><a href="/tags/%E7%BB%8F%E6%B5%8E%E5%AD%A6/" style="font-size: 1.15em; color: rgb(172, 50, 50);">经济学</a><a href="/tags/MongoDB/" style="font-size: 1.15em; color: rgb(174, 130, 50);">MongoDB</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      <a class="card-more-btn" href="/archives/"
+            title="查看更多">
+            <i class="fas fa-angle-right"></i>
+          </a>
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/03/">
+            <span class="card-archive-list-date">
+              三月 2025
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/01/">
+            <span class="card-archive-list-date">
+              一月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/05/">
+            <span class="card-archive-list-date">
+              五月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/12/">
+            <span class="card-archive-list-date">
+              十二月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/09/">
+            <span class="card-archive-list-date">
+              九月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/07/">
+            <span class="card-archive-list-date">
+              七月 2022
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/04/">
+            <span class="card-archive-list-date">
+              四月 2022
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/03/">
+            <span class="card-archive-list-date">
+              三月 2022
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">96</div></div><div class="webinfo-item"><div class="item-name">运行时间 :</div><div class="item-count" id="runtimeshow" data-publishDate="2016-03-19T12:04:12.000Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-04-03T15:29:41.235Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
