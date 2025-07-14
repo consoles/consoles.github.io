@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>秒杀系统的设计与实现 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="特征与难点  写强一致性：抢购商品的时候不能出现超卖现象 读弱一致性：可能读到有库存，但是实际下单会失败 抢购人数远多于库存，读写并发巨大 库存少导致有效写少（真正形成订单的比较少）  难点在于极致性能的实现以及高可用的保证。  高并发下，某个小依赖可能直接造成雪崩 流量预估难精确，过高也造成雪崩 分布式集群，机器多，出故障的概率高  秒杀原理 合理利用 CDN：例如订单详情页，有效减少回源流量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="秒杀系统的设计与实现">
+<meta property="og:url" content="https://consoles.fun/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="特征与难点  写强一致性：抢购商品的时候不能出现超卖现象 读弱一致性：可能读到有库存，但是实际下单会失败 抢购人数远多于库存，读写并发巨大 库存少导致有效写少（真正形成订单的比较少）  难点在于极致性能的实现以及高可用的保证。  高并发下，某个小依赖可能直接造成雪崩 流量预估难精确，过高也造成雪崩 分布式集群，机器多，出故障的概率高  秒杀原理 合理利用 CDN：例如订单详情页，有效减少回源流量">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2019-08-26T23:40:30.000Z">
+<meta property="article:modified_time" content="2025-01-19T19:29:47.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="高可用">
+<meta property="article:tag" content="高并发">
+<meta property="article:tag" content="秒杀">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "秒杀系统的设计与实现",
+  "url": "https://consoles.fun/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2019-08-26T23:40:30.000Z",
+  "dateModified": "2025-01-19T19:29:47.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '秒杀系统的设计与实现',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">秒杀系统的设计与实现</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">秒杀系统的设计与实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2019-08-26T23:40:30.000Z" title="发表于 2019-08-26 23:40:30">2019-08-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T19:29:47.000Z" title="更新于 2025-01-19 19:29:47">2025-01-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="特征与难点"><a href="#特征与难点" class="headerlink" title="特征与难点"></a>特征与难点</h1><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/miaosha-qps.png" alt="QPS分析"></p>
+<ul>
+<li>写强一致性：抢购商品的时候不能出现超卖现象</li>
+<li>读弱一致性：可能读到有库存，但是实际下单会失败</li>
+<li>抢购人数远多于库存，读写并发巨大</li>
+<li>库存少导致有效写少（真正形成订单的比较少）</li>
+</ul>
+<p>难点在于极致性能的实现以及高可用的保证。</p>
+<ul>
+<li>高并发下，某个小依赖可能直接造成雪崩</li>
+<li>流量预估难精确，过高也造成雪崩</li>
+<li>分布式集群，机器多，出故障的概率高</li>
+</ul>
+<h1 id="秒杀原理"><a href="#秒杀原理" class="headerlink" title="秒杀原理"></a>秒杀原理</h1><ul>
+<li>合理利用 CDN：例如订单详情页，有效减少回源流量</li>
+<li>Nginx 限流：过载保护</li>
+<li>异步队列：高并发的流量 -&gt; 均匀的流量</li>
+<li>Nginx 负载均衡：接入层分摊流量到<em>无状态</em> service 层提供服务</li>
+</ul>
+<h2 id="CDN原理"><a href="#CDN原理" class="headerlink" title="CDN原理"></a>CDN原理</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/cdn.png" alt="cdn.png"></p>
+<ol>
+<li>用户输入访问的域名,操作系统向 LocalDns 查询域名的ip地址.</li>
+<li>LocalDns向 ROOT DNS 查询域名的授权服务器(这里假设LocalDns缓存过期)</li>
+<li>ROOT DNS将域名授权dns记录回应给 LocalDns</li>
+<li>LocalDns得到域名的授权dns记录后,继续向域名授权dns查询域名的ip地址</li>
+<li>域名授权dns查询域名记录后(一般是<em>CNAME</em>)，回应给 LocalDns</li>
+<li>LocalDns得到域名记录后,向智能调度DNS查询域名的ip地址</li>
+<li>智能调度DNS根据一定的算法和策略(比如静态拓扑，容量等),将最适合的CDN节点ip地址回应给 LocalDns</li>
+<li>LocalDns 将得到的域名ip地址，回应给用户端</li>
+<li>用户得到域名ip地址后，访问站点服务器</li>
+<li>CDN节点服务器应答请求，将内容返回给客户端.(缓存服务器一方面在本地进行保存，以备以后使用，二方面把获取的数据返回给客户端，完成数据服务过程)</li>
+</ol>
+<p>为了实现对普通用户透明(使用缓存后用户客户端无需进行任何设置)访问，需要使用DNS(域名解析)来引导用户来访问Cache服务器，以实现透明的加速服务. 由于用户访问网站的第一步就是域名解析,所以通过修改dns来引导用户访问是最简单有效的方式.</p>
+<p>对于普通的Internet用户，每个CDN节点就相当于一个放置在它周围的网站服务器. 通过对dns的接管，用户的请求被透明地指向离他最近的节点，节点中CDN服务器会像网站的原始服务器一样，响应用户的请求. 由于它离用户更近，因而响应时间必然更快.从上面图中虚线圈起来的那块，就是CDN层,这层是位于客户端和源站之间.</p>
+<p>智能调度DNS（例如F5中的3DNS）是CDN服务中的关键系统.当用户访问加入CDN服务的网站时，域名解析请求将最终由 “智能调度DNS”负责处理。它通过一组预先定义好的策略，将当时最接近用户的节点地址提供给用户，使用户可以得到快速的服务。同时它需要与分布在各地的CDN节点保持通信，跟踪各节点的健康状态、容量等信息，确保将用户的请求分配到就近可用的节点上。</p>
+<blockquote>
+<p>CNAME即别名(Canonical Name)。可以用来把一个域名解析到另一个域名，当 DNS 系统在查询 CNAME 左面的名称的时候，都会转向 CNAME 右面的名称再进行查询，一直追踪到最后的 PTR 或 A 名称，成功查询后才会做出回应，否则失败。例如，你有一台服务器上存放了很多资料，你使用docs.example.com去访问这些资源，但又希望通过documents.example.com也能访问到这些资源，那么你就可以在您的DNS解析服务商添加一条CNAME记录，将documents.example.com指向docs.example.com，添加该条CNAME记录后，所有访问documents.example.com的请求都会被转到docs.example.com，获得相同的内容。接入CDN时，在CDN提供商控制台添加完加速域名后，您会得到一个CDN给您分配的CNAME域名， 您需要在您的DNS解析服务商添加CNAME记录，将自己的加速域名指向这个CNAME域名，这样该域名所有的请求才会都将转向CDN的节点，达到加速效果。</p>
+</blockquote>
+<h2 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h2><h3 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h3><p>典型情况下，令牌桶算法用来控制发送到网络上的数据的数目，并<strong>允许突发数据</strong>的发送。</p>
+<p>令牌桶算法的原理是系统会以一个恒定的速度往桶里放入令牌，而如果请求需要被处理，则需要先从桶里获取一个令牌，当桶里没有令牌可取时，则拒绝服务。（因此，如果桶中有足够多的令牌，就可以以峰值流量进行处理，但是长期来看流量速率是恒定的）从原理上看，令牌桶算法和漏桶算法是相反的，一个“进水”，一个是“漏水”。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/rate_limit_token_bucket.png" alt="rate_limit_token_bucket.png"></p>
+<p>Google 的 Guava 包中的 RateLimiter 类就是令牌桶算法的实现。</p>
+<h3 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h3><p>这种算法可以<em>强制限制数据的传输速率</em>，而令牌桶算法除了能够限制<strong>平均传输速率</strong>，还允许<strong>一定程度的突发传输</strong>。</p>
+<p>漏桶可以看作是一个带有常量服务时间的单服务器队列，如果漏桶（包缓存）溢出，那么数据包会被丢弃。 在网络中，漏桶算法可以控制端口的流量输出速率，平滑网络上的突发流量，实现流量整形，从而为网络提供一个稳定的流量。<br>如图所示，把请求比作是水，水来了都先放进桶里，并以限定的速度出水，当水来得过猛而出水不够快时就会导致水直接溢出，即拒绝服务。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/rate_limit_leak_bucket.png" alt="rate_limit_leak_bucket.png"></p>
+<p>可以看出，漏桶算法可以很好的控制流量的访问速度，一旦超过该速度就拒绝服务。</p>
+<p>Nginx按请求速率限速模块使用的是漏桶算法，即能够强行保证请求的实时处理速度不会超过设置的阈值。</p>
+<p>需要注意的是，在某些情况下，漏桶算法不能够有效地使用网络资源，因为漏桶的漏出速率是固定的，所以即使网络中没有发生拥塞，漏桶算法也不能使某一个单独的数据流达到端口速率。因此，漏桶算法对于存在突发特性的流量来说缺乏效率。而令牌桶算法则能够满足这些具有突发特性的流量。通常，漏桶算法与令牌桶算法结合起来为网络流量提供更高效的控制。</p>
+<p>应用层面可以使用计数器限流</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/biglittleant/p/8979915.html">nginx限流配置</a></p>
+<h2 id="CDN加速的原理"><a href="#CDN加速的原理" class="headerlink" title="CDN加速的原理"></a>CDN加速的原理</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1dae6e1680ff">CDN加速原理</a></p>
+<h2 id="常用负载均衡算法"><a href="#常用负载均衡算法" class="headerlink" title="常用负载均衡算法"></a>常用负载均衡算法</h2><p>例如nginx作为接口接入层主要有以下的几种算法</p>
+<h3 id="轮询"><a href="#轮询" class="headerlink" title="轮询"></a>轮询</h3><h3 id="带权轮询"><a href="#带权轮询" class="headerlink" title="带权轮询"></a>带权轮询</h3><p>这种算法用得比较多。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">ServerWeight</span> = &#123;</span><br><span class="line">    <span class="attr">A</span>: <span class="number">1</span>, <span class="comment">// A服务器权重1</span></span><br><span class="line">    <span class="attr">B</span>: <span class="number">3</span> <span class="comment">// B服务器权重3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> wA = wB = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">weightRoundRobin</span>(<span class="params"></span>) &#123;</span><br><span class="line">    wA += <span class="title class_">ServerWeight</span>.<span class="property">A</span>;</span><br><span class="line">    wB += <span class="title class_">ServerWeight</span>.<span class="property">B</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> target = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (wA &gt; wB) &#123;</span><br><span class="line">        target = <span class="string">&#x27;A&#x27;</span>;</span><br><span class="line">        wA -= <span class="title class_">ServerWeight</span>.<span class="property">A</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        target = <span class="string">&#x27;B&#x27;</span>;</span><br><span class="line">        wB -= <span class="title class_">ServerWeight</span>.<span class="property">B</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> target;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上的代码可以用爬楼梯来形象理解：有些人一次能走3步，但是有些人一次只能走一步，每次取走在前面的同学，走得最快的人被取到的次数越多。</p>
+<h3 id="IP哈希"><a href="#IP哈希" class="headerlink" title="IP哈希"></a>IP哈希</h3><p>一个非常大的缺陷：当一个IP作为一个学校的公网出口的时候，命中到后台的服务器的流量可能非常大，并不是一种均匀的策略，比较少使用。</p>
+<h1 id="架构设计原则"><a href="#架构设计原则" class="headerlink" title="架构设计原则"></a>架构设计原则</h1><ul>
+<li>减少第三方依赖，同时自身服务部署也要做到隔离</li>
+<li>压测、降级、限流方案、确保核心服务可用</li>
+<li>需要健康度检查机制（分布式环境中及时摘除有问题的节点），整个链路避免单点</li>
+<li>缩短请求访问路径、减少 IO</li>
+<li>减少接口数、降低吞吐数据量、减少请求次数</li>
+</ul>
+<h1 id="秒杀服务核心实现"><a href="#秒杀服务核心实现" class="headerlink" title="秒杀服务核心实现"></a>秒杀服务核心实现</h1><ul>
+<li>满足基本需求，做到单服务的极致性能</li>
+<li>请求链路优化，从客户端到服务器每层的优化（流量是一个逐层衰减的过程）</li>
+</ul>
+<h2 id="扣库存的方案"><a href="#扣库存的方案" class="headerlink" title="扣库存的方案"></a>扣库存的方案</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/miaosha-koukucun.png" alt="扣库存的方案"></p>
+<p>方案一：其中创建订单、扣库存在一个事务中，一个订单肯定会减一个库存，不会超卖，但是可能存在恶意下单但是不支付，这样商品就卖不出去了<br>方案二：支付和扣库存放在一个事务中，可以有效解决方案一中的订单超卖问题，但是可能存在订单超卖的问题，有一部分订单必然是支付不了的<br>方案三：这种方案并发量更大，因为扣库存相对来讲是一个比较简单耗时少的操作，可以尽早拦截无效请求。设置一个订单超时，如果不支付的话订单自动取消</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/c745dc10-c8de-11e9-84dc-5b83b5de5b34.png" alt="扣库存的2种实现"></p>
+<p>去IO之后的减库存直接修改的是内存，并且推送到MQ中的数据只是扣库存成功的用户。性能非常高，IO非常低，并且可以解耦创建订单和减库存。</p>
+<p>单机器如果扛不住请求（即使是内存也有QPS上限）可以把库存分摊到多台服务器。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/91abb690-c8e0-11e9-84dc-5b83b5de5b34.png" alt="库存分摊到多个节点"></p>
+<p>入上图所示，假设有1000个库存，可以10台机器各分配100个库存，通过接入层进行负载均衡。即使客户端来了100W的请求，均摊到每个减库存的服务每个处理10W的量，最后流入MQ中的QPS最多为1000。大部分流量被拦截了。这种方式肯定不会超卖，但是可能存在减库存的时候挂了导致<em>少卖</em>。我们可以采用如下的方式：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/2fb659d0-c9a4-11e9-84dc-5b83b5de5b34.png" alt="预留buff统一减库存"></p>
+<p>统一库存如果为1000，有10个节点的本地库存，这10个节点库存总数必须大于1000，最理想的状态是，某个节点挂掉后，其它9个节点的库存加起来还能等于1000，如果没有节点挂点，所有的请求在统一库存那里也会被合理拦截，最终控制在1000，本地库存主要是为了减轻库存查询压力，大于等于实际的库存即可，但是不能超过太多。</p>
+<p>对于这样的恶意用户可以记录下来，让其在以后的秒杀中丧失资格。</p>
+<ol>
+<li>初始化库存到本地</li>
+<li>本地减库存，成功则进行统一减库存（相当于做了一个汇总，防止少卖和超卖），失败则返回</li>
+<li>统一减库存(边界情况下超卖可以用redis lua脚本解决)成功才写入MQ,异步创建订单</li>
+<li>告知用户抢购成功</li>
+</ol>
+<h2 id="抢购进度查询的实现"><a href="#抢购进度查询的实现" class="headerlink" title="抢购进度查询的实现"></a>抢购进度查询的实现</h2><p>假设成功创建订单的有1000个用户。维护一个容量为1000的数组记为A和一个容量为1000的哈希表记为B。</p>
+<ol>
+<li>数组A存储排队中，待创建订单的用户，哈希表B存储uid对应的在A中的索引</li>
+<li>每次从数组A中依次消费数据，并记录最近的消费索引值X</li>
+<li>当用户来查排队进度的时候从哈希表B中取出该uid对应的存储索引值Y</li>
+<li>Y - X即为排队进度</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/veK1nn_0O5HYwkvAEZJG9w">https://mp.weixin.qq.com/s/veK1nn_0O5HYwkvAEZJG9w</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">https://consoles.fun/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/">高可用</a><a class="post-meta__tags" href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/">高并发</a><a class="post-meta__tags" href="/tags/%E7%A7%92%E6%9D%80/">秒杀</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2021/02/20/redpacket-system/" title="红包业务系统的构建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-20</div><div class="info-item-2">红包业务系统的构建</div></div><div class="info-2"><div class="info-item-1">概述红包系统本质上是高并发资金秒杀系统。 架构一览 系统演进之路 满足业务需求，快速迭代上线 出现超卖现象，启用事务锁 流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍 流量继续增加，乐观锁也扛不住了，上缓存 分布式 MQ 解决异步写 数据分片来解决 DB 横向拓展  业务场景需求分析红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样或者不一样），之后将红包商品赠送出去（对象是红包接受人群），收红包本质上是对红包商品的秒杀活动。存在 B2B 和 B2C...</div></div></div></a><a class="pagination-related" href="/2016/08/02/high-availability-mysql/" title="高可用 MySQL 架构"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-08-02</div><div class="info-item-2">高可用 MySQL 架构</div></div><div class="info-2"><div class="info-item-1"> There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)知之为知之，不知为不知，是知也。也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作祟。但是既然开始了，就不愿意停下来。我本微末凡尘，却也心向天空。—— 我吃西红柿·《莽荒纪》我在起点与终点之间两全其美,却无法禅定于一夜琴声。直至悠悠的琴声被暗香淹没，我才刚刚赶到岸边，片刻之间，已被一缕清风绣在水面。...</div></div></div></a><a class="pagination-related" href="/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="消息推送系统的设计与实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-09-02</div><div class="info-item-2">消息推送系统的设计与实现</div></div><div class="info-2"><div class="info-item-1"> 所有真理的成长都需要经过 3 个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为 100W，每秒发送的弹幕数量为 1000 条，据此可以推算出单个直播间的吞吐量要达到 100W * 1000条 &#x3D; 10亿条&#x2F;秒，把问题延伸到 N 个直播间，则系统的吞吐量为 N*10亿&#x2F;秒。 根据经验值，Linux 系统在处理 TCP 网络调用的时候大概每秒只能处理 100W 左右的包，这么看的话发送一条弹幕就达到了单机的处理能力上限，这是第一个难点。 解决：假设在线人数为 100W，推送 1 条消息就达到了系统极限，假设推送 100 条消息仍旧使用单机处理，如何优化呢？很简单：将 100 条消息合并成 1 条消息进行发送，这样对于 100W 人在线的系统推送吞吐量固定为每秒 100W 次。当然合并消息不可能无限大，当超过一定阈值之后，TCP&#x2F;IP 层会进行大包拆分，此时底层实际包频就会超过每秒 100W...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%89%B9%E5%BE%81%E4%B8%8E%E9%9A%BE%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">特征与难点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A7%92%E6%9D%80%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">秒杀原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CDN%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text">CDN原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95"><span class="toc-number">2.2.</span> <span class="toc-text">限流算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95"><span class="toc-number">2.2.1.</span> <span class="toc-text">令牌桶算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%A1%B6%E7%AE%97%E6%B3%95"><span class="toc-number">2.2.2.</span> <span class="toc-text">漏桶算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CDN%E5%8A%A0%E9%80%9F%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text">CDN加速的原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.</span> <span class="toc-text">常用负载均衡算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E8%AF%A2"><span class="toc-number">2.4.1.</span> <span class="toc-text">轮询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%A6%E6%9D%83%E8%BD%AE%E8%AF%A2"><span class="toc-number">2.4.2.</span> <span class="toc-text">带权轮询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E5%93%88%E5%B8%8C"><span class="toc-number">2.4.3.</span> <span class="toc-text">IP哈希</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="toc-number">3.</span> <span class="toc-text">架构设计原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A7%92%E6%9D%80%E6%9C%8D%E5%8A%A1%E6%A0%B8%E5%BF%83%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">秒杀服务核心实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A3%E5%BA%93%E5%AD%98%E7%9A%84%E6%96%B9%E6%A1%88"><span class="toc-number">4.1.</span> <span class="toc-text">扣库存的方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A2%E8%B4%AD%E8%BF%9B%E5%BA%A6%E6%9F%A5%E8%AF%A2%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.2.</span> <span class="toc-text">抢购进度查询的实现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">5.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

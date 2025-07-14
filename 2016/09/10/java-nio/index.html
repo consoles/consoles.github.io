@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>java NIO | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="jdk1.7中提供了Object.equals,Object.hashCode方法非常方便。  传统的socket分析12345678910111213141516171819202122232425262728293031323334353637public class BIOServer &#123;    public static void main(String[] args) thr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java NIO">
+<meta property="og:url" content="https://consoles.fun/2016/09/10/java-nio/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="jdk1.7中提供了Object.equals,Object.hashCode方法非常方便。  传统的socket分析12345678910111213141516171819202122232425262728293031323334353637public class BIOServer &#123;    public static void main(String[] args) thr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-09-10T19:42:23.000Z">
+<meta property="article:modified_time" content="2025-01-19T20:50:13.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="nio">
+<meta property="article:tag" content="netty">
+<meta property="article:tag" content="网络编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "java NIO",
+  "url": "https://consoles.fun/2016/09/10/java-nio/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-09-10T19:42:23.000Z",
+  "dateModified": "2025-01-19T20:50:13.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/09/10/java-nio/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java NIO',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">java NIO</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">java NIO</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-09-10T19:42:23.000Z" title="发表于 2016-09-10 19:42:23">2016-09-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T20:50:13.000Z" title="更新于 2025-01-19 20:50:13">2025-01-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><blockquote>
+<p>jdk1.7中提供了<code>Object.equals</code>,<code>Object.hashCode</code>方法非常方便。</p>
+</blockquote>
+<h1 id="传统的socket分析"><a href="#传统的socket分析" class="headerlink" title="传统的socket分析"></a>传统的socket分析</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BIOServer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">ServerSocket</span> <span class="variable">serverSocket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerSocket</span>(<span class="number">10086</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;Server started&quot;</span>);</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> serverSocket.accept(); <span class="comment">// Blocking</span></span><br><span class="line">            System.out.println(<span class="string">&quot;a new client connected&quot;</span>);</span><br><span class="line">            handler(socket);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">handler</span><span class="params">(Socket socket)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] buf = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> socket.getInputStream();</span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">read</span> <span class="operator">=</span> inputStream.read(buf); <span class="comment">// Blocking</span></span><br><span class="line">                <span class="keyword">if</span> (read != -<span class="number">1</span>)&#123;</span><br><span class="line">                    System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(buf,<span class="number">0</span>,read));</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;socket closed&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                socket.close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上的代码有2个地方阻塞：<code>ServerSocket.accept</code>和<code>InputStream.read</code>。当我们启动上述server，一旦有一个客户端连接到server，server就会<em>阻塞</em>，从而以后的客户端想要连接到server都不会打印”a new client connected”。一种常见的解决方案是创建一个新的handler线程，每个客户端连接的时候都创建一个新的线程为其服务，就好比一个餐厅每来一个客人都安排一个服务生，资源消耗非常大。所以传统的socket是无法实现长连接的服务器的，但是用短连接还是比较合适的，老版本的tomcat就是基于socket，因为http的问答机制，不会出现线程一直被一个客户端占用的情况，一个线程可以为多个客户端服务。</p>
+<blockquote>
+<p>传统的socket单线程情况下只能为一个客户端服务，用线程池的情况下可以为多个客户端服务，但是资源消耗太大。</p>
+</blockquote>
+<h2 id="微服务"><a href="#微服务" class="headerlink" title="微服务"></a>微服务</h2><p>daily build很痛苦，每次commit都需要跑一个较大的CI，很耗时。让小的和频繁的升级成为可能，应用架构更加弹性可伸缩（横向拓展的一个重要目标就是无状态）。微服务带来的一个挑战是我们面对的不仅仅是一个应用，而是多个应用，有点像分布式系统。</p>
+<h2 id="为什么nginx比apache性能高很多"><a href="#为什么nginx比apache性能高很多" class="headerlink" title="为什么nginx比apache性能高很多"></a>为什么nginx比apache性能高很多</h2><p>nginx采用事件驱动的epoll模型，而apache采用select轮询机制（类似于死循环）。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2018/10/18/netty-direct-memory-screening.html">Netty堆外内存泄漏排查</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/09/10/java-nio/">https://consoles.fun/2016/09/10/java-nio/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/nio/">nio</a><a class="post-meta__tags" href="/tags/netty/">netty</a><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/12/28/awesome-java/" title="java 中的一些惯用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-28</div><div class="info-item-2">java 中的一些惯用法</div></div><div class="info-2"><div class="info-item-1"> 鸟宿池边树，僧敲月下门。  java7中的try-resource语法语义自动关闭InputStream和JDBC Connection，就不需要在finally中close了。 java中的锁是如何实现的在java里锁是通过cas把当前线程id刷新到对象的头信息里，在获取锁时会去头信息里拿这个信息，如果没有则会cas刷新进去，刷新成功就获取到锁；刷新失败就表明有别的线程也在尝试刷新这个信息。 在操作系统层面有pv操作保证原子性，而pv操作也是利用cpu中原语指令，在获取锁时保证不会被别的指令打断（或被重排序）。 白名单问题 java中1&#x2F;0抛出算术异常，而1&#x2F;0.0结果为无穷大。  一家信用卡公司中的账号是成千上万的，我们将用户账号保存在一个文件中，这个文件就是白名单。认为给定一个账户，我们需要检查该账号是否在白名单中。一个程序可用往往是不够的，如果没有二分查找或者归并排序这样的高效算法解决此类问题是不可能的。 关于除法运算无论正负，a / b的商会向0取整。而余数满足这个公式：(a/b) * b + a % b == a。例如-14 &#x2F; 3...</div></div></div></a><a class="pagination-related" href="/2019/08/22/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3HashMap/" title="深入理解 HashMap"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-08-22</div><div class="info-item-2">深入理解 HashMap</div></div><div class="info-2"><div class="info-item-1">原理HashMap的底层采用的散列算法是拉链法（另一种散列算法是线性探测法）。并且在JDK1.8中使用红黑树对长链表进行优化。 初始容量、负载因子、阈值初始容量比较好理解，阈值指的是当桶的个数超过了这个值后Hash表会进行扩容。 12345678910/*** The next size value at which to resize (capacity * load factor).** @serial*/// (The javadoc description is true upon serialization.// Additionally, if the table array has not been allocated, this// field holds the initial array capacity, or zero signifying// DEFAULT_INITIAL_CAPACITY.)int...</div></div></div></a><a class="pagination-related" href="/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="消息推送系统的设计与实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-09-02</div><div class="info-item-2">消息推送系统的设计与实现</div></div><div class="info-2"><div class="info-item-1"> 所有真理的成长都需要经过 3 个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为 100W，每秒发送的弹幕数量为 1000 条，据此可以推算出单个直播间的吞吐量要达到 100W * 1000条 &#x3D; 10亿条&#x2F;秒，把问题延伸到 N 个直播间，则系统的吞吐量为 N*10亿&#x2F;秒。 根据经验值，Linux 系统在处理 TCP 网络调用的时候大概每秒只能处理 100W 左右的包，这么看的话发送一条弹幕就达到了单机的处理能力上限，这是第一个难点。 解决：假设在线人数为 100W，推送 1 条消息就达到了系统极限，假设推送 100 条消息仍旧使用单机处理，如何优化呢？很简单：将 100 条消息合并成 1 条消息进行发送，这样对于 100W 人在线的系统推送吞吐量固定为每秒 100W 次。当然合并消息不可能无限大，当超过一定阈值之后，TCP&#x2F;IP 层会进行大包拆分，此时底层实际包频就会超过每秒 100W...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E7%9A%84socket%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">传统的socket分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.1.</span> <span class="toc-text">微服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88nginx%E6%AF%94apache%E6%80%A7%E8%83%BD%E9%AB%98%E5%BE%88%E5%A4%9A"><span class="toc-number">1.2.</span> <span class="toc-text">为什么nginx比apache性能高很多</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">2.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

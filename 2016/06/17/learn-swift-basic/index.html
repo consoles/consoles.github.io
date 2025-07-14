@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>swift 学习 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如果学习的硬件和软件资源已经具备，那么接下来的事情就是保持一颗永远向上的心，如果学习累了，遇到困难了，遇到挫折了，那么就想想那些精美的、绝妙的app，想想这些app将来也会出自你的手中，相信每一位同学都可以成为IOS开发大师的。 ————慕课网讲师·刘宇波  学习swift最简单的方法是使用Xcode的playground。 基本类型常量和变量常量letswift特意将常量的优先级提高到和变量相">
+<meta property="og:type" content="article">
+<meta property="og:title" content="swift 学习">
+<meta property="og:url" content="https://consoles.fun/2016/06/17/learn-swift-basic/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="如果学习的硬件和软件资源已经具备，那么接下来的事情就是保持一颗永远向上的心，如果学习累了，遇到困难了，遇到挫折了，那么就想想那些精美的、绝妙的app，想想这些app将来也会出自你的手中，相信每一位同学都可以成为IOS开发大师的。 ————慕课网讲师·刘宇波  学习swift最简单的方法是使用Xcode的playground。 基本类型常量和变量常量letswift特意将常量的优先级提高到和变量相">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-06-17T21:25:46.000Z">
+<meta property="article:modified_time" content="2025-04-02T22:49:20.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="ios">
+<meta property="article:tag" content="swift">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "swift 学习",
+  "url": "https://consoles.fun/2016/06/17/learn-swift-basic/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-06-17T21:25:46.000Z",
+  "dateModified": "2025-04-02T22:49:20.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/06/17/learn-swift-basic/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'swift 学习',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">swift 学习</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">swift 学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-06-17T21:25:46.000Z" title="发表于 2016-06-17 21:25:46">2016-06-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T22:49:20.000Z" title="更新于 2025-04-02 22:49:20">2025-04-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/">移动开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><blockquote>
+<p>如果学习的硬件和软件资源已经具备，那么接下来的事情就是保持一颗永远向上的心，如果学习累了，遇到困难了，遇到挫折了，那么就想想那些精美的、绝妙的app，想想这些app将来也会出自你的手中，相信每一位同学都可以成为IOS开发大师的。 ————慕课网讲师·刘宇波</p>
+</blockquote>
+<p>学习swift最简单的方法是使用Xcode的playground。</p>
+<h1 id="基本类型"><a href="#基本类型" class="headerlink" title="基本类型"></a>基本类型</h1><h2 id="常量和变量"><a href="#常量和变量" class="headerlink" title="常量和变量"></a>常量和变量</h2><h3 id="常量let"><a href="#常量let" class="headerlink" title="常量let"></a>常量let</h3><p>swift特意将常量的优先级提高到和变量相同实际上是在鼓励我们使用常量，思考程序什么时候使用常量。这样程序可以进行更好的优化。</p>
+<h3 id="变量var"><a href="#变量var" class="headerlink" title="变量var"></a>变量var</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="operator">=</span> <span class="number">2</span>,b <span class="operator">=</span> <span class="number">3</span>,c <span class="operator">=</span> <span class="string">&quot;hello swift&quot;</span>,d <span class="operator">=</span> <span class="number">3.2</span></span><br><span class="line"><span class="comment">// a = &quot;abc&quot; cannot assign a value of type &#x27;String&#x27; to a value of type &#x27;Int&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上的代码中我们并没有显式指定变量的类型，那么是否swift就和js一样是弱类型的语言呢？答案是否定的。swift是<em>强类型</em>的语言。我们可以按住option键然后点击变量名称查看变量类型。我们还可以显式声明变量的类型，如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a, b, c:<span class="type">Double</span></span><br><span class="line"><span class="keyword">var</span> imInt:<span class="type">Int</span> <span class="operator">=</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>swift语言有一种Type inference机制能够自动确定变量的类型。<br>整型的存储是有范围的，具机器芯片架构而定。我们可以使用<code>Int.max</code>和<code>Int.min</code>来查看，当整型溢出的时候在编译时刻即可察觉。所以它宣称自己是一门安全的语言。除了整型外，还有<code>UInt</code>，<code>Int8</code>,<code>Int16</code>等等。</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a:<span class="type">Int</span> <span class="operator">=</span> <span class="number">10</span></span><br><span class="line">a <span class="operator">=</span> <span class="number">9999999999999999999</span> <span class="comment">// integer literal &#x27;9999999999999999999&#x27; overflows when stored into &#x27;Int&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>swift提供了一个很酷的特定，可以使用下划线分隔数字，从而更方便表示位数。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a:<span class="type">UInt</span> <span class="operator">=</span> <span class="number">10</span></span><br><span class="line">a <span class="operator">=</span> <span class="number">100_0000</span> <span class="comment">// 1000000</span></span><br><span class="line">a <span class="operator">=</span> <span class="number">100_000_000</span> <span class="comment">// 10000000</span></span><br></pre></td></tr></table></figure>
+
+<p>和很多的编程语言不一样，swift并不提供<em>隐式类型转换</em>（因为很多的错误根源在此处）。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> x:<span class="type">UInt16</span> <span class="operator">=</span> <span class="number">100</span></span><br><span class="line"><span class="keyword">let</span> y:<span class="type">UInt8</span> <span class="operator">=</span> <span class="number">10</span></span><br><span class="line">x <span class="operator">+</span> y <span class="comment">// overloads for &#x27;+&#x27; exist with these partially matching parameter lists: (UInt8, UInt8), (UInt16, UInt16)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以下是正确的代码</span></span><br><span class="line"><span class="keyword">let</span> m <span class="operator">=</span> x <span class="operator">+</span> <span class="type">UInt16</span>(y)</span><br><span class="line"><span class="keyword">let</span> n <span class="operator">=</span> <span class="type">UInt8</span>(x) <span class="operator">+</span> y</span><br></pre></td></tr></table></figure>
+
+<h3 id="元组"><a href="#元组" class="headerlink" title="元组"></a>元组</h3><p>将多个不同的值集合到一个数据中。可以有任意多个值，不同的值可以是不同的类型。适合轻量级的数据聚合。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tuple</span></span><br><span class="line"><span class="keyword">var</span> point <span class="operator">=</span> (<span class="number">5</span>,<span class="number">2</span>) <span class="comment">// 使用元组表示二维平面中的点</span></span><br><span class="line"><span class="keyword">var</span> httpResponse <span class="operator">=</span> (<span class="number">404</span>,<span class="string">&quot;Not Found&quot;</span>) <span class="comment">// 使用元组保存http状态码</span></span><br></pre></td></tr></table></figure>
+
+<p>我们也可以显示指定元组中各个字段类型，可以使用<code>.序号</code>的方式拿到它的分量：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> httpResponse:(<span class="type">Int</span>,<span class="type">String</span>) <span class="operator">=</span> (<span class="number">200</span>,<span class="string">&quot;OK&quot;</span>)</span><br><span class="line">httpResponse.<span class="number">0</span></span><br><span class="line">httpResponse.<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> point <span class="operator">=</span> (x:<span class="number">1</span>,y:<span class="number">2</span>)</span><br><span class="line">point.x</span><br><span class="line">point.y</span><br><span class="line"></span><br><span class="line"><span class="comment">// 命名元组分量</span></span><br><span class="line"><span class="keyword">let</span> p:(x:<span class="type">Int</span>,y:<span class="type">Int</span>) <span class="operator">=</span> (<span class="number">7</span>,<span class="number">8</span>)</span><br><span class="line">p.x</span><br><span class="line">p.y</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> loginRes <span class="operator">=</span> (<span class="literal">true</span> ,<span class="string">&quot;consoles&quot;</span>)</span><br><span class="line"><span class="keyword">let</span> ( isLoginSuccess ,<span class="keyword">_</span> ) <span class="operator">=</span> loginRes <span class="comment">// 我们仅关心第一个元素解包的值</span></span><br><span class="line"><span class="keyword">if</span> isLoginSuccess &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;login success&quot;</span>)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;login failure&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="元组解包"><a href="#元组解包" class="headerlink" title="元组解包"></a>元组解包</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> httpResponse:(<span class="type">Int</span>,<span class="type">String</span>) <span class="operator">=</span> (<span class="number">200</span>,<span class="string">&quot;OK&quot;</span>)</span><br><span class="line"><span class="keyword">let</span> (code,msg) <span class="operator">=</span> httpResponse</span><br><span class="line">code <span class="comment">// 200</span></span><br><span class="line">msg <span class="comment">// &quot;OK&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在Swift中多行注释非常智能，我们可以在多行注释中插入任何内容（包括多行注释）不会带来解析问题。</p>
+</blockquote>
+<h1 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h1><h2 id="区间运算符"><a href="#区间运算符" class="headerlink" title="区间运算符"></a>区间运算符</h2><ul>
+<li>闭区间运算符：<code>a...b</code></li>
+<li>前闭后开区间运算符：<code>a..&lt;b</code></li>
+</ul>
+<blockquote>
+<p><code>for in</code>循环要求我们必须将范围里面的值跑一遍不可跳过。</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span><span class="number">10</span>&#123;</span><br><span class="line">    index <span class="comment">// 1,2,3,4 ... 10</span></span><br><span class="line">    <span class="comment">// index = 5 此处的index是let类型，尝试修改会报错</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">1</span><span class="operator">..&lt;</span><span class="number">10</span>&#123;</span><br><span class="line">  index</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有时候我们不需要知道循环中每个元素的具体值，仅仅知道它们执行的次数就行了，这时我们可以就像<em>元组解包那样使用<code>_</code>来忽略值</em>,例如以下的程序计算2^10:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> result <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">let</span> base <span class="operator">=</span> <span class="number">2</span></span><br><span class="line"><span class="keyword">let</span> pow <span class="operator">=</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">_</span> <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span>pow&#123;</span><br><span class="line">    result <span class="operator">*=</span> base</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="控制流"><a href="#控制流" class="headerlink" title="控制流"></a>控制流</h1><ul>
+<li>和其他语言类似，只不过swift中的<code>do-while</code>循环被改变成了<code>repeat-while</code>循环。</li>
+<li>swift中case语句默认有<code>break</code>，防止case穿透。对于其他语言中的多个case执行同一个语句的时候只需要在case中使用都逗号分隔。</li>
+</ul>
+<h2 id="swift的高级用法"><a href="#swift的高级用法" class="headerlink" title="swift的高级用法"></a>swift的高级用法</h2><h2 id="swift的注意事项"><a href="#swift的注意事项" class="headerlink" title="swift的注意事项"></a>swift的注意事项</h2><p>我们要枚举出switch中所有的情况，如果我们的case无法匹配所有的情况，就需要添加<code>default</code>语句。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">switch</span> a &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="operator">-</span><span class="number">1</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="number">0</span>)</span><br><span class="line"><span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="number">1</span>)</span><br><span class="line"><span class="comment">//default:() 这里不能注释，因为我们要枚举所有的Int值或者我们也可以使用default:break</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>switch语句扩充了对元组的支持</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> vector <span class="operator">=</span> (<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line"><span class="keyword">switch</span> vector&#123;</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;原点&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="number">1</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;x轴正方向上的单位向量&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="operator">-</span><span class="number">1</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;x轴负方向上的单位向量&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="number">1</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;y轴正方向上的单位向量&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="operator">-</span><span class="number">1</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;y轴负方向上的单位向量&quot;</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;仅仅是一个普通向量&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以使用下划线来忽略元组中某一维度的值，从而一定程度上做到了<em>模式匹配</em>。我们也可以对元组中的某个分量进行区间运算例如：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> vector <span class="operator">=</span> (x:<span class="number">1</span>,y:<span class="number">1</span>)</span><br><span class="line"><span class="keyword">switch</span> vector&#123;</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;原点&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="keyword">_</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;(<span class="subst">\(vector.x)</span>,<span class="subst">\(vector.y)</span>)向量在x轴上&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="keyword">_</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;(<span class="subst">\(vector.x)</span>,<span class="subst">\(vector.y)</span>)向量在y轴上&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="operator">-</span><span class="number">2</span><span class="operator">...</span><span class="number">2</span>,<span class="operator">-</span><span class="number">2</span><span class="operator">...</span><span class="number">2</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;(<span class="subst">\(vector.x)</span>,<span class="subst">\(vector.y)</span>)向量在原点附近&quot;</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;仅仅是一个普通向量&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>元组的解包也可以融入到case语句中：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> point:(<span class="type">Int</span>,<span class="type">Int</span>) <span class="operator">=</span> (<span class="number">8</span>,<span class="number">8</span>)</span><br><span class="line"><span class="keyword">switch</span> point&#123;</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;原点&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="keyword">let</span> x,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;在x轴上，x = <span class="subst">\(x)</span>&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="keyword">let</span> y):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;在y轴上，y = <span class="subst">\(y)</span>&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="keyword">let</span> x,<span class="keyword">let</span> y):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;普通向量:(<span class="subst">\(x)</span>,<span class="subst">\(y)</span>)&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 以上的语句不需要default，因为已经涵盖了所有的可能</span></span><br></pre></td></tr></table></figure>
+
+<p>对于常用的case贯穿的情况，swift提供了<code>fallthrough</code>关键字，能够在执行完一个case之后跳转到下一个case。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> point:(<span class="type">Int</span>,<span class="type">Int</span>) <span class="operator">=</span> (<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line"><span class="keyword">switch</span> point&#123;</span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;原点&quot;</span>)</span><br><span class="line">    <span class="keyword">fallthrough</span></span><br><span class="line"><span class="keyword">case</span> (<span class="keyword">_</span>,<span class="number">0</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;在x轴上&quot;</span>)</span><br><span class="line">    <span class="keyword">fallthrough</span></span><br><span class="line"><span class="keyword">case</span> (<span class="number">0</span>,<span class="keyword">_</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;在y轴上&quot;</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;普通向量&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看一个实际问题：找出方程x^4 - y^2 &#x3D; 15 * x * y在300以内的第一个整数解,使用swift，我们可以这样：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 给最外层的循环设置一个label</span></span><br><span class="line">findAnswer:</span><br><span class="line"><span class="keyword">for</span> m <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span><span class="number">300</span>&#123;</span><br><span class="line">    <span class="keyword">for</span> n <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span><span class="number">300</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> m <span class="operator">*</span> m <span class="operator">*</span> m <span class="operator">*</span> m <span class="operator">-</span> n <span class="operator">*</span> n <span class="operator">==</span> <span class="number">15</span> <span class="operator">*</span> m <span class="operator">*</span> n&#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;找到一组解，m = <span class="subst">\(m)</span>,y = <span class="subst">\(n)</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">break</span> findAnswer</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就给swift加上了goto语句的特性。</p>
+<h3 id="switch中的where"><a href="#switch中的where" class="headerlink" title="switch中的where"></a>switch中的where</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> p <span class="operator">=</span> (<span class="number">3</span>,<span class="number">3</span>)</span><br><span class="line"><span class="keyword">switch</span> p &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="keyword">let</span> (x,y) <span class="keyword">where</span> x <span class="operator">==</span> y: <span class="comment">// 先解包然后执行判断逻辑</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;点在y=x这条正比例函数上&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> (<span class="keyword">let</span> x,<span class="keyword">let</span> y) <span class="keyword">where</span> x <span class="operator">==</span> <span class="operator">-</span>y:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;点在y=-x这条正比例函数上&quot;</span>)</span><br><span class="line"><span class="keyword">case</span> <span class="keyword">let</span> (x,y):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;普通点&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="if-case"><a href="#if-case" class="headerlink" title="if case"></a>if case</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> age <span class="operator">=</span> <span class="number">19</span></span><br><span class="line"><span class="keyword">switch</span> age &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="number">10</span><span class="operator">...</span><span class="number">19</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;青少年&quot;</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;成年&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">case</span> <span class="number">10</span><span class="operator">...</span><span class="number">19</span> <span class="operator">=</span> age&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;青少年&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">case</span> <span class="number">10</span><span class="operator">...</span><span class="number">19</span> <span class="operator">=</span> age <span class="keyword">where</span> age <span class="operator">&gt;</span> <span class="number">18</span>&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;青少年，大学生&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span><span class="number">100</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> i <span class="operator">%</span> <span class="number">3</span> <span class="operator">==</span> <span class="number">0</span>&#123;</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">case</span> <span class="keyword">let</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">...</span><span class="number">100</span> <span class="keyword">where</span> i <span class="operator">%</span> <span class="number">3</span> <span class="operator">==</span> <span class="number">0</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>guard关键字</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">buy</span>(<span class="params">money</span>:<span class="type">Int</span>,<span class="params">price</span>:<span class="type">Int</span>,<span class="params">capacity</span>:<span class="type">Int</span>,<span class="params">volume</span>:<span class="type">Int</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span> money <span class="operator">&gt;</span> price &#123;</span><br><span class="line">        <span class="keyword">if</span> capacity <span class="operator">&gt;</span> volume &#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;买买买,剩余的钱：<span class="subst">\(money <span class="operator">-</span> price)</span>,背包容量：<span class="subst">\(capacity <span class="operator">-</span> volume)</span>&quot;</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;背包容量不够&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;钱不够&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">buy2</span>(<span class="params">money</span>:<span class="type">Int</span>,<span class="params">price</span>:<span class="type">Int</span>,<span class="params">capacity</span>:<span class="type">Int</span>,<span class="params">volume</span>:<span class="type">Int</span>)&#123;</span><br><span class="line">    <span class="keyword">guard</span> money <span class="operator">&gt;=</span> price <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Not engugh money&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">guard</span> capacity <span class="operator">&gt;=</span> volume <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Not engugh capacity&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 函数主体</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;买买买,剩余的钱：<span class="subst">\(money <span class="operator">-</span> price)</span>,背包容量：<span class="subst">\(capacity <span class="operator">-</span> volume)</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上的逻辑很容易使用if-else实现，但是苹果为什么会推崇使用guard关键字呢，它就是提倡将于业务无关边界判断剥离开来，踏踏实实集中于程序的功能。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/06/17/learn-swift-basic/">https://consoles.fun/2016/06/17/learn-swift-basic/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/ios/">ios</a><a class="post-meta__tags" href="/tags/swift/">swift</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/06/16/js-binging/" title="IOS7中的js binding技术"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-06-16</div><div class="info-item-2">IOS7中的js binding技术</div></div><div class="info-2"><div class="info-item-1">cocos2Dx中提出了js binding，而IOS 7原生提供了js binding的支持（通过JavaScript Core这个引擎）。所谓的binding就是建立了本地到native的桥梁。如图所示：  jsbinding与hibrid app的区别如下图所示：jsbinding通过一个中间层（JSBinding Layer）与native进行通信，而hibrid本质上还是web，运行在webview中。通过webview与native进行通信。  JavaScriptCore的4个核心API JavaScriptCore.h JSContext JSValue JSExport  一行js代码实现逆天效果1[].forEach.call(document.querySelectorAll(&quot;*&quot;),function(a)&#123;a.style.outline=&quot;1px solid...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">基本类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E9%87%8F%E5%92%8C%E5%8F%98%E9%87%8F"><span class="toc-number">1.1.</span> <span class="toc-text">常量和变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E9%87%8Flet"><span class="toc-number">1.1.1.</span> <span class="toc-text">常量let</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E9%87%8Fvar"><span class="toc-number">1.1.2.</span> <span class="toc-text">变量var</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E7%BB%84"><span class="toc-number">1.1.3.</span> <span class="toc-text">元组</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%83%E7%BB%84%E8%A7%A3%E5%8C%85"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">元组解包</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="toc-number">2.</span> <span class="toc-text">运算符</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8C%BA%E9%97%B4%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="toc-number">2.1.</span> <span class="toc-text">区间运算符</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E6%B5%81"><span class="toc-number">3.</span> <span class="toc-text">控制流</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#swift%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">swift的高级用法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#swift%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">3.2.</span> <span class="toc-text">swift的注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#switch%E4%B8%AD%E7%9A%84where"><span class="toc-number">3.2.1.</span> <span class="toc-text">switch中的where</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#if-case"><span class="toc-number">3.2.2.</span> <span class="toc-text">if case</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>LeetCode 中的位运算 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="No136只出现1次的数字给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？  使用计数器比较朴素的解法是对每个元素进行计数，最后统计出数量为1的那个数，这种算法比较通用，可以解决任意多元素出现任意次，因为可以解决的问题比较多，所以往往不是最好的算法，需要维护一个HashMap，占用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode 中的位运算">
+<meta property="og:url" content="https://consoles.fun/2020/04/28/LeetCode%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="No136只出现1次的数字给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？  使用计数器比较朴素的解法是对每个元素进行计数，最后统计出数量为1的那个数，这种算法比较通用，可以解决任意多元素出现任意次，因为可以解决的问题比较多，所以往往不是最好的算法，需要维护一个HashMap，占用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2020-04-28T15:16:58.000Z">
+<meta property="article:modified_time" content="2025-01-19T19:29:47.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="leetcode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "LeetCode 中的位运算",
+  "url": "https://consoles.fun/2020/04/28/LeetCode%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2020-04-28T15:16:58.000Z",
+  "dateModified": "2025-01-19T19:29:47.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2020/04/28/LeetCode%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'LeetCode 中的位运算',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">LeetCode 中的位运算</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">LeetCode 中的位运算</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-04-28T15:16:58.000Z" title="发表于 2020-04-28 15:16:58">2020-04-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T19:29:47.000Z" title="更新于 2025-01-19 19:29:47">2025-01-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="No136只出现1次的数字"><a href="#No136只出现1次的数字" class="headerlink" title="No136只出现1次的数字"></a>No136只出现1次的数字</h1><p>给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。你的算法应该具有线性时间复杂度。 你可以不使用额外空间来实现吗？</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/10e25ec0-8919-11ea-a4ce-5fa96f96177c.png" alt="image.png"></p>
+<h2 id="使用计数器"><a href="#使用计数器" class="headerlink" title="使用计数器"></a>使用计数器</h2><p>比较朴素的解法是对每个元素进行计数，最后统计出数量为1的那个数，这种算法比较通用，可以解决任意多元素出现任意次，因为可以解决的问题比较多，所以往往不是最好的算法，需要维护一个HashMap，占用O(N)的空间：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> singleNumber = <span class="keyword">function</span> (<span class="params">nums</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> counter = <span class="keyword">new</span> <span class="title class_">Map</span>();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">    <span class="keyword">let</span> count = counter.<span class="title function_">get</span>(num) || <span class="number">0</span>;</span><br><span class="line">    counter.<span class="title function_">set</span>(num, ++count);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> [k, v] <span class="keyword">of</span> counter) &#123;</span><br><span class="line">    <span class="keyword">if</span> (v === <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> k;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用Set"><a href="#使用Set" class="headerlink" title="使用Set"></a>使用Set</h2><p>事实上我们也不需要真的用HashMap维护一下元素的数量，因为题目提高只有一个元素只有1个，别的元素都有两个，可以使用Set来巧妙处理：当第一次需要该数字的时候将其放进set，第二次遇到的时候将其移除，这样下来set中保存的就是只出现1次的数字：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> singleNumber = <span class="keyword">function</span> (<span class="params">nums</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> set = <span class="keyword">new</span> <span class="title class_">Set</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">        <span class="keyword">if</span> (set.<span class="title function_">has</span>(num)) &#123;</span><br><span class="line">            set.<span class="title function_">delete</span>(num);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            set.<span class="title function_">add</span>(num);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [...set][<span class="number">0</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用数学计算"><a href="#使用数学计算" class="headerlink" title="使用数学计算"></a>使用数学计算</h2><p>其基本数学公式是：2*(a+b+c) - (a  + a + b + b + c) &#x3D; c,我们只需要对原数组去重后求和乘以2再减去原来数组的和。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> singleNumber = <span class="keyword">function</span> (<span class="params">nums</span>) &#123;</span><br><span class="line">    <span class="comment">// 数学法:2*(a+b+c) - (a  + a + b + b + c)  = c</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * <span class="title function_">sum</span>([...<span class="keyword">new</span> <span class="title class_">Set</span>(nums)]) - <span class="title function_">sum</span>(nums);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="异或运算"><a href="#异或运算" class="headerlink" title="异或运算"></a>异或运算</h2><p>这是这道题效率最高也是最让人惊艳的解法，它基于这样一个事实:a ^ a &#x3D; 0,a ^ a ^ b &#x3D; a ^ b ^ a &#x3D; b，异或运算满足交换律，两个相同的数异或结果为0，0和任何数异或等于任何数本身：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> singleNumber = <span class="keyword">function</span> (<span class="params">nums</span>) &#123;</span><br><span class="line">    <span class="comment">// 位操作：异或法</span></span><br><span class="line">    <span class="keyword">let</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">        result = result ^ num;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="面试题56-1"><a href="#面试题56-1" class="headerlink" title="面试题56-1"></a>面试题56-1</h1><p>一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这<strong>两个只出现一次的数字</strong>。要求时间复杂度是O(n)，空间复杂度是O(1)。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/b74edd30-891c-11ea-a4ce-5fa96f96177c.png" alt="image.png"></p>
+<p>和上道题一样，解法1和解法2也同样可以解决这道题，题目要求空间复杂度为O(1)，也就是不能使用额外的空间，能不能也使用位运算这种骚操作来解决呢？我在评论区找到了一个非常精美的<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/solution/jie-di-qi-jiang-jie-fen-zu-wei-yun-suan-by-eddievi/">答案</a>：</p>
+<p>由于数组中存在着两个数字不重复的情况，我们将所有的数字异或操作起来，最终得到的结果是这两个数字的异或结果：(相同的两个数字相互异或，值为0)) 最后结果一定不为0，因为有两个数字不重复。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">4 ^ 1 ^ 4 ^ 6 =&gt; 1 ^ 6</span><br><span class="line"></span><br><span class="line">6 对应的二进制： 110</span><br><span class="line">1 对应的二进制： 001</span><br><span class="line">1 ^ 6  二进制： 111</span><br></pre></td></tr></table></figure>
+
+<p>此时我们无法通过 111（二进制），去获得 110 和 001。那么当我们可以把数组分为两组进行异或，那么就可以知道是哪两个数字不同了。我们可以想一下如何分组：</p>
+<ul>
+<li>重复的数字进行分组，很简单，只需要有一个统一的规则，就可以把相同的数字分到同一组了。例如：奇偶分组。因为重复的数字，数值都是一样的，所以一定会分到同一组！</li>
+<li>此时的难点在于，对两个不同数字的分组。此时我们要找到一个操作，让两个数字进行这个操作后，分为两组。我们最容易想到的就是<code>&amp; 1</code>操作， 当我们对奇偶分组时，容易地想到<code>&amp; 1</code>，即用于判断最后一位二进制是否为1。来辨别奇偶。</li>
+</ul>
+<p>你看，通过<code>&amp;</code>运算来判断一位数字不同即可分为两组，那么我们随便两个不同的数字至少也有一位不同吧！我们只需要找出那位不同的数字mask，即可完成分组（<code>&amp; mask</code>）操作。为了操作方便，我们只去找最低位的mask:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">num1: 101110    110     1111</span><br><span class="line">num2: 111110    001     1001</span><br><span class="line">mask: 010000    001     0010</span><br></pre></td></tr></table></figure>
+
+<p>由于<strong>两个数异或的结果就是两个数数位不同结果的直观表现</strong>，所以我们可以通过异或后的结果去找最低位的mask！</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> singleNumbers = <span class="keyword">function</span> (<span class="params">nums</span>) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有数进行亦或得到的结果就是那两个不同数的结果 1^4^4^6 = 1^6</span></span><br><span class="line">    <span class="keyword">let</span> k = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">        k ^= num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获得k中最低位的1</span></span><br><span class="line">    <span class="comment">// mask = k &amp; (-k) 这种方法也可以得到mask（树状数组的lowbit函数），具体原因百度 哈哈哈哈哈</span></span><br><span class="line">    <span class="keyword">let</span> mask = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> ((k &amp; mask) === <span class="number">0</span>) &#123;</span><br><span class="line">        mask &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> a = <span class="number">0</span>, b = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((num &amp; mask) === <span class="number">0</span>) &#123;</span><br><span class="line">            a ^= num;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            b ^= num;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> [a, b];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2020/04/28/LeetCode%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97/">https://consoles.fun/2020/04/28/LeetCode%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/leetcode/">leetcode</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2020/04/13/LeetCode-No-19-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACk%E4%B8%AA%E5%85%83%E7%B4%A0/" title="LeetCode No.19 删除链表中的倒数第 k 个元素"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-13</div><div class="info-item-2">LeetCode No.19 删除链表中的倒数第 k 个元素</div></div><div class="info-2"><div class="info-item-1">很容易想到的是先求出链表中元素的总个数，然后删除正数第n-k个元素，代码如下（下面的代码使用了虚拟头结点优化判断删除头结点的情况） 1234567891011121314151617181920var removeNthFromEnd = function (head, n) &#123;  let count = 0;  let cur = head;  while (cur) &#123;    cur = cur.next;    count++;  &#125;  const dummyHead = new ListNode(-1);  dummyHead.next = head;  let prev = dummyHead;  cur = head;  let cnt = 0;  while (cnt &lt; count - n) &#123;    prev = cur;    cur = cur.next;    cnt++;  &#125;  prev.next = cur.next;  return...</div></div></div></a><a class="pagination-related" href="/2020/04/14/LeetCode-No-234-%E5%9B%9E%E6%96%87%E9%93%BE%E8%A1%A8/" title="LeetCode No.234 回文链表"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-14</div><div class="info-item-2">LeetCode No.234 回文链表</div></div><div class="info-2"><div class="info-item-1">请判断一个链表是否为回文链表。 示例 1: 输入: 1-&gt;2输出: false示例 2: 输入: 1-&gt;2-&gt;2-&gt;1输出: true进阶：你能否用 O(n) 时间复杂度和 O(1) 空间复杂度解决此题？ 转化成数组后使用双指针首先想到的方法是遍历链表，将链表中的元素添加进数组，然后使用双指针解法，一个指针从前向后扫描，另一个指针从后向前扫描，一旦发现两个指针所指向的元素不同则不是回文，否则两个指针向中间靠拢，如果两个指针相遇，则是回文。这种思路其实是判断回文字符串。 1234567891011121314151617var isPalindrome = function (head) &#123;  let arr = [];  let cur = head;  while (cur) &#123;    arr.push(cur.val);    cur = cur.next;  &#125;  let i = 0, j = arr.length - 1;  while (i &lt; j) &#123;    if (arr[i] !==...</div></div></div></a><a class="pagination-related" href="/2020/04/15/LeetCode-No-542-%E5%AF%BB%E6%89%BE0-1%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B7%9D%E7%A6%BB/" title="LeetCode No.542 寻找 0-1 矩阵中的最小距离"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-15</div><div class="info-item-2">LeetCode No.542 寻找 0-1 矩阵中的最小距离</div></div><div class="info-2"><div class="info-item-1">给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。 两个相邻元素间的距离为 1 。 示例 1:输入: 1230 0 00 1 00 0 0 输出: 1230 0 00 1 00 0 0 示例 2:输入: 1230 0 00 1 01 1 1 输出: 1230 0 00 1 01 2 1 注意: 给定矩阵的元素个数不超过 10000。给定矩阵中至少有一个元素是 0。矩阵中的元素只在四个方向上相邻: 上、下、左、右。 方法一：多源广度优先搜索 对于矩阵中的每一个元素，如果它的值为0，那么离它最近的0就是它自己。如果它的值为1，那么我们就需要找出离它最近的0，并且返回这个距离值。那么我们如何对于矩阵中的每一个1，都快速地找到离它最近的0呢？ 我们不妨从一个简化版本的问题开始考虑起。假设这个矩阵中恰好只有一个0，我们应该怎么做？由于矩阵中只有一个0，那么对于每一个1，离它最近的0就是那个唯一的0。如何求出这个距离呢？我们可以想到两种做法：  如果0在矩阵中的位置是(i0, j0)，1在矩阵中的位置是 (i1,...</div></div></div></a><a class="pagination-related" href="/2020/04/09/LeetCode-No22-%E6%8B%AC%E5%8F%B7%E7%94%9F%E6%88%90/" title="LeetCode No22.括号生成"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-09</div><div class="info-item-2">LeetCode No22.括号生成</div></div><div class="info-2"><div class="info-item-1">题目描述如下： 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。 示例： 12345678输入：n = 3输出：[       &quot;((()))&quot;,       &quot;(()())&quot;,       &quot;(())()&quot;,       &quot;()(())&quot;,       &quot;()()()&quot;     ]  暴力破解初看这一题，首先想到的是n个左括号和n个右括号的数组进行全排列得到所有的序列，然后从序列中过滤出合法的括号序列和重复序列(因为字符是有重复的，可能导致全排列本身中出现序列重复)， 代码如下： 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647var generateParenthesis = function (n) &#123;  // 方案1：获取数组全排列，判断全排列中合法的括号  const arr = []; ...</div></div></div></a><a class="pagination-related" href="/2020/04/17/LeetCode-No55%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8F/" title="LeetCode No.55 跳跃游戏"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-17</div><div class="info-item-2">LeetCode No.55 跳跃游戏</div></div><div class="info-2"><div class="info-item-1">给定一个非负整数数组，你最初位于数组的第一个位置。 数组中的每个元素代表你在该位置可以跳跃的最大长度。 判断你是否能够到达最后一个位置。 示例 1:输入: [2,3,1,1,4]输出: true解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置 1 跳 3 步到达最后一个位置。 示例 2:输入: [3,2,1,0,4]输出: false解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。 回溯法首先想到的是暴力法，针对每个位置可能走的步数一个个进行测试，如果这个步数能到达或者超过最后一个位置说明就可以到达，写代码的过程中注意将已经计算过的缓存起来，使用记忆化搜索防止重复计算。还可以从最大可能走的步数开始减少代替自增这样的小技巧来优化： 123456789101112131415161718192021222324252627282930313233var canJump = function (nums) &#123;  const cache = &#123;&#125;;  /**   *...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#No136%E5%8F%AA%E5%87%BA%E7%8E%B01%E6%AC%A1%E7%9A%84%E6%95%B0%E5%AD%97"><span class="toc-number">1.</span> <span class="toc-text">No136只出现1次的数字</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="toc-number">1.1.</span> <span class="toc-text">使用计数器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8Set"><span class="toc-number">1.2.</span> <span class="toc-text">使用Set</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%95%B0%E5%AD%A6%E8%AE%A1%E7%AE%97"><span class="toc-number">1.3.</span> <span class="toc-text">使用数学计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%82%E6%88%96%E8%BF%90%E7%AE%97"><span class="toc-number">1.4.</span> <span class="toc-text">异或运算</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E9%A2%9856-1"><span class="toc-number">2.</span> <span class="toc-text">面试题56-1</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

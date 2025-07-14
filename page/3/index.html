@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>雨碎江南 - 为者常成，行者常至</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="野马也，尘埃也，生物之以息相吹也">
+<meta property="og:type" content="website">
+<meta property="og:title" content="雨碎江南">
+<meta property="og:url" content="https://consoles.fun/page/3/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="野马也，尘埃也，生物之以息相吹也">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:author" content="consoles">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/page/3/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '雨碎江南',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><h1 class="title-seo">雨碎江南</h1></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2021/01/19/%E5%89%8D%E7%AB%AF%E6%9D%82%E8%B0%88/" title="前端杂谈">前端杂谈</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-01-19T23:52:02.000Z" title="发表于 2021-01-19 23:52:02">2021-01-19</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-06-27T10:05:54.000Z" title="更新于 2025-06-27 10:05:54">2025-06-27</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/web/">web</a></span></div><div class="content">为什么js要放在body最下面二css要放在head中？浏览器拿到css就知道该怎么渲染HTML了，如果把css放在body下面则会先按照默认样式进行渲染，当css加载完成的时候会按照css的样式再渲染一遍，即发生了reflow。由于js会阻塞代码执行，所以js一般放在body最下面，还有一个原因：js放在最下面的时候就可以取得页面中所有的元素了。 window.onload和DomContentLoaded有什么区别前者是页面的资源加载完成（包括图片、视频），后者是DOM渲染完即可，此时图片、视频可能还没加载完。 图片懒加载的实现原理先用一张默认的图片代替（这张默认的图片因为使用太频繁，浏览器可能缓存了）然后再更改img的src属性。 跨域可以跨域的3个标签：  img:可以用于打点统计，统计网站可能是其他域，使用img标签有一个好处：没有浏览器兼容性问题 link：可以使用CDN script:可以使用CDN,可以JSONP  本地3000端口开启了一个服务： 12345678const http =...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-05T22:13:47.000Z" title="发表于 2020-11-05 22:13:47">2020-11-05</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></span></div><div class="content"> 青青翠竹尽是法身，郁郁黄花无非般若。教育小孩和做团队 leader 有相通之处。  做技术切记“本末倒置”，我非常痛恨那些采用 bottom-up 方式来讲解技术的资料和文章，一上来就是技术细节、安装步骤、配置丰富，让初学者晕头转向，不知所云，看完以后也不知道为什么要有这个东西、解决了什么问题、它有什么来龙去脉。换句话说，这些资料和文章习惯于讲解 How，而不是 Why，但是在我看来，Why 有时候比 How 更重要。 当你改变不了别人的时候，抱怨也没有用，还是要先改变一下自己。 程序的局部性原理可以从时空两个维度来进行解释。 时间局部性：如果程序中某条指令开始执行，则不久之后该指令可能被再次执行；如果某数据被访问，则不久之后该数据可能被再次访问。空间局部性：一旦程序访问了某个存储单元，则不久之后其附近的存储单元也将被再次访问。 GSM 技术的核心是时分多址(TCDMA),将每个无线电频率按照时间均匀分给 8 (或者 16) 个用户，每个用户交互占用 1&#x2F;8...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/10/10/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" title="计算机网络">计算机网络</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-10-10T20:52:26.000Z" title="发表于 2020-10-10 20:52:26">2020-10-10</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T10:46:48.000Z" title="更新于 2025-04-02 10:46:48">2025-04-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a></span></div><div class="content">ARP网络层和数据链路层的桥梁。 通过IP地址找到MAC地址,只适用于IPv4，不能用于IPv6（可以用ICMPv6替代ARP发送邻居探索消息，融合了IPv4中的ARP,ICMP重定向和ICMP路由选择，甚至还能自动设置IP地址：和DHCPv6结合）。ARP是通过ARP请求和ARP响应两种类型的包来确定MAC地址的。  IPv6中ICMP的作用被放大，如果没有ICMPv6，IPv6无法正常通信。   如上图所示主机A为了获得主机B的MAC地址，要通过广播发送一个ARP请求包，这个包包含了想要了解其MAC地址的主机的IP地址。如果ARP请求包中的目标IP和自己的IP地址一致，那么这个节点就将自己的MAC地址塞入到ARP响应包中返回给主机A。  ARP请求包还有一个作用：将自己的MAC地址告诉对方  TCP中间节点并不承诺提供可靠的连接通道，物资完全可能失序、重复、甚至丢失。所谓可靠完全由两个端点来实现。 TCP要求无论处在何种网络环境下都要提供高性能通信，并且无论网络拥堵情况如何变化，都必须保持这个特性。因此它每次发包都会计算往返时间及其偏差（RTT:Round Trip...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/09/13/MySQL%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/" title="MySQL 优化总结">MySQL 优化总结</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-09-13T09:45:21.000Z" title="发表于 2020-09-13 09:45:21">2020-09-13</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-18T15:52:02.000Z" title="更新于 2025-04-18 15:52:02">2025-04-18</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/MySQL/">MySQL</a></span></div><div class="content">思路 第一步要做的是确定问题的症结，而不是一上来就看表结构和查询语句。 开启profiling MySQL默认会开启缓存池，本地调试的时候清除缓存的命令是：reset query cache。  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950MariaDB [(none)]&gt; show variables like &#x27;%profi%&#x27;;  +------------------------+-------+| Variable_name          | Value |+------------------------+-------+| have_profiling         | YES   || profiling              | OFF   || profiling_history_size | 15    |+------------------------+-------+3 rows...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/09/08/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" title="面试套路 - 操作系统">面试套路 - 操作系统</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-09-08T21:47:28.000Z" title="发表于 2020-09-08 21:47:28">2020-09-08</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T19:29:47.000Z" title="更新于 2025-01-19 19:29:47">2025-01-19</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Linux/">Linux</a></span></div><div class="content">文件是如何组织的文件系统将硬盘空间以块为单位进行划分，每个文件占据若干个块，然后再通过一个文件控制块 FCB 记录每个文件占据的硬盘数据块。  这个文件控制块在Linux操作系统中就是inode，要想访问文件，就必须获得文件的inode信息，在inode中查找文件数据块索引表，根据索引中记录的硬盘地址信息访问硬盘，读写数据。  inode中记录着文件权限、所有者、修改时间和文件大小等文件属性信息，以及文件数据块硬盘地址索引。 RAID5将数据划分为N-1片，再利用N-1片数据进行位运算，得到一片校验数据，然后将这N片数据写入到N个硬盘。这样任何一块硬盘损坏都可以利用校验片的数据和其他片的数据进行计算得到丢失的那个数据，而硬盘的利用率也达到了N-1 / N。这样兼顾了磁盘利用率、读写速度和数据可用性，实际生产中用的最多。  RAID5中校验位的生成采用的是异或运算。所有数据的bit位，逐位进行异或，得到的就是校验位。如果丢失部分数据，用校验数据和其余数据逐位进行异或运算，可到丢失部分数据。举例，5块磁盘做RAID5，四块磁盘上的bit为：0 1 1 1 ，那么异或计算后，校验位为...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/08/01/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%95%B0%E6%8D%AE%E5%BA%93/" title="面试套路 - 数据库">面试套路 - 数据库</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-08-01T17:51:44.000Z" title="发表于 2020-08-01 17:51:44">2020-08-01</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-17T13:52:23.000Z" title="更新于 2025-04-17 13:52:23">2025-04-17</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/MySQL/">MySQL</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/MongoDB/">MongoDB</a></span></div><div class="content"> 辩证唯物主义告诉我们，事物发展轨迹是波浪式前进，螺旋式上升，有的时候似乎重新回到过去，但是却有了本质的区别和进步。   索引为啥索引能加快查询速度 索引其实也是一种空间换时间的思路。  数据库索引使用 B+ 树，B+ 树是一种 N 叉排序树，树的每个节点包含 N 个数据，这些数据按顺序排好，两个数据之间是一个指向子节点的指针，而子节点的数据则在这两个数据大小之间。  如上图所示：B+ 树的节点存储在磁盘上，每个节点存储 1000 多个数据，这样树的深度最多只要 4 层就可以存储数亿的数据。如果将树的根节点缓存在内存中，则最多只需要三次磁盘访问就可检索到需要的索引数据。  B 树和 B+ 树的区别：B 树的每个节点存储了记录的索引信息，而 B+ 树存储的是索引，只有在叶子节点存储的是全量的信息。并且 B+ 树在叶子节点有一个链表的结构，在范围查找的时候横向遍历会非常方便（不需要回溯到父节点再拓展向下）。  B+...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/07/28/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="面试套路 - 消息队列">面试套路 - 消息队列</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-07-28T21:39:50.000Z" title="发表于 2020-07-28 21:39:50">2020-07-28</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-18T18:01:30.000Z" title="更新于 2025-03-18 18:01:30">2025-03-18</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E6%B5%81%E5%A4%84%E7%90%86/">流处理</a></span></div><div class="content">...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/06/15/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-web%E5%AE%89%E5%85%A8/" title="面试套路 - Web 安全">面试套路 - Web 安全</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-15T23:27:36.000Z" title="发表于 2020-06-15 23:27:36">2020-06-15</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-20T18:22:49.000Z" title="更新于 2025-05-20 18:22:49">2025-05-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></span></div><div class="content"> XSS 利用的是用户对网站的信任，CSRF 利用的是网站对用户的信任。  XSS跨站脚本攻击(Cross Site Scripting)其简称应该是 CSS，但是 CSS 与前端的样式表重叠了，所以改为 XSS，这个 X 其实是 Cross 的通用英文缩写。XSS 攻击的原理是数据变成了脚本，常用的探测方法就是&lt;script&gt;alert(1)&lt;/script&gt;这一条如果能注入成功就能以 src 的方式注入外部脚本。 危害在常用的探测脚本中都是alert(1)，弹个框能有啥用，还能上天不？答案是真的能上天：  获取页面数据（你看到的东西别人也能看到,偷取网站数据） 获取 Cookies（敏感信息泄露，例如登录态） 劫持前端逻辑（欺骗用户，本来应该做 A 操作的，结果点击按钮执行了 B） 发送请求  因此 XSS 是比较危险的。 分类 反射型：url 参数直接注入(http://example.com/search?q=&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;) 存储型：存储到 DB...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/06/15/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-Redis/" title="面试套路 - Redis">面试套路 - Redis</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-15T23:01:01.000Z" title="发表于 2020-06-15 23:01:01">2020-06-15</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-20T08:27:39.000Z" title="更新于 2025-04-20 08:27:39">2025-04-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Redis/">Redis</a></span></div><div class="content"> 注意：缓存穿透(Cache Penetration) 和缓存击穿(Cache Breakdown) 的区别。穿透强调大量恶意请求根本不存在的数据，因为这个时候就好像没有缓存层，流量全部到 DB,影响整个系统；击穿就表示有缓存，但是热点 key 失效了，主要是针对的热点数据。穿透-DB无数据，击穿-DB有数据。  缓存穿透访问一个 DB 和缓存中都不存在的 key 时，请求会直接打到 DB 上，并且因为查不到数据，没法建立缓存，下一次请求还会打到 DB 上。这个时候缓存就像被“穿透”了一样，起不到任何作用，每次请求都会打到 DB 就好像没有缓存一样，大量这样的请求可能导致 DB 挂掉。 对于系统，假设一秒 5000 个请求，结果其中 4000 个请求是黑客发出的恶意攻击。黑客发出的那 4000个攻击，缓存中查不到，每次你去数据库里查，也查不到，举个栗子。数据库 id 是从 1 开始的，结果黑客发过来的请求 id...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2020/05/12/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-js%E5%9F%BA%E7%A1%80/" title="面试套路 - js 基础">面试套路 - js 基础</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-05-12T17:01:28.000Z" title="发表于 2020-05-12 17:01:28">2020-05-12</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-06-26T13:53:00.000Z" title="更新于 2025-06-26 13:53:00">2025-06-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Node-js/">Node.js</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></span></div><div class="content"> 夫大人者，与天地合其德，与日月合其明，与四时合其序，与鬼神合其吉凶。——《周易》  在 JavaScript 中， (a &#x3D;&#x3D; 1 &amp;&amp; a &#x3D;&#x3D; 2 &amp;&amp; a &#x3D;&#x3D; 3) 是否有可能为 true 参考解决思路：a是一个对象或函数，每次调用取值都不一样，以有序的规律变化就能实现多等  方案1：使用 getter1234567let temp = 1;Object.defineProperty(global, &#x27;a&#x27;, &#123;  get() &#123;    return temp++;  &#125;&#125;);console.log(a === 1 &amp;&amp; a === 2 &amp;&amp; a === 3); // true  方案2：重写valueOf&#x2F;toString1234567const a = &#123;  value: 1,  valueOf() &#123;    return this.value++; ...</div></div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/2/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#content-inner">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#content-inner">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/#content-inner">11</a><a class="extend next" rel="next" href="/page/4/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"><span class="card-category-list-name">人工智能</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">前端开发</span><span class="card-category-list-count">17</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/"><span class="card-category-list-name">区块链</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">后端开发</span><span class="card-category-list-count">45</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6/"><span class="card-category-list-name">常用软件</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"><span class="card-category-list-name">数据库</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%96%87%E5%AD%A6/"><span class="card-category-list-name">文学</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/"><span class="card-category-list-name">杂记</span><span class="card-category-list-count">9</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">游戏开发</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">移动开发</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%AE%97%E6%B3%95/"><span class="card-category-list-name">算法</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%AE%A1%E7%90%86/"><span class="card-category-list-name">管理</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/"><span class="card-category-list-name">运维</span><span class="card-category-list-count">12</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Node-js/" style="font-size: 1.41em; color: rgb(75, 179, 136);">Node.js</a><a href="/tags/leetcode/" style="font-size: 1.3em; color: rgb(50, 198, 119);">leetcode</a><a href="/tags/MySQL/" style="font-size: 1.34em; color: rgb(97, 113, 50);">MySQL</a><a href="/tags/PyTorch/" style="font-size: 1.15em; color: rgb(100, 117, 95);">PyTorch</a><a href="/tags/python/" style="font-size: 1.15em; color: rgb(108, 112, 50);">python</a><a href="/tags/Typescript/" style="font-size: 1.15em; color: rgb(50, 55, 54);">Typescript</a><a href="/tags/%E7%88%B1%E6%83%85/" style="font-size: 1.15em; color: rgb(123, 50, 50);">爱情</a><a href="/tags/%E5%A9%9A%E5%A7%BB/" style="font-size: 1.15em; color: rgb(50, 182, 161);">婚姻</a><a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 1.34em; color: rgb(181, 54, 155);">算法</a><a href="/tags/%E6%95%B0%E5%AD%A6%E5%BD%92%E7%BA%B3%E6%B3%95/" style="font-size: 1.15em; color: rgb(127, 173, 170);">数学归纳法</a><a href="/tags/%E6%A6%82%E7%8E%87%E8%AE%BA/" style="font-size: 1.15em; color: rgb(198, 104, 188);">概率论</a><a href="/tags/java/" style="font-size: 1.22em; color: rgb(70, 159, 159);">java</a><a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 1.26em; color: rgb(50, 117, 125);">设计模式</a><a href="/tags/%E6%95%B0%E5%AD%A6/" style="font-size: 1.15em; color: rgb(84, 50, 115);">数学</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 1.22em; color: rgb(115, 161, 149);">软件工程</a><a href="/tags/canvas/" style="font-size: 1.15em; color: rgb(189, 50, 50);">canvas</a><a href="/tags/javascript/" style="font-size: 1.3em; color: rgb(57, 71, 59);">javascript</a><a href="/tags/html5/" style="font-size: 1.19em; color: rgb(50, 111, 101);">html5</a><a href="/tags/Linux/" style="font-size: 1.45em; color: rgb(187, 102, 177);">Linux</a><a href="/tags/dns/" style="font-size: 1.15em; color: rgb(140, 101, 79);">dns</a><a href="/tags/Docker/" style="font-size: 1.15em; color: rgb(78, 50, 83);">Docker</a><a href="/tags/DevOps/" style="font-size: 1.15em; color: rgb(50, 50, 74);">DevOps</a><a href="/tags/css/" style="font-size: 1.22em; color: rgb(104, 192, 50);">css</a><a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" style="font-size: 1.15em; color: rgb(136, 50, 159);">大数据</a><a href="/tags/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" style="font-size: 1.15em; color: rgb(128, 198, 135);">数据分析</a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.15em; color: rgb(188, 50, 136);">文学</a><a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" style="font-size: 1.15em; color: rgb(153, 151, 64);">函数式编程</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E9%9A%8F%E6%83%B3%E5%BD%95/" style="font-size: 1.15em; color: rgb(182, 50, 50);">软件随想录</a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.19em; color: rgb(170, 123, 60);">游戏</a><a href="/tags/golang/" style="font-size: 1.15em; color: rgb(159, 105, 165);">golang</a><a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/" style="font-size: 1.19em; color: rgb(139, 50, 50);">高可用</a><a href="/tags/nio/" style="font-size: 1.15em; color: rgb(142, 180, 164);">nio</a><a href="/tags/netty/" style="font-size: 1.15em; color: rgb(96, 50, 190);">netty</a><a href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" style="font-size: 1.19em; color: rgb(50, 195, 50);">网络编程</a><a href="/tags/ios/" style="font-size: 1.19em; color: rgb(168, 50, 50);">ios</a><a href="/tags/Redis/" style="font-size: 1.26em; color: rgb(111, 50, 50);">Redis</a><a href="/tags/swift/" style="font-size: 1.15em; color: rgb(75, 50, 104);">swift</a><a href="/tags/Shell/" style="font-size: 1.26em; color: rgb(50, 136, 182);">Shell</a><a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" style="font-size: 1.15em; color: rgb(50, 54, 50);">信息安全</a><a href="/tags/Mac/" style="font-size: 1.15em; color: rgb(50, 66, 81);">Mac</a><a href="/tags/AI/" style="font-size: 1.15em; color: rgb(111, 50, 86);">AI</a><a href="/tags/memcached/" style="font-size: 1.15em; color: rgb(50, 151, 157);">memcached</a><a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 1.15em; color: rgb(50, 187, 100);">年终总结</a><a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 1.15em; color: rgb(50, 91, 101);">性能优化</a><a href="/tags/%E7%BA%B3%E5%85%B0%E5%AE%B9%E8%8B%A5/" style="font-size: 1.15em; color: rgb(55, 73, 53);">纳兰容若</a><a href="/tags/%E8%AF%97%E8%AF%8D/" style="font-size: 1.15em; color: rgb(174, 124, 50);">诗词</a><a href="/tags/oauth2/" style="font-size: 1.15em; color: rgb(106, 123, 160);">oauth2</a><a href="/tags/ajax/" style="font-size: 1.15em; color: rgb(131, 135, 50);">ajax</a><a href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" style="font-size: 1.22em; color: rgb(186, 111, 50);">高并发</a><a href="/tags/%E7%A7%92%E6%9D%80/" style="font-size: 1.19em; color: rgb(96, 152, 134);">秒杀</a><a href="/tags/sass/" style="font-size: 1.15em; color: rgb(73, 50, 124);">sass</a><a href="/tags/compass/" style="font-size: 1.15em; color: rgb(99, 152, 69);">compass</a><a href="/tags/spark/" style="font-size: 1.19em; color: rgb(64, 50, 190);">spark</a><a href="/tags/hadoop/" style="font-size: 1.15em; color: rgb(196, 135, 81);">hadoop</a><a href="/tags/hive/" style="font-size: 1.15em; color: rgb(111, 50, 113);">hive</a><a href="/tags/hdfs/" style="font-size: 1.15em; color: rgb(182, 58, 67);">hdfs</a><a href="/tags/%E6%B5%81%E5%A4%84%E7%90%86/" style="font-size: 1.19em; color: rgb(50, 198, 156);">流处理</a><a href="/tags/storm/" style="font-size: 1.15em; color: rgb(119, 183, 62);">storm</a><a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" style="font-size: 1.19em; color: rgb(177, 50, 50);">网络安全</a><a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 1.15em; color: rgb(70, 50, 188);">读书笔记</a><a href="/tags/%E7%94%9F%E6%B4%BB/" style="font-size: 1.15em; color: rgb(135, 61, 116);">生活</a><a href="/tags/web/" style="font-size: 1.15em; color: rgb(51, 124, 154);">web</a><a href="/tags/React-js/" style="font-size: 1.15em; color: rgb(51, 198, 73);">React.js</a><a href="/tags/Next-js/" style="font-size: 1.15em; color: rgb(62, 99, 127);">Next.js</a><a href="/tags/Vue-js/" style="font-size: 1.15em; color: rgb(62, 198, 50);">Vue.js</a><a href="/tags/dapp/" style="font-size: 1.15em; color: rgb(63, 131, 157);">dapp</a><a href="/tags/eth/" style="font-size: 1.15em; color: rgb(57, 84, 95);">eth</a><a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 1.38em; color: rgb(110, 73, 84);">面试</a><a href="/tags/%E7%BE%8E%E9%A3%9F/" style="font-size: 1.15em; color: rgb(129, 130, 50);">美食</a><a href="/tags/http/" style="font-size: 1.15em; color: rgb(197, 177, 50);">http</a><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" style="font-size: 1.15em; color: rgb(62, 131, 181);">分布式</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(84, 50, 170);">架构</a><a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 1.19em; color: rgb(141, 147, 196);">网络</a><a href="/tags/https/" style="font-size: 1.15em; color: rgb(100, 191, 105);">https</a><a href="/tags/%E7%AE%A1%E7%90%86/" style="font-size: 1.15em; color: rgb(50, 178, 57);">管理</a><a href="/tags/%E7%BB%8F%E6%B5%8E%E5%AD%A6/" style="font-size: 1.15em; color: rgb(50, 75, 55);">经济学</a><a href="/tags/MongoDB/" style="font-size: 1.15em; color: rgb(50, 50, 123);">MongoDB</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      <a class="card-more-btn" href="/archives/"
+            title="查看更多">
+            <i class="fas fa-angle-right"></i>
+          </a>
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/05/">
+            <span class="card-archive-list-date">
+              五月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/04/">
+            <span class="card-archive-list-date">
+              四月 2025
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/03/">
+            <span class="card-archive-list-date">
+              三月 2025
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/01/">
+            <span class="card-archive-list-date">
+              一月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/05/">
+            <span class="card-archive-list-date">
+              五月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/12/">
+            <span class="card-archive-list-date">
+              十二月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2023/09/">
+            <span class="card-archive-list-date">
+              九月 2023
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/07/">
+            <span class="card-archive-list-date">
+              七月 2022
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">101</div></div><div class="webinfo-item"><div class="item-name">运行时间 :</div><div class="item-count" id="runtimeshow" data-publishDate="2016-03-19T12:04:12.000Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-07-14T23:48:57.432Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux 基础 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在&#x2F;dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到&#x2F;dev&#x2F;sdb上并没有可用的分区表，使用fdisk &#x2F;dev&#x2F;sdb即可进入分区模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 基础">
+<meta property="og:url" content="https://consoles.fun/2018/04/14/linux-basic/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在&#x2F;dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到&#x2F;dev&#x2F;sdb上并没有可用的分区表，使用fdisk &#x2F;dev&#x2F;sdb即可进入分区模式">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2018-04-14T20:07:51.000Z">
+<meta property="article:modified_time" content="2025-02-24T10:26:21.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux 基础",
+  "url": "https://consoles.fun/2018/04/14/linux-basic/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2018-04-14T20:07:51.000Z",
+  "dateModified": "2025-02-24T10:26:21.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2018/04/14/linux-basic/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux 基础',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux 基础</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux 基础</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2018-04-14T20:07:51.000Z" title="发表于 2018-04-14 20:07:51">2018-04-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-24T10:26:21.000Z" title="更新于 2025-02-24 10:26:21">2025-02-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="硬盘分区、格式化和挂载"><a href="#硬盘分区、格式化和挂载" class="headerlink" title="硬盘分区、格式化和挂载"></a>硬盘分区、格式化和挂载</h1><h2 id="MBR分区模式"><a href="#MBR分区模式" class="headerlink" title="MBR分区模式"></a>MBR分区模式</h2><blockquote>
+<p>主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。</p>
+</blockquote>
+<p>服务器添加硬盘后会显示在<code>/dev</code>目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用<code>fdisk</code>（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用<code>fdisk -l</code>看到<code>/dev/sdb</code>上并没有可用的分区表，使用<code>fdisk /dev/sdb</code>即可进入分区模式(注意：如果添加的分区是拓展分区,一个硬盘上拓展分区的数量最多只能有一个，拓展分区不能直接使用，必须添加逻辑分区,方法是进入到分区模式，然后按n，按照提示为拓展分区添加逻辑分区)。因为逻辑分区在拓展分区内部，所以如果删除拓展分区，它下面的逻辑分区将一同删除。<em>拓展分区的出现本身就是为了解决MBR中只能有4个主分区的问题。</em></p>
+<h2 id="GPT分区模式"><a href="#GPT分区模式" class="headerlink" title="GPT分区模式"></a>GPT分区模式</h2><blockquote>
+<p>主分区最多128个，分区的类型概念模糊了，单个分区的容量几乎没有限制(18EB,1EB&#x3D;1024PB,1PB&#x3D;1024TB)，GPT的主分区中不太适合安装X86架构的系统。</p>
+</blockquote>
+<p>GPT分区使用<code>parted</code>工具(MBR和GPT都支持)。</p>
+<blockquote>
+<p>固态硬盘中4K对其非常重要，对硬盘的性能会产生很大影响，通常将一块硬盘的起始的0~1MB的空间牺牲掉用来做4K对其。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ parted</span><br><span class="line">$ <span class="keyword">select</span> /dev/sdc <span class="comment"># 选择我们新添加的硬盘</span></span><br><span class="line">$ mklabel gpt <span class="comment"># 指定分区类型为gpt，还有一种是msdos表示MBR分区</span></span><br><span class="line">$ mkpart <span class="comment"># 按照提示进下下一步操作即可，注意start和end表示从第XXXMB开始到XXXMB结束</span></span><br><span class="line">$ mkpart part2 2000 3000 <span class="comment"># 分区名 上一个分区的结束位置 本分区的结束位置</span></span><br><span class="line">$ <span class="built_in">print</span> <span class="comment"># 第一列为分区编号</span></span><br><span class="line">$ <span class="built_in">rm</span> 3 <span class="comment"># 删除第3个分区</span></span><br><span class="line">$ unit GB <span class="comment"># 使用GB为单位指定分区的开始和结束位置</span></span><br></pre></td></tr></table></figure>
+
+<p><em>fdisk工具需要输入w将分区信息更新写入，而gpt工具只需要分好之后退出即可</em></p>
+<h2 id="分区格式化"><a href="#分区格式化" class="headerlink" title="分区格式化"></a>分区格式化</h2><p>分区格式化使用<code>mkfs</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkfs.ext4 /dev/sdb1 <span class="comment"># 将/dev/sdb1格式化为ext4</span></span><br><span class="line">$ mkfs -t ext3 /dev/sdb2</span><br></pre></td></tr></table></figure>
+
+<h2 id="分区挂载"><a href="#分区挂载" class="headerlink" title="分区挂载"></a>分区挂载</h2><p>分区默认挂载目录是<code>/mnt</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> -p /mnt/test</span><br><span class="line">$ mount /dev/sdb1 /mnt/test</span><br><span class="line">$ umount /mnt/test <span class="comment"># 或者umount /dev/sdb1</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通过mount命令挂载的分区在重启后会失效，需要将其写入到<code>/etc/fstab</code>中可以重启自动挂载。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ vi + /etc/fstab <span class="comment"># + 表示定位到最后一行,添加这样的一行即可</span></span><br><span class="line">$ /dev/sdb1       /mnt/test       ext3    defaults        0       0</span><br></pre></td></tr></table></figure>
+
+<h2 id="为硬盘添加swap分区"><a href="#为硬盘添加swap分区" class="headerlink" title="为硬盘添加swap分区"></a>为硬盘添加swap分区</h2><p>首先建立普通分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ fdisk /dev/sdb</span><br><span class="line">$ p</span><br><span class="line">$ t <span class="comment"># 选择分区编号，输入6（最后一个分区）</span></span><br><span class="line">$ <span class="comment"># 系统提示改变16进制编码（输入L可看到全部编码，可以发现83为普通linux分区,82为交换分区，输入82,w保存退出）</span></span><br><span class="line">$ mkswap /dev/sdb6 <span class="comment"># 格式化交换分区</span></span><br><span class="line">$ swapon /dev/sdb6 <span class="comment"># 启用交换分区</span></span><br></pre></td></tr></table></figure>
+
+<p>交换分区启用完成后可以使用<code>free</code>命令查看加载状况，还可以使用<code>swapoff /dev/sdb6</code>停用交换分区。</p>
+<h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">du</span> -h -s /tmp/ <span class="comment"># 统计/tmp目录大小</span></span><br><span class="line">$ <span class="built_in">du</span> -sh *.js <span class="comment"># 统计当前目录下js文件大小</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="密钥管理"><a href="#密钥管理" class="headerlink" title="密钥管理"></a>密钥管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 上传公钥到服务器</span></span><br><span class="line"><span class="built_in">cat</span> ~/.ssh/id_rsa.pub | ssh devel@192.168.3.118 <span class="string">&#x27;cat &gt;&gt; .ssh/authorized_keys&#x27;</span></span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2018/04/14/linux-basic/">https://consoles.fun/2018/04/14/linux-basic/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/12/27/dns-bind/" title="使用Bind搭建智能DNS"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-27</div><div class="info-item-2">使用Bind搭建智能DNS</div></div><div class="info-2"><div class="info-item-1"> Bind是加州大学伯克利分校开发维护的开源、稳定的DNS服务。  www.baidu.com = www.baidu.com.最后的一个.表示根域，.com是一级域,baidu.com是二级域。 DNS解析记录分类常见的有A记录，CNAME，MX和NS，参见鸟哥的Linux私房菜。 Bind安装和配置A记录 下面的例子中，DNS服务器为192.168.1.128。  12345$ yum install -y bind bind-chroot bind-utils$ rpm -qa | grep bind$ rpm -ql bind | more # 查看具体安装了哪些内容$ service named start # 启动DNS$ cp /etc/named.conf /etc/named.conf.default # 备份配置文件  配置/etc/named.conf为如下： 12345678options &#123;       	directory &quot;/var/named&quot;;&#125;;zone &quot;baidu.com&quot;...</div></div></div></a><a class="pagination-related" href="/2016/12/04/linux-network/" title="Linux网络管理和权限配置"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-04</div><div class="info-item-2">Linux网络管理和权限配置</div></div><div class="info-2"><div class="info-item-1">arp协议是网络层的协议，但是具体工作在数据链路层，将ip地址和mac地址对应，我们可以使用arp...</div></div></div></a><a class="pagination-related" href="/2016/04/16/linux-regexp/" title="Shell 基础 —— 正则表达式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-16</div><div class="info-item-2">Shell 基础 —— 正则表达式</div></div><div class="info-2"><div class="info-item-1">常用正则123$ grep -n &quot;^$&quot; test.txt # 空白行[0-9]\&#123;4\&#125;-[0-9]\&#123;2\&#125;-[0-9]\&#123;2\&#125; # yyyy-mm-dd[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125; # ip   在vi中按Esc键后d G可以清空光标起的所有内容。  字符截取命令cut命令例如我们有用户信息文件/etc/passwd, 12$ useradd user1$ useradd user2  假设我们要删除上面创建的用户user1和user2,当然我们可以使用userdel命令,但是有的时候是程序执行的,所以我们需要在/etc/passwd中提取出新创建的2个普通用户,使用grep进行行提取 123$ grep &quot;user&quot; /etc/passwd | grep -v &quot;system&quot; #...</div></div></div></a><a class="pagination-related" href="/2016/12/16/linux-security/" title="Linux 网络安全"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-16</div><div class="info-item-2">Linux 网络安全</div></div><div class="info-2"><div class="info-item-1">用户和用户组用户组指的是具有相同系统权限的一组用户,配置文件位于/etc/group。该配置文件的格式为组名:组密码占位符:组编号:组内用户名列表。当组内只有一个用户且用户名和组名相同的时候可以省略组内的用户名列表，例如:mysql:x:501:。组号1~499为系统预留的组编号。 /etc/shadow存放用户组的密码信息，和/etc/group一一对应。分别是组名称:组密码:组管理者:组中用户名列表。当组密码为空、星号或者感叹号的时候可以认为组密码为空. /etc/passwd，存放用户信息。用户名：密码占位符：用户编号：用户组编号：用户注释信息：用户主目录：shell类型。/etc/shadow存放用户密码。 1234567891011121314151617$ groupadd sexy # 添加组$ groupmod -n market sexay # 组改名$ groupmod -g 668 market # 更改组id$ groupadd boss -g 666 # 创建用户组并同时指定gid$ groupdel market #...</div></div></div></a><a class="pagination-related" href="/2016/12/11/linux-service/" title="Linux 服务管理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-11</div><div class="info-item-2">Linux 服务管理</div></div><div class="info-2"><div class="info-item-1">Crontab周期性任务 at可以一次性执行。service atd status，它可以使用黑名单和白名单控制，参见/etc/at.deny,at.allow。  12345$ at now+5 minutesat&gt; echo hehe # ctrl + d保存退出$ atq # 查看at任务$ at -c 1 # 查看工作号执行的具体任务$ atrm 1 # 删除at任务  同理crontab也有访问控制文件cron.deny等。系统服务crond每分钟会从配置文件中刷新定时任务。 12$ crontab -l # 列出任务，-r 清空$ service crond status # 查看服务是否正常启动   crontab -e可以编辑计划任务。在最后追加 123456789101112# 每分钟输出系统时间到文件*/1 * * * * date &gt;&gt; /tmp/date.tmp# 每天21:30重启apache30 21 * * * service httpd restart# 每月1号、10号、22号4:45重启apache45 4 1,10,22...</div></div></div></a><a class="pagination-related" href="/2016/04/29/linux-shell-flow-control/" title="Shell 基础 —— 流程控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-29</div><div class="info-item-2">Shell 基础 —— 流程控制</div></div><div class="info-2"><div class="info-item-1">条件判断假设/tmp/test.js存在,而/tmp/test.jsx文件不存在,则执行以下命令(注意中括号两端的空格): 123456789101112131415161718192021222324252627282930$ [ -e /tmp/test.js ]$ echo $? # 0,表示上一条命令执行成功,即文件存在$ [ -e /tmp/test.jsx ]$ echo $? # 1,非零值,上一条命令执行失败# 我们可以执行下面的命令从而得到更加语义化的结果$ [ -e /tmp/test.js ] &amp;&amp; echo &#x27;exists &#x27; || echo &#x27;not exists&#x27;# 判断文件权限$ [ -w /tmp/test.js ] &amp;&amp; echo &#x27;can write&#x27; || echo &#x27;can not write&#x27;文件1 -ef 文件2 # 判断两个文件的Inode是否一致,可理解为判断2个文件是否是同一个文件,用于判断硬链接是很好的方法$...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A1%AC%E7%9B%98%E5%88%86%E5%8C%BA%E3%80%81%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%92%8C%E6%8C%82%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">硬盘分区、格式化和挂载</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MBR%E5%88%86%E5%8C%BA%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">MBR分区模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GPT%E5%88%86%E5%8C%BA%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.2.</span> <span class="toc-text">GPT分区模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%8C%BA%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">分区格式化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%8C%BA%E6%8C%82%E8%BD%BD"><span class="toc-number">1.4.</span> <span class="toc-text">分区挂载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E7%A1%AC%E7%9B%98%E6%B7%BB%E5%8A%A0swap%E5%88%86%E5%8C%BA"><span class="toc-number">1.5.</span> <span class="toc-text">为硬盘添加swap分区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86"><span class="toc-number">1.6.</span> <span class="toc-text">磁盘管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86"><span class="toc-number">1.7.</span> <span class="toc-text">密钥管理</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

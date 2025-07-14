@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>码农翻身有感 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="青青翠竹尽是法身，郁郁黄花无非般若。教育小孩和做团队 leader 有相通之处。  做技术切记“本末倒置”，我非常痛恨那些采用 bottom-up 方式来讲解技术的资料和文章，一上来就是技术细节、安装步骤、配置丰富，让初学者晕头转向，不知所云，看完以后也不知道为什么要有这个东西、解决了什么问题、它有什么来龙去脉。换句话说，这些资料和文章习惯于讲解 How，而不是 Why，但是在我看来，Why 有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="码农翻身有感">
+<meta property="og:url" content="https://consoles.fun/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="青青翠竹尽是法身，郁郁黄花无非般若。教育小孩和做团队 leader 有相通之处。  做技术切记“本末倒置”，我非常痛恨那些采用 bottom-up 方式来讲解技术的资料和文章，一上来就是技术细节、安装步骤、配置丰富，让初学者晕头转向，不知所云，看完以后也不知道为什么要有这个东西、解决了什么问题、它有什么来龙去脉。换句话说，这些资料和文章习惯于讲解 How，而不是 Why，但是在我看来，Why 有">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2020-11-05T22:13:47.000Z">
+<meta property="article:modified_time" content="2025-07-04T23:02:12.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "码农翻身有感",
+  "url": "https://consoles.fun/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2020-11-05T22:13:47.000Z",
+  "dateModified": "2025-07-04T23:02:12.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '码农翻身有感',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">码农翻身有感</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">码农翻身有感</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-05T22:13:47.000Z" title="发表于 2020-11-05 22:13:47">2020-11-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><blockquote>
+<p>青青翠竹尽是法身，郁郁黄花无非般若。教育小孩和做团队 leader 有相通之处。</p>
+</blockquote>
+<p>做技术切记“本末倒置”，我非常痛恨那些采用 bottom-up 方式来讲解技术的资料和文章，一上来就是技术细节、安装步骤、配置丰富，让初学者晕头转向，不知所云，看完以后也不知道为什么要有这个东西、解决了什么问题、它有什么来龙去脉。换句话说，这些资料和文章习惯于讲解 How，而不是 Why，但是在我看来，Why 有时候比 How 更重要。</p>
+<p>当你改变不了别人的时候，抱怨也没有用，还是要先改变一下自己。</p>
+<p>程序的局部性原理可以从时空两个维度来进行解释。</p>
+<p>时间局部性：如果程序中某条指令开始执行，则不久之后该指令可能被再次执行；如果某数据被访问，则不久之后该数据可能被再次访问。<br>空间局部性：一旦程序访问了某个存储单元，则不久之后其附近的存储单元也将被再次访问。</p>
+<p>GSM 技术的核心是时分多址(TCDMA),将每个无线电频率按照时间均匀分给 8 (或者 16) 个用户，每个用户交互占用 1&#x2F;8 的信道时间(人们通话的时候,语音的实际间隔时间其实很长,只要编码合理,就可以多用户公用一个信道)</p>
+<p>设计模式就是在某种场合下对某个问题的一种解决方案。就是给面向对象程序设计中的一些好的设计取个名字。</p>
+<p>互联网公司的崛起大概是在 2012 年左右移动互联网开始出现，互联网的渗透率得以加速，BAT 逐渐开始成为家喻户晓的名字。其次，经过前面时间的积累，互利网企业主导的各种分布式、大数据、移动互联网、云计算等技术的风头开始超过传统的 IT 巨头，阿里开始去 IOE，打造自己的云计算平台，成为先进技术的代表着；最主要的还是互利网企业盈利能力大幅增加，能够提供市场上更有竞争力的薪水和股票。于是互利网企业在人才市场上开始变得炙手可热，BAT 这些企业开始被人称为“大厂”。今天我们感觉这些互联网巨头高高在上，人们纷纷向往。事实上，这个现象出现的时间非常短。今天这些企业有足够的名字和资源将自己营造得高高在上，可以在众多优秀的候选人中挑来选去，仅仅在 10 年前，还不是这样的。但是事情的真正的吊诡之处还不在这里，当今这些互联网大厂的核心技术和业务模式在十几年前就已经奠定了，经过几年的探索，大概在七八年前开始稳定成熟。也就是说互联网企业的技术实力和商业能力是在这些企业还默默无闻的时候就发展起来的，而在这些企业成为明星之后，并没有得到突破性的进展。想想这些所谓的互利网大厂，最近几年并没有什么值得称道的商业模式创新和技术创新。也就是说：十多年前，可能是一些并不优秀的技术人员加入到一个并不出名的公司，然后这些人开创了一个杰出的事业。用马云的话说，就是“二流的人做一流的事”。然后公司开始挑选一流的人，但结果似乎只是在维持这个事业，并没有开创出更加杰出的事业。今天的 BAT 似乎成为了当年的 IBM，历史好像进入了某种循环。如果这就是事情的真相，那么我们或许可以从中得到某种启发，重新考虑下未来的职业规划。也许就会发现：我们可能不需要追逐当前所谓的热门技术，而应该好好想想需要为自己的未来准备些什么。</p>
+<h1 id="职业规划"><a href="#职业规划" class="headerlink" title="职业规划"></a>职业规划</h1><h2 id="德雷福斯模型"><a href="#德雷福斯模型" class="headerlink" title="德雷福斯模型"></a>德雷福斯模型</h2><p>专业人员能力成长模型，这个模型认为所有专业人员都需要经历 5 个成长阶段，不管是医生、律师还是软件开发，任何专业技能的从业者都需要经历新手、高级新手、胜任者、精通者、专家 5 个阶段。</p>
+<p>任何一个人进入专业的技能领域，即使在学校已经系统学习过这个专业的相关知识，但是依然无法独立完成工作，必须在有经验的同事指导下，学习相关技能。这里主要学习的是有关工作的规则和套路。比如用什么工具、框架，如何开发程序，如何开会、写周报，如何和同事合作，业务领域的名词是什么意思等等这些这种各样和工作有关的大小事情。这个阶段叫做<em>新手</em>阶段。</p>
+<p>通常说来，一个人大约工作了 2-3 年后，就差不多掌握了工作的各种套路，可以拜托新手阶段，独立完成一些基本的工作了。通过新手阶段的人，少部分会直接进入胜任者阶段，而大多数则进入<em>高级新手</em>阶段。高级新手通常是新手的自然延续，他不需要别人指导工作，也不需要学习工作的规则和套路，因为高级新手已经在新手阶段掌握了这些套路，他可以熟练应用这些规则套路完成它的工作。但是高级新手的能力也仅限于此，他不明白这些规则是如何指定出来的，为什么使用这个框架开发而不是另一个框架，也不明白这个框架是如何开发出来的。</p>
+<p>因此，一旦需要解决的问题和过往的问题有很大不同，以往的规则套路无法解决这些新问题的时候，高级新手就抓瞎了，不知道怎么办。</p>
+<p>一个悲观的事实是，新手会自然进入高级新手阶段，而高级新手却无法自然进入其后的其他等级阶段。实际上，<strong>在各个专业领域，超过半数的人终其一生都停留在高级新手阶段</strong>。也就是说：大多数人一生的工作就是机遇其专业领域的规则在进行重复性劳动。他们不了解这些规则背后的原理，也无法在面对新问题时，开创出新的方法和规则。那些简历上十多年如一日使用相同的技术方案、开发类似软件项目的资深工程师大部分都是高级新手。</p>
+<p>导致一个人终身停留在高级新手阶段的原因有很多，其中一个重要的原因就是：<strong>高级新手不知道自己是高级新手</strong>。高级新手觉得自己在这个专业领域混得不错，做事熟练，经验丰富。</p>
+<p>事实上，这种熟练只是对既有规则的熟练，如果岁月静好，一切都循规蹈矩，也没有什么问题。而一旦行业出现技术变革或者工作出现新情况，高级新手就会遇到巨大的工作困难。事实上，各行各业都存在大量的高级新手，只是软件开发领域的技术变革更加频繁，问题变化也更加快速，使得高级新手的问题更加突出。</p>
+<p>少部分新手和高级新手会在工作中学习、领悟规则背后的原理，当需要解决的问题变化，或者行业出现技术革新时，能够尝试学习新技术、解决新问题，这样的人就进入<em>胜任者</em>阶段。胜任者工作的一个显著特点：<strong>做事具有主动性</strong>。他们在遇到新问题时，会积极寻求新的解决方案去解决问题，而不是像高级新手那样，要么束手无策，要么还是用老办法解决新问题，使问题更加恶化。</p>
+<p>胜任者能解决新问题，但他们通常只会见招拆招，局限于解决问题本身，而缺乏反思精神和全局思维：为什么会出现这样的问题？如何避免类似问题再发生？这个问题在更宏大的背景下处于什么位置？还有哪些类似的问题？</p>
+<p>而拥有反思精神和全局思维，即使没有新问题也能进行自我突破、寻求新的出路的人，就进入了<em>精通者</em>阶段。<strong>精通者需要通过主动学习进行提升，主动进行大量的阅读和培训</strong>而不是仅仅依靠工作中的经验和实践。他们在完成一个工作后会反思：哪些地方可以改进，下次怎么做会更好？</p>
+<p>精通者<strong>拥有了自我改进的能力</strong>。</p>
+<p>高级新手会把规则当做普适性的真理而使用，甚至引以为豪；而精通者则会明白所有的规则只会在特定的场景下才会有效，<strong>工作中最重要的不是规则，而是对场景的理解。</strong></p>
+<p>而最终，各行各业大约只有 1% 的人会进入<em>专家</em>阶段，专家把过往的经验都融会贯通，然后形成一种直觉，他们直觉地知道事情应该怎么做，然后用**最直接、最简单的方法把问题解决。**专家通常也是他所在领域的权威，精通者和胜任者会学习、研究专家是如何解决问题的，然后把这种解决方案形成套路，成为行业做事的规则。</p>
+<h2 id="如何在工作中成长"><a href="#如何在工作中成长" class="headerlink" title="如何在工作中成长"></a>如何在工作中成长</h2><p>德雷福斯模型告诉我们，人的专业能力不会随着工作年限的增加而自然增长，多数人会终身停留在高级新手阶段。那么如何在工作中不断成长，提升自我，最终成为专家？有以下几个建议：</p>
+<ol>
+<li>用于承担责任。如果只是遵循别人的指令，按照别人的规则做事，你用于不会指知道事物的真相是什么，只有对结果负责，压力之下，才会看透事物的本质，才会抓住核心和关键。</li>
+<li>在实践中保持技能。通俗来说就是要摘那些跳起来才够得着的苹果，只要再进入一点点就能完成，通过这样持续的工作训练和挑战，在实践中持续获得进步，就可以不断从新手到专家这个方向前进。</li>
+</ol>
+<p>有些成功是可遇不可求的，至少要做到团队影响力，努力做到公司影响着，且不仅仅要做到，还要做好。在技术之路上，绝大多数人都是分母，但是这不能是自己不努力的理由。也许我们多么努力都达不到别人的成功，但是不要放弃，你的努力会时刻影响着你。</p>
+<p>做为软件工程师，如果只是听从别人的指令开发代码，却不了解这些代码究竟想要解决什么问题，很多时候你是在制造问题，而不是解决问题。加班加点辛苦工作只是在给公司制造麻烦。对于自己而言，日复一日重复执行解决方案，距离成为一个技术专家也越来越远。</p>
+<h1 id="如何有效沟通"><a href="#如何有效沟通" class="headerlink" title="如何有效沟通"></a>如何有效沟通</h1><p>在日常生活工作中，总要和很多人合作。有时候，我们需要依赖别人的工作结果，以作为我们工作的输入；有时候，我们的工作产出需要交付给别人，才能产生最终的价值。这这些合作过程中，可能会遇到各种问题。</p>
+<h2 id="如果某人能解决问题，而他自己却感受不到问题，那么就让他感受一下"><a href="#如果某人能解决问题，而他自己却感受不到问题，那么就让他感受一下" class="headerlink" title="如果某人能解决问题，而他自己却感受不到问题，那么就让他感受一下"></a>如果某人能解决问题，而他自己却感受不到问题，那么就让他感受一下</h2><p>在工作合作的过程中，有的时候，对于对方来说，明明是举手之劳的事情，但他偏偏在拖延，你去催促也没有什么效果。这时候，我们很容易将问题归结为对方的工作态度有问题，事实上，很多时候，其实是对方没有理解你的问题，他觉得你在没事找事，你才是工作态度有问题的人。</p>
+<p>将问题归结为人的态度问题，大多数情况下，是无法解决问题的，况且，很多时候确实不是态度问题，而是不同的人做事能力、理解能力、立场和看待事物的角度不同。所以，如果只是立场和角度的问题，那么就可以将对方拉到同一立场来解决问题。如果对方没有感受到问题，那么想办法让对方感受一下问题。</p>
+<p>通常来说，上司的能力要比你自己的能力强，调动的资源也比你多，有些事情对你而言可能非常困难，但是你的上司也许一句话就可以搞定，这个时候就可以考虑利用自己的上司去解决问题。如果他没有感受到问题，就想办法让他感受到问题。</p>
+<p>有句话说：<strong>用人的最高境界是用上司。</strong></p>
+<p>有的时候，对于一件有风险的工作，如果你自己做决策，那么放事情不顺利的时候，你可能无法承担风险，那么就应该将上司拉进来。你可以直接问他：有这样的方案和计划，你觉得合适么？但是这种提问方式，可能会导致你的方案被上司否定，更好的提问方式是：这里有 A,B 两个方案，你觉得哪个方案更合适？从而将上司的回答引导到你期望的答案上去。而上司一旦回答了你的问题，就等于参与到你的工作中去了，当事情出现风险的时候，你再去找他寻求支持的时候，因为是他曾经做出的决策，那么他更容易跟你站在一起，帮你解决问题。这里需要注意的是，当你寻求上司支持的时候，不要问上司怎么办，不要给上司提开放式的问题。一则上司可能不理解你的问题上下文，无法给出合适建议，从而使上司和你都难堪。再则上司如果给出的方案你你难以执行的，你是在给自己挖坑。而封闭式的问题，只需要回答好或者不好都可以了 —— 例如选择 A 方案还是 B 方案。</p>
+<p>相反，如果你给下属提问，就不要提封闭式的问题了，你问下属这个方案好不好可能会导致他质疑你的能力，同时也限制了他的能动性，使他无法思考和调查更多的解决方案。</p>
+<h2 id="直言有讳"><a href="#直言有讳" class="headerlink" title="直言有讳"></a>直言有讳</h2><p>在合作的过程中，合作的小伙伴可能犯一些错误，如果这个错误影响了你，你应该指出来，而不是为了和谐假装视而不见，任由事情向失败的方向滑落。但是，这里需要注意的是，指出错误是为了改正错误，达成目标，而不是为了责备、打压对方，也就是所谓的：<em>要批评不要责难，要对事不对人</em>。</p>
+<p>如果针对人，那么对方就一定和你站在对立的一面，你们就是在进行人际斗争，而不是在解决问题。<em>直言有讳</em>就是说，指出负面情况的时候，要直接，不要兜圈子、说含糊话，否则语言就没有力量，无法解决问题。但是也不是想说什么就说什么，要有所避讳，主要就是不要把问题指向人。可以说这件事情这样做是不对的，但是不要说你这个人是有问题的。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/">https://consoles.fun/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/12/28/awesome-java/" title="java 中的一些惯用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-28</div><div class="info-item-2">java 中的一些惯用法</div></div><div class="info-2"><div class="info-item-1"> 鸟宿池边树，僧敲月下门。  java7中的try-resource语法语义自动关闭InputStream和JDBC Connection，就不需要在finally中close了。 java中的锁是如何实现的在java里锁是通过cas把当前线程id刷新到对象的头信息里，在获取锁时会去头信息里拿这个信息，如果没有则会cas刷新进去，刷新成功就获取到锁；刷新失败就表明有别的线程也在尝试刷新这个信息。 在操作系统层面有pv操作保证原子性，而pv操作也是利用cpu中原语指令，在获取锁时保证不会被别的指令打断（或被重排序）。 白名单问题 java中1&#x2F;0抛出算术异常，而1&#x2F;0.0结果为无穷大。  一家信用卡公司中的账号是成千上万的，我们将用户账号保存在一个文件中，这个文件就是白名单。认为给定一个账户，我们需要检查该账号是否在白名单中。一个程序可用往往是不够的，如果没有二分查找或者归并排序这样的高效算法解决此类问题是不可能的。 关于除法运算无论正负，a / b的商会向0取整。而余数满足这个公式：(a/b) * b + a % b == a。例如-14 &#x2F; 3...</div></div></div></a><a class="pagination-related" href="/2019/08/26/%E7%9F%AD%E5%9C%B0%E5%9D%80%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="短地址服务的设计与实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-08-26</div><div class="info-item-2">短地址服务的设计与实现</div></div><div class="info-2"><div class="info-item-1">有不少网站可以提供长链转短链的服务,例如新浪短地址服务、bitly。背后的原理其实是将长链和短链进行一一映射。换而言之，各家短链服务商的短链和长链是一一对应的。其中的关键点在于如何根据长链生成短链，以及当用户访问短链后怎么处理。 如何生成短地址比较直观想到的解法是使用哈希函数，但是无论怎样构造哈希函数，都存在哈希碰撞的问题。再次想到碰撞之后可以在 hash 字符串后面补充其他字符串来实现，但是需要补充多少位呢？这种方案显然不是那么方便。联想到全局唯一，以及数据存储我们很容易想到数据库的自增 id，其实这样也是可以的，这里为了实现简单(主要是天然的过期时间)，采用了 redis 来存储数据，其 key 设计如下： globalId:全局自增 id，用于保证短链的唯一性shortToLong:短地址到长地址的映射,key...</div></div></div></a><a class="pagination-related" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-08-22</div><div class="info-item-2">面试常用套路</div></div><div class="info-2"><div class="info-item-1"> 墨菲定理：任何事情都没有表面看起来那么简单；所有的事情都会比你预估的时间长；会出错的事情总会出错；你总是担心的事情，它总会发生的。  如何规范写日志日志要有分隔符大多数时候使用|作为分隔符。分析数据的时候直接用分隔符拆分对应的字段和属性。 123456# 正确例子类名|方法名|输入参数|输出参数# 错误例子1（不用分隔符）类名方法名输入参数输出参数# 错误例子2（用多种分隔符）类名#方法名 输入参数|输出参数  通过UUID编号来保证日志的连贯性每次请求都应该有一个唯一编号，每记录一次日志还应该有一个唯一编号。例如： 12api.ERROR: 79a8ea37dceff105|0|responseObj is error:&#123;&quot;return_code&quot;:&quot;SUCCESS&quot;,&quot;return_msg&quot;:&quot;OK&quot;&#125;api.ERROR:...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%81%8C%E4%B8%9A%E8%A7%84%E5%88%92"><span class="toc-number">1.</span> <span class="toc-text">职业规划</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%B7%E9%9B%B7%E7%A6%8F%E6%96%AF%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">德雷福斯模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E6%88%90%E9%95%BF"><span class="toc-number">1.2.</span> <span class="toc-text">如何在工作中成长</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%9C%89%E6%95%88%E6%B2%9F%E9%80%9A"><span class="toc-number">2.</span> <span class="toc-text">如何有效沟通</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%9F%90%E4%BA%BA%E8%83%BD%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98%EF%BC%8C%E8%80%8C%E4%BB%96%E8%87%AA%E5%B7%B1%E5%8D%B4%E6%84%9F%E5%8F%97%E4%B8%8D%E5%88%B0%E9%97%AE%E9%A2%98%EF%BC%8C%E9%82%A3%E4%B9%88%E5%B0%B1%E8%AE%A9%E4%BB%96%E6%84%9F%E5%8F%97%E4%B8%80%E4%B8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">如果某人能解决问题，而他自己却感受不到问题，那么就让他感受一下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E8%A8%80%E6%9C%89%E8%AE%B3"><span class="toc-number">2.2.</span> <span class="toc-text">直言有讳</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

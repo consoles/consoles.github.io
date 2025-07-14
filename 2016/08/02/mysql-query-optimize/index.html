@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MySQL 查询优化和数据库监控 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如何确定查询处理的各个阶段所消耗的时间使用profile1234567mysql&gt; set profiling&#x3D;1; -- 启用profile，这是一个session级别的配置mysql&gt; select count(*) from film; -- 执行任意SQLmysql&gt; show profiles; -- 查看profile，可以看到query id，duration和具体">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 查询优化和数据库监控">
+<meta property="og:url" content="https://consoles.fun/2016/08/02/mysql-query-optimize/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="如何确定查询处理的各个阶段所消耗的时间使用profile1234567mysql&gt; set profiling&#x3D;1; -- 启用profile，这是一个session级别的配置mysql&gt; select count(*) from film; -- 执行任意SQLmysql&gt; show profiles; -- 查看profile，可以看到query id，duration和具体">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-08-02T10:18:58.000Z">
+<meta property="article:modified_time" content="2025-04-02T23:03:46.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="性能优化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MySQL 查询优化和数据库监控",
+  "url": "https://consoles.fun/2016/08/02/mysql-query-optimize/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-08-02T10:18:58.000Z",
+  "dateModified": "2025-04-02T23:03:46.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/08/02/mysql-query-optimize/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MySQL 查询优化和数据库监控',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">MySQL 查询优化和数据库监控</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">MySQL 查询优化和数据库监控</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-08-02T10:18:58.000Z" title="发表于 2016-08-02 10:18:58">2016-08-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-02T23:03:46.000Z" title="更新于 2025-04-02 23:03:46">2025-04-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="如何确定查询处理的各个阶段所消耗的时间"><a href="#如何确定查询处理的各个阶段所消耗的时间" class="headerlink" title="如何确定查询处理的各个阶段所消耗的时间"></a>如何确定查询处理的各个阶段所消耗的时间</h1><h2 id="使用profile"><a href="#使用profile" class="headerlink" title="使用profile"></a>使用profile</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="built_in">set</span> profiling=1; -- 启用profile，这是一个session级别的配置</span><br><span class="line">mysql&gt; <span class="keyword">select</span> count(*) from film; -- 执行任意SQL</span><br><span class="line">mysql&gt; show profiles; -- 查看profile，可以看到query <span class="built_in">id</span>，duration和具体的sql</span><br><span class="line">mysql&gt; show profile <span class="keyword">for</span> query 5; -- 查看某个query <span class="built_in">id</span>的各个阶段的消耗时间</span><br><span class="line">mysql&gt; show profile cpu <span class="keyword">for</span> query 5; -- 查看CPU信息</span><br><span class="line">-- 以上的查询中我们可以看到都有一个警告信息</span><br><span class="line">mysql&gt; show warnings; -- 查看警告信息,发现警告信息是show profile已经被废弃了，官方建议使用Performance Schema</span><br></pre></td></tr></table></figure>
+<h2 id="使用performance-schema"><a href="#使用performance-schema" class="headerlink" title="使用performance_schema"></a>使用performance_schema</h2><p> 和profile不同的是，该配置是全局的。要使用这个配置需要在<code>performance_schema</code>数据库下执行下面的2条update语句：</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> `setup_instruments` <span class="keyword">SET</span> enabled<span class="operator">=</span><span class="string">&#x27;yes&#x27;</span>,timed<span class="operator">=</span><span class="string">&#x27;yes&#x27;</span> <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;stage%&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> `setup_consumers` <span class="keyword">SET</span> enabled<span class="operator">=</span><span class="string">&#x27;yes&#x27;</span> <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;events%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>执行完上面的2句执行任意的SQL，查看这些SQL在各个阶段的执行时间可以采用如下的查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> a.THREAD_ID,SQL_TEXT,c.EVENT_NAME,(c.TIMER_END <span class="operator">-</span> c.TIMER_START)<span class="operator">/</span><span class="number">1000000000</span> <span class="keyword">AS</span> <span class="string">&#x27;DURATION(ms)&#x27;</span></span><br><span class="line"><span class="keyword">FROM</span> events_statements_history_long a</span><br><span class="line"><span class="keyword">JOIN</span> threads b <span class="keyword">ON</span> a.THREAD_ID <span class="operator">=</span> b.THREAD_ID</span><br><span class="line"><span class="keyword">JOIN</span> events_stages_history_long c <span class="keyword">ON</span> c.THREAD_ID <span class="operator">=</span> b.THREAD_ID <span class="keyword">AND</span> c.EVENT_ID <span class="keyword">BETWEEN</span> a.EVENT_ID <span class="keyword">AND</span> a.END_EVENT_ID</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> a.THREAD_ID,c.EVENT_ID;</span><br></pre></td></tr></table></figure>
+
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/mysql-query-optimize-proformance-schema.png" alt="mysql proformance_schema"></p>
+<p>如上图，我们可以看到和profile类似的结果。</p>
+<h1 id="特定SQL的查询优化"><a href="#特定SQL的查询优化" class="headerlink" title="特定SQL的查询优化"></a>特定SQL的查询优化</h1><h2 id="关于大表的更新"><a href="#关于大表的更新" class="headerlink" title="关于大表的更新"></a>关于大表的更新</h2><ul>
+<li>大表的数据最好分批处理，例如1000W条数据中删除或者更新100W行记录，我们一次最好只删除或者更新5000行记录，并且为了减少对主从复制的压力，我们可以在每次修改后暂停若干秒，大表的更新和删除可以采用如下的存储过程：</li>
+<li>对大表结构的修改是一个更为严重的问题——修改表结构将会锁表，且无法解决主从复制数据库延迟的问题。一个比较好的方法是建立一个新表，将老表中的数据导入到新表中，并且在老表中建立一系列的触发器（把老表中数据的修改同步到新表中），当老表和新表的数据同步后对老表加一个<em>排它锁</em>，然后重新命名新表为老表的名字，最后删除重命名的老表。这种操作只会在重命名的时候加一个短暂的锁，通常对应用不会有影响，并且可以有效降低主从延迟。我们可以使用<a target="_blank" rel="noopener" href="http://blog.chinaunix.net/uid-16844903-id-4010770.html">pt-online-schema-shange工具</a>帮助我们完成上述复杂的操作。</li>
+</ul>
+<h2 id="如何优化NOT-IN和的查询"><a href="#如何优化NOT-IN和的查询" class="headerlink" title="如何优化NOT IN和&lt;&gt;的查询"></a>如何优化<code>NOT IN</code>和<code>&lt;&gt;</code>的查询</h2><p>NOT IN通常可以转化为LEFT JOIN可以避免对子查询表的多次查询。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> customer_id,first_name,last_name,email <span class="keyword">FROM</span> customer <span class="keyword">WHERE</span> customer_id <span class="keyword">NOT</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> customer_id <span class="keyword">FROM</span> payment); <span class="comment">-- 查询没有支付的用户记录</span></span><br><span class="line"><span class="comment">-- 我们可以使用LEFT JOIN对以上的查询进行优化,可以避免对payment表进行多次关联查询</span></span><br><span class="line"><span class="keyword">SELECT</span> a.customer_id,a.first_name,a.last_name,a.email <span class="keyword">FROM</span> customer a <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> payment b <span class="keyword">ON</span> a.customer_id <span class="operator">=</span> b.customer_id <span class="keyword">WHERE</span> b.customer_id <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h1><p>如果需要分担数据库的读负载，我们可以使用主从复制的方式为数据库增加若干从服务器，通过读写分离的方式就可以将数据库的读负载分担到各个从服务器。但是随着业务的增长可能单一的主服务器就承担不了写的负载了。分库分表主要有以下的几种方式：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/mysql-db-partion-1.png" alt="MySQL分库分表1"><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/mysql-db-partion-2.png" alt="MySQL分库分表2"></p>
+<p>注意上图中的一个数据库节点并不是一台数据库物理机器，而是多台机器组成的集群，集群中的数据是一致的。</p>
+<p>如果上面的2种方式还是不能满足要求就可以放终极大招了：表的水平拆分（又称为数据库分片），通常说的分库分表就是这种方式：</p>
+<p>对一个库中的相关表进行水平拆分到不同实例的数据库中。对数据库分片并不容易，并且对数据库分片后还会变得难以维护，不到万不得已不要轻易使用！</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/mysql-db-partion-3.png" alt="MySQL分库分表3"></p>
+<h1 id="数据库监控"><a href="#数据库监控" class="headerlink" title="数据库监控"></a>数据库监控</h1><ul>
+<li>对数据库服务的可用性进行监控。这里需要注意一点：数据库进程或者端口存在并不意味着数据库是可用的。我们必须通过网络连接到数据库并且确定数据库对外是可以提供服务的。</li>
+<li>对DB性能进行监控，最常见的2个指标是QPS和TPS。</li>
+<li>主从复制进行监控。主从复制状态的监控以及主从复制延迟的监控，定期确定主从复制的数据是否一致。</li>
+<li>对服务器资源进行监控。</li>
+</ul>
+<h2 id="DB可用性监控"><a href="#DB可用性监控" class="headerlink" title="DB可用性监控"></a>DB可用性监控</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mysqladmin -umonitor_user -p -h ping</span><br><span class="line">$ telnet ip db_port</span><br></pre></td></tr></table></figure>
+
+<p>但是<strong>最好</strong>的方式是通过程序通过网络建立数据库连接。除了监控DB服务可用，还需要确认DB是否可读写。</p>
+<ul>
+<li>检查DB的read_only是否为off。</li>
+<li>建立一张专门用于监控的表，通过程序定期对表进行读写操作。</li>
+<li>连接到DB后进行<code>select @@version</code>进行查询。</li>
+</ul>
+<p>最后需要监控DB的连接数，连接数目过大将不会对外提供服务。有很多原因可能导致数据库的连接过大，例如：出现阻塞或者缓存失效。</p>
+<ul>
+<li>首先获得最大连接的数量：<code>show variables like &#39;max_connections&#39;;</code></li>
+<li>获取当前DB连接数量：<code>show global status like &#39;Threads_connected&#39;;</code></li>
+<li>当Threads_connected &#x2F; max_connections &gt; .8的时候可以发出报警。</li>
+</ul>
+<h2 id="DB性能监控"><a href="#DB性能监控" class="headerlink" title="DB性能监控"></a>DB性能监控</h2><h3 id="如何计算QPS和TPS"><a href="#如何计算QPS和TPS" class="headerlink" title="如何计算QPS和TPS"></a>如何计算QPS和TPS</h3><p>需要注意的是这里的Query并不特制SELECT，它包含DB处理的所有请求。TPS为每秒执行的事务数量，指的是INSERT,UPDATE,DELETE。DBMS的性能会随着并发处理请求的数量的增加而下降。通常情况下DB的并发量是固定的，并且远小于同一时间连接到DB的线程的数量。</p>
+<p>监控InnoDB的阻塞可以周期性执行以下的SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> b.trx_mysql_thread_id <span class="keyword">AS</span> <span class="string">&#x27;被阻塞线程&#x27;</span>,</span><br><span class="line">	b.trx_query <span class="keyword">AS</span> <span class="string">&#x27;被阻塞SQL&#x27;</span>,</span><br><span class="line">	c.trx_mysql_thread_id <span class="string">&#x27;阻塞线程&#x27;</span>,</span><br><span class="line">	c.trx_query <span class="keyword">AS</span> <span class="string">&#x27;阻塞SQL&#x27;</span>,</span><br><span class="line">	(UNIX_TIMESTAMP() <span class="operator">-</span> UNIX_TIMESTAMP(c.trx_started)) <span class="keyword">AS</span> <span class="string">&#x27;阻塞时间&#x27;</span></span><br><span class="line">	<span class="keyword">FROM</span> information_schema.innodb_lock_waits a</span><br><span class="line">	<span class="keyword">JOIN</span> information_schema.innodb_trx b <span class="keyword">ON</span> a.requesting_trx_id <span class="operator">=</span> b.trx_id</span><br><span class="line">	<span class="keyword">JOIN</span> information_schema.innodb_trx c <span class="keyword">ON</span> a.blocking_trx_id <span class="operator">=</span> c.trx_id</span><br><span class="line">	<span class="keyword">WHERE</span> (UNIX_TIMESTAMP() <span class="operator">-</span> UNIX_TIMESTAMP(c.trx_started)) <span class="operator">&gt;</span> <span class="number">60</span>; <span class="comment">-- 查询阻塞时间超过60s</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="主从复制的监控"><a href="#主从复制的监控" class="headerlink" title="主从复制的监控"></a>主从复制的监控</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/mysql-master-slave-monitor.png" alt="主从复制的监控"></p>
+<p>使用<a target="_blank" rel="noopener" href="http://blog.chinaunix.net/uid-16844903-id-3360228.html">pt-table-checksum</a>工具可以检查主从复制数据一致性</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/08/02/mysql-query-optimize/">https://consoles.fun/2016/08/02/mysql-query-optimize/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a><a class="post-meta__tags" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">性能优化</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2020/09/13/MySQL%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/" title="MySQL 优化总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-13</div><div class="info-item-2">MySQL 优化总结</div></div><div class="info-2"><div class="info-item-1">思路 第一步要做的是确定问题的症结，而不是一上来就看表结构和查询语句。 开启profiling MySQL默认会开启缓存池，本地调试的时候清除缓存的命令是：reset query cache。  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950MariaDB [(none)]&gt; show variables like &#x27;%profi%&#x27;;  +------------------------+-------+| Variable_name          | Value |+------------------------+-------+| have_profiling         | YES   || profiling              | OFF   || profiling_history_size | 15    |+------------------------+-------+3 rows...</div></div></div></a><a class="pagination-related" href="/2016/08/02/high-availability-mysql/" title="高可用 MySQL 架构"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-08-02</div><div class="info-item-2">高可用 MySQL 架构</div></div><div class="info-2"><div class="info-item-1"> There are one hundred ways to fix a problem. However, the ultimate solution is, don’t give it any chance to happen. (纠正一个错误的方法有很多，而解决一个错误的终极方法 就是不给它任何发生的机会。)知之为知之，不知为不知，是知也。也许是天赋不足、也许是智商捉急，更可能是懒惰和拖延作祟。但是既然开始了，就不愿意停下来。我本微末凡尘，却也心向天空。—— 我吃西红柿·《莽荒纪》我在起点与终点之间两全其美,却无法禅定于一夜琴声。直至悠悠的琴声被暗香淹没，我才刚刚赶到岸边，片刻之间，已被一缕清风绣在水面。...</div></div></div></a><a class="pagination-related" href="/2016/06/21/learn-mysql/" title="MySQL 初探"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-06-21</div><div class="info-item-2">MySQL 初探</div></div><div class="info-2"><div class="info-item-1"> 信息的价值会随时间锐减，尤其在事故处理过程中。  外键约束 父表和子表（有外键的表称为子表）必须使用相同的存储引擎，且存储引擎必须为InnoDB.外键列和被参照列的数据类型要相同，外键约束将自动创建索引。 查看建表语句可以使用SHOW CREATE TABLE t_users; 查看索引SHOW INDEXES FROM t_users\G;   在实际的开发中我们很少使用物理的外键约束，因为只有InnoDB这种引擎支持。所谓逻辑上的外键约束是在定义表的时候按照某种结构进行定义而不去使用foreign key这个关键字。业务爆炸的时候DB外键的约束可能对分库分表不友好。  mysql中的索引默认是BTree索引。 参见外键约束 表结构的修改参见修改表 无限分类的表的设计例如：天猫的商品：图书下面有小说、文学，在文学下面有四大名著、戏曲等。无限分类的表一般采用如下形式： 12345CREATE TABLE tdb_goods_types(	type_id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,	type_name...</div></div></div></a><a class="pagination-related" href="/2016/07/22/mysql-best-practice/" title="搭建高可用 MySQL 架构"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-07-22</div><div class="info-item-2">搭建高可用 MySQL 架构</div></div><div class="info-2"><div class="info-item-1"> DBMS的瓶颈在于IO而非CPU。  慎用数据库的一些特性，例如外键（业务量爆炸的时候分库分表将是一个灾难）。虽然不建议使用物理外键，但是相关联的列上一定要建立索引。   在双十一的场景中取消掉计划任务（例如定时备份）。  在大促中什么影响了数据库性能超高的QPS和TPSQPS(Query Per Second)风险：效率低下的SQL。数据库中的性能问题80%就是由慢查询造成的。也就是大多数的数据库问题可以通过对SQL进行优化来解决。 TPS（Transition Per...</div></div></div></a><a class="pagination-related" href="/2016/07/29/mysql-index-optimize/" title="MySQL 索引优化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-07-29</div><div class="info-item-2">MySQL 索引优化</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a><a class="pagination-related" href="/2020/08/01/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%95%B0%E6%8D%AE%E5%BA%93/" title="面试套路 - 数据库"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-01</div><div class="info-item-2">面试套路 - 数据库</div></div><div class="info-2"><div class="info-item-1"> 辩证唯物主义告诉我们，事物发展轨迹是波浪式前进，螺旋式上升，有的时候似乎重新回到过去，但是却有了本质的区别和进步。   索引为啥索引能加快查询速度 索引其实也是一种空间换时间的思路。  数据库索引使用 B+ 树，B+ 树是一种 N 叉排序树，树的每个节点包含 N 个数据，这些数据按顺序排好，两个数据之间是一个指向子节点的指针，而子节点的数据则在这两个数据大小之间。  如上图所示：B+ 树的节点存储在磁盘上，每个节点存储 1000 多个数据，这样树的深度最多只要 4 层就可以存储数亿的数据。如果将树的根节点缓存在内存中，则最多只需要三次磁盘访问就可检索到需要的索引数据。  B 树和 B+ 树的区别：B 树的每个节点存储了记录的索引信息，而 B+ 树存储的是索引，只有在叶子节点存储的是全量的信息。并且 B+ 树在叶子节点有一个链表的结构，在范围查找的时候横向遍历会非常方便（不需要回溯到父节点再拓展向下）。  B+...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E7%9A%84%E5%90%84%E4%B8%AA%E9%98%B6%E6%AE%B5%E6%89%80%E6%B6%88%E8%80%97%E7%9A%84%E6%97%B6%E9%97%B4"><span class="toc-number">1.</span> <span class="toc-text">如何确定查询处理的各个阶段所消耗的时间</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8profile"><span class="toc-number">1.1.</span> <span class="toc-text">使用profile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8performance-schema"><span class="toc-number">1.2.</span> <span class="toc-text">使用performance_schema</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%89%B9%E5%AE%9ASQL%E7%9A%84%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">特定SQL的查询优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%A4%A7%E8%A1%A8%E7%9A%84%E6%9B%B4%E6%96%B0"><span class="toc-number">2.1.</span> <span class="toc-text">关于大表的更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96NOT-IN%E5%92%8C%E7%9A%84%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.2.</span> <span class="toc-text">如何优化NOT IN和&lt;&gt;的查询</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8"><span class="toc-number">3.</span> <span class="toc-text">分库分表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7"><span class="toc-number">4.</span> <span class="toc-text">数据库监控</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#DB%E5%8F%AF%E7%94%A8%E6%80%A7%E7%9B%91%E6%8E%A7"><span class="toc-number">4.1.</span> <span class="toc-text">DB可用性监控</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DB%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7"><span class="toc-number">4.2.</span> <span class="toc-text">DB性能监控</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97QPS%E5%92%8CTPS"><span class="toc-number">4.2.1.</span> <span class="toc-text">如何计算QPS和TPS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E7%9B%91%E6%8E%A7"><span class="toc-number">4.3.</span> <span class="toc-text">主从复制的监控</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

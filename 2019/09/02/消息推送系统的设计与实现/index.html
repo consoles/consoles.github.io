@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>消息推送系统的设计与实现 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="所有真理的成长都需要经过 3 个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为 100W，每秒发送的弹幕数量为 1000 条，据此可以推算出单个直播间的吞吐量要达到 100W * 1000条 &#x3D; 10亿条&#x2F;秒，把问题延伸到 N 个直播间，则系统的吞吐量为 N*10亿&amp;#x2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="消息推送系统的设计与实现">
+<meta property="og:url" content="https://consoles.fun/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="所有真理的成长都需要经过 3 个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。  弹幕系统的技术挑战技术复杂度系统调用的瓶颈以一个直播间为例，假设在线人数为 100W，每秒发送的弹幕数量为 1000 条，据此可以推算出单个直播间的吞吐量要达到 100W * 1000条 &#x3D; 10亿条&#x2F;秒，把问题延伸到 N 个直播间，则系统的吞吐量为 N*10亿&amp;#x2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2019-09-02T23:13:22.000Z">
+<meta property="article:modified_time" content="2025-05-13T13:55:44.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="游戏">
+<meta property="article:tag" content="网络编程">
+<meta property="article:tag" content="高并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "消息推送系统的设计与实现",
+  "url": "https://consoles.fun/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2019-09-02T23:13:22.000Z",
+  "dateModified": "2025-05-13T13:55:44.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '消息推送系统的设计与实现',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">消息推送系统的设计与实现</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">消息推送系统的设计与实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2019-09-02T23:13:22.000Z" title="发表于 2019-09-02 23:13:22">2019-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-13T13:55:44.000Z" title="更新于 2025-05-13 13:55:44">2025-05-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><blockquote>
+<p>所有真理的成长都需要经过 3 个阶段：首先是遭到无情地嘲笑，然后是激烈地反对，最终被当成理所当然所接受。</p>
+</blockquote>
+<h1 id="弹幕系统的技术挑战"><a href="#弹幕系统的技术挑战" class="headerlink" title="弹幕系统的技术挑战"></a>弹幕系统的技术挑战</h1><h2 id="技术复杂度"><a href="#技术复杂度" class="headerlink" title="技术复杂度"></a>技术复杂度</h2><h3 id="系统调用的瓶颈"><a href="#系统调用的瓶颈" class="headerlink" title="系统调用的瓶颈"></a>系统调用的瓶颈</h3><p>以一个直播间为例，假设在线人数为 100W，每秒发送的弹幕数量为 1000 条，据此可以推算出单个直播间的吞吐量要达到 100W * 1000条 &#x3D; 10亿条&#x2F;秒，把问题延伸到 N 个直播间，则系统的吞吐量为 N*10亿&#x2F;秒。</p>
+<p>根据经验值，Linux 系统在处理 TCP 网络调用的时候大概每秒只能处理 100W 左右的包，这么看的话发送一条弹幕就达到了单机的处理能力上限，这是第一个难点。</p>
+<p>解决：假设在线人数为 100W，推送 1 条消息就达到了系统极限，假设推送 100 条消息仍旧使用单机处理，如何优化呢？很简单：将 100 条消息合并成 1 条消息进行发送，这样对于 100W 人在线的系统推送吞吐量<em>固定</em>为每秒 100W 次。当然合并消息不可能无限大，当超过一定<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E4%BC%A0%E8%BE%93%E5%8D%95%E5%85%83">阈值</a>之后，TCP&#x2F;IP 层会进行大包拆分，此时底层实际包频就会超过每秒 100W 次，再次到达系统调用的极限。</p>
+<h3 id="锁瓶颈"><a href="#锁瓶颈" class="headerlink" title="锁瓶颈"></a>锁瓶颈</h3><p>在推送的时候，需要遍历所有的在线连接，这些连接通常放在一个集合里。遍历 100W 个连接去发送消息，肯定需要花费一个可观的时间，而在推送期间客户端仍旧在不停的上线与下线，所以这个集合是需要上锁做并发保护的。可见，遍历期间上锁的时间会非常长，而且只能有一个线程顺序遍历集合，这个耗时是无法接受的。</p>
+<p>解决：在做海量服务架构设计的时候，一个很有用的思路就是：<strong>分而治之</strong>。既然 100W 连接放在一个集合里导致锁粒度太大，那么我们就可以把连接通过哈希的方式散列到多个集合中，每个集合有自己的锁。当我们推送的时候，可以通过多个线程，分别负责若干个集合的推送任务。因为推送的集合不同，所以线程之间没有锁竞争关系。而对于同一个集合并发推送多条不同的消息，我们可以把互斥锁换成读写锁，从而支持多线程并发遍历同一个集合发送不同的消息。其实操作系统管理 CPU 也是分时的，就像我们的推送任务被拆分成若干小集合一样，每个集合只需要占用一点点的时间片快速完成，而多个集合则尽可能的利用多核的优势实现真并行。</p>
+<h3 id="CPU-瓶颈"><a href="#CPU-瓶颈" class="headerlink" title="CPU 瓶颈"></a>CPU 瓶颈</h3><p>一般客户端和服务器是基于 JSON 协议进行通信，给每个客户端推消息的时候需要对消息进行 JSON Encode。当在线连接比较少（比如 1W）而推送消息比较频繁（10W&#x2F;s）的情况下，我们可以计算得到每秒要 json encode 编码的次数是：10000 * 100000 &#x3D; 10^9 次。即便我们提前对 10W 条消息做 json encode 后，再向 1 万个连接做分发，那么每秒也需要 10W 次的编码。JSON 编码是一个纯 CPU 计算行为，非常耗费 CPU，我们仍旧面临不小的优化压力。</p>
+<p>解决：其实当我们通过消息合并的方式减少网络系统调用的时候，我们已经完成了对<strong>sys cpu</strong>的优化，操作系统用来处理网络系统调用的 CPU 时间大幅减少。但是<strong>user CPU</strong>需要我们继续做优化，我们如果在每个连接级别做 json encode，那么 1 条消息就会带来 100 万次 encode，是完全无法接受的性能。因为业务上消息推送分 2 类，一种是按客户端关注的主题做推送，一种是推送给所有客户端。基于上述特点，我们可以把消息合并动作提前到消息入口层，即把近一段时间所有要推往某个主题、推给所有在线的消息做消息合并成 batch，每个batch 可能包含 100 条消息。当 1 个 batch 塞满后或者超时后，经过对其进行一次 json encode 编码后，即可直接向目标客户端做遍历分发。经过消息合并前置，编码的 CPU 消耗不再与在线的连接数有关，也不再直接与要推送的消息条数有关，而是与打包后的 batch 个数有关，具有量级上的锐减效果。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/42c108b0-cf24-11e9-9935-abafe8495676.png" alt="image.png"></p>
+<h2 id="单机架构的瓶颈"><a href="#单机架构的瓶颈" class="headerlink" title="单机架构的瓶颈"></a>单机架构的瓶颈</h2><ul>
+<li>维护海量长连接会花费不少内存</li>
+<li>消息推送瞬时会消耗大量 CPU 资源</li>
+<li>消息推送瞬时带宽高达 400<del>600MB(4</del>6Gbits，一般的服务器网卡是千兆网卡只能跑到 100MB)，<strong>带宽是主要瓶颈</strong>！</li>
+</ul>
+<blockquote>
+<p>HTTP2 支持连接复用，用作 RPC 性能更佳，例如 google 的 gRPC。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/38bbf620-cf26-11e9-9935-abafe8495676.png" alt="image.png"></p>
+<p>上面的这个架构定向向某个用户推送的时候需要将逻辑层的消息广播到网关层，一般可以在逻辑服务器后面加一层 session 层，记录用户在哪个 gateway 上，从而减少不必要的广播。</p>
+<blockquote>
+<p>负载均衡设备为什么不存在性能瓶颈？负载均衡可以配置多个，前端通过 DNS 控制。</p>
+</blockquote>
+<h2 id="pull-or-push"><a href="#pull-or-push" class="headerlink" title="pull or push"></a>pull or push</h2><p>拉模型比较简单，客户端定时轮询获取最新的数据，但是拉模式存在以下弊病：</p>
+<ul>
+<li>如果数据更新频率低，则大多数请求是无效的</li>
+<li>在线数量多，则服务端的查询负载很高（每秒百万次请求，相当于 DDOS 攻击，几乎不可能实现）</li>
+<li>无法满足时效性</li>
+</ul>
+<p>综上所述，推模型比较靠谱。</p>
+<h1 id="WebSocket-协议"><a href="#WebSocket-协议" class="headerlink" title="WebSocket 协议"></a>WebSocket 协议</h1><blockquote>
+<p>Upgrade 是 HTTP 协议中的一个请求头字段，用于客户端向服务器提出升级当前连接协议的请求。通常情况下，它被用来协商从 HTTP&#x2F;1.1 升级到其他协议，如 WebSocket、HTTP&#x2F;2 等。这个机制允许客户端和服务端在不中断现有 TCP 连接的情况下，转换通信协议，从而可以更灵活地支持不同的应用层协议。</p>
+</blockquote>
+<h2 id="通讯流程"><a href="#通讯流程" class="headerlink" title="通讯流程"></a>通讯流程</h2><p>客户端和服务器首先要完成一次握手，握手的本身是基于 HTTP 完成的：客户端首先发起一个 HTTP 请求到服务端，这个请求的特殊之处在于其在 header 中带了 upgrade 字段告诉服务器想升级成 websocket 协议，服务器收到之后就会给客户端发送一个握手的确认 switching(允许向 websocket 协议转换)，协议升级后会继续复用 HTTP 底层的 socket 完成后续通信，服务器和客户端可以进行全双工通信。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/4c2ea510-cd94-11e9-9935-abafe8495676.png" alt="websocket 协议升级流程"></p>
+<p>message 底层被分成多个 Frame 传输，我们编程的时候只需关注 message 即可，至于发送的消息会不会被切分成小的帧是由协议和库本身去做。</p>
+<h2 id="抓包观察"><a href="#抓包观察" class="headerlink" title="抓包观察"></a>抓包观察</h2><p>服务器代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">WebSocket</span> = <span class="built_in">require</span>(<span class="string">&#x27;ws&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wss = <span class="keyword">new</span> <span class="title class_">WebSocket</span>.<span class="title class_">Server</span>(&#123;<span class="attr">port</span>: <span class="number">7777</span>&#125;);</span><br><span class="line"></span><br><span class="line">wss.<span class="title function_">on</span>(<span class="string">&#x27;connection&#x27;</span>, <span class="keyword">function</span> <span class="title function_">connection</span>(<span class="params">ws</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> seq = <span class="number">0</span>;</span><br><span class="line">  ws.<span class="title function_">on</span>(<span class="string">&#x27;message&#x27;</span>, <span class="keyword">function</span> <span class="title function_">incoming</span>(<span class="params">message</span>) &#123;</span><br><span class="line">    ws.<span class="title function_">send</span>(<span class="string">`echo:<span class="subst">$&#123;message&#125;</span>,now = <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>().toString()&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    ws.<span class="title function_">send</span>(<span class="string">`heartbeat from server,seq = <span class="subst">$&#123;seq++&#125;</span>,now = <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>().toString()&#125;</span>`</span>);</span><br><span class="line">  &#125;, <span class="number">2e3</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>客户端:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">var</span> output = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;output&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">var</span> input = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;input&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">var</span> ws;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">var</span> print = <span class="keyword">function</span>(<span class="params">message</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> d = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;div&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        d.<span class="property">innerHTML</span> = message;</span></span><br><span class="line"><span class="language-javascript">        output.<span class="title function_">appendChild</span>(d);</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;open&quot;</span>).<span class="property">onclick</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span> (ws) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        ws = <span class="keyword">new</span> <span class="title class_">WebSocket</span>(<span class="string">&quot;ws://localhost:7777/connect&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="property">onopen</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="title function_">print</span>(<span class="string">&quot;OPEN&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        &#125;;</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="property">onclose</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="title function_">print</span>(<span class="string">&quot;CLOSE&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">          ws = <span class="literal">null</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;;</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="property">onmessage</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="title function_">print</span>(<span class="string">&quot;RESPONSE: &quot;</span> + evt.<span class="property">data</span>);</span></span><br><span class="line"><span class="language-javascript">        &#125;;</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="property">onerror</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="title function_">print</span>(<span class="string">&quot;ERROR: &quot;</span> + evt.<span class="property">data</span>);</span></span><br><span class="line"><span class="language-javascript">        &#125;;</span></span><br><span class="line"><span class="language-javascript">        <span class="built_in">setInterval</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">          ws.<span class="title function_">send</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">type</span>: <span class="string">&quot;PING&quot;</span>, <span class="attr">data</span>: &#123;&#125;&#125;))</span></span><br><span class="line"><span class="language-javascript">        &#125;, <span class="number">10000</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;close&quot;</span>).<span class="property">onclick</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span> (!ws) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="title function_">close</span>();</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;join&quot;</span>).<span class="property">onclick</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span> (!ws) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">print</span>(<span class="string">&quot;JOIN: &quot;</span> + input.<span class="property">value</span>);</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="title function_">send</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">type</span>: <span class="string">&quot;JOIN&quot;</span>, <span class="attr">data</span>: &#123;<span class="attr">room</span>: input.<span class="property">value</span>&#125;&#125;));</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;leave&quot;</span>).<span class="property">onclick</span> = <span class="keyword">function</span>(<span class="params">evt</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span> (!ws) &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">print</span>(<span class="string">&quot;LEVAE: &quot;</span> + input.<span class="property">value</span>);</span></span><br><span class="line"><span class="language-javascript">        ws.<span class="title function_">send</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">type</span>: <span class="string">&quot;LEAVE&quot;</span>, <span class="attr">data</span>: &#123;<span class="attr">room</span>: input.<span class="property">value</span>&#125;&#125;));</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">    &#125;);</span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span> <span class="attr">valign</span>=<span class="string">&quot;top&quot;</span> <span class="attr">width</span>=<span class="string">&quot;50%&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Click &quot;Open&quot; to create a connection to the server,</span><br><span class="line">      &quot;Send&quot; to send a message to the server and &quot;Close&quot; to close the connection.</span><br><span class="line">      You can change the message and send multiple times.</span><br><span class="line">    <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;open&quot;</span>&gt;</span>Open<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;close&quot;</span>&gt;</span>Close<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">&quot;input&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;默认房间&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;join&quot;</span>&gt;</span>JOIN<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;leave&quot;</span>&gt;</span>LEAVE<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span> <span class="attr">valign</span>=<span class="string">&quot;top&quot;</span> <span class="attr">width</span>=<span class="string">&quot;50%&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;output&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">tr</span>&gt;</span><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/db29a250-ce5d-11e9-9935-abafe8495676.png" alt="image.png"></p>
+<p>注意 GET 请求头中有个 Upgrade 字段，值为 websocket，响应头中也有个 Upgrade 字段，值为websocket，表示服务器允许客户端进行服务升级，经过这一轮握手协议之后后续就是基于 websocket 通信了。返回码为 101。websocket 的底层最小传输单元是 Frame，见下图：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/f92da7b0-ce5d-11e9-9935-abafe8495676.png" alt="websocket 基于 Frame 传输"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/">https://consoles.fun/2019/09/02/%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B8%B8%E6%88%8F/">游戏</a><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a><a class="post-meta__tags" href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/">高并发</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2018/10/21/game-programming/" title="游戏编程算法与技巧"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2018-10-21</div><div class="info-item-2">游戏编程算法与技巧</div></div><div class="info-2"><div class="info-item-1">游戏编程概述游戏编程中的3个核心概念：游戏循环、游戏时间管理和游戏对象模型。 游戏循环整个程序的核心流程控制称为游戏循环。之所以是一个循环是因为游戏总在不断执行一系列动作直到玩家退出。每迭代一次游戏循环称为1帧。大部分游戏每秒钟更新30~60帧。60FPS即游戏循环每秒钟执行60次。一个传统的游戏循环分成3部分：处理输入、更新游戏世界、生成输出。 12345while game is running  process inpus  update game world  generate outputsloop    游戏时间管理游戏时间管理使得我们的游戏速度可以在任何机器上得到保证。通过处理时间增量来表示游戏逻辑。如果在8MHz下游戏的FPS为30，则在16MHz下FPS为60。也就是说在30FPS的时候敌人每秒钟移动150px，则在60FPS的时候敌人每秒移动300px。为了解决这个问题，通常需要引入时间增量：从上一帧起流逝的时间。更新逻辑可以写成这样： 1emeny.position.x += 150 *...</div></div></div></a><a class="pagination-related" href="/2016/09/10/java-nio/" title="java NIO"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-09-10</div><div class="info-item-2">java NIO</div></div><div class="info-2"><div class="info-item-1"> jdk1.7中提供了Object.equals,Object.hashCode方法非常方便。  传统的socket分析12345678910111213141516171819202122232425262728293031323334353637public class BIOServer &#123;    public static void main(String[] args) throws IOException &#123;        ServerSocket serverSocket = new ServerSocket(10086);        System.out.println(&quot;Server started&quot;);        while (true)&#123;            Socket socket = serverSocket.accept(); // Blocking            System.out.println(&quot;a new client connected&quot;);    ...</div></div></div></a><a class="pagination-related" href="/2021/02/20/redpacket-system/" title="红包业务系统的构建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-20</div><div class="info-item-2">红包业务系统的构建</div></div><div class="info-2"><div class="info-item-1">概述红包系统本质上是高并发资金秒杀系统。 架构一览 系统演进之路 满足业务需求，快速迭代上线 出现超卖现象，启用事务锁 流量增加，收红包出现性能瓶颈，改为乐观锁，性能提升3倍 流量继续增加，乐观锁也扛不住了，上缓存 分布式 MQ 解决异步写 数据分片来解决 DB 横向拓展  业务场景需求分析红包发送者从红包商那里购买一定数量和一定金额的红包（每个红包的规格一样或者不一样），之后将红包商品赠送出去（对象是红包接受人群），收红包本质上是对红包商品的秒杀活动。存在 B2B 和 B2C...</div></div></div></a><a class="pagination-related" href="/2019/08/26/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="秒杀系统的设计与实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-08-26</div><div class="info-item-2">秒杀系统的设计与实现</div></div><div class="info-2"><div class="info-item-1">特征与难点  写强一致性：抢购商品的时候不能出现超卖现象 读弱一致性：可能读到有库存，但是实际下单会失败 抢购人数远多于库存，读写并发巨大 库存少导致有效写少（真正形成订单的比较少）  难点在于极致性能的实现以及高可用的保证。  高并发下，某个小依赖可能直接造成雪崩 流量预估难精确，过高也造成雪崩 分布式集群，机器多，出故障的概率高  秒杀原理 合理利用 CDN：例如订单详情页，有效减少回源流量 Nginx 限流：过载保护 异步队列：高并发的流量 -&gt; 均匀的流量 Nginx 负载均衡：接入层分摊流量到无状态 service 层提供服务  CDN原理  用户输入访问的域名,操作系统向 LocalDns 查询域名的ip地址. LocalDns向 ROOT DNS 查询域名的授权服务器(这里假设LocalDns缓存过期) ROOT DNS将域名授权dns记录回应给 LocalDns LocalDns得到域名的授权dns记录后,继续向域名授权dns查询域名的ip地址 域名授权dns查询域名记录后(一般是CNAME)，回应给...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%B9%E5%B9%95%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%8A%80%E6%9C%AF%E6%8C%91%E6%88%98"><span class="toc-number">1.</span> <span class="toc-text">弹幕系统的技术挑战</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">1.1.</span> <span class="toc-text">技术复杂度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E7%93%B6%E9%A2%88"><span class="toc-number">1.1.1.</span> <span class="toc-text">系统调用的瓶颈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E7%93%B6%E9%A2%88"><span class="toc-number">1.1.2.</span> <span class="toc-text">锁瓶颈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU-%E7%93%B6%E9%A2%88"><span class="toc-number">1.1.3.</span> <span class="toc-text">CPU 瓶颈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E6%9C%BA%E6%9E%B6%E6%9E%84%E7%9A%84%E7%93%B6%E9%A2%88"><span class="toc-number">1.2.</span> <span class="toc-text">单机架构的瓶颈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pull-or-push"><span class="toc-number">1.3.</span> <span class="toc-text">pull or push</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WebSocket-%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.</span> <span class="toc-text">WebSocket 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%AE%AF%E6%B5%81%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">通讯流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%93%E5%8C%85%E8%A7%82%E5%AF%9F"><span class="toc-number">2.2.</span> <span class="toc-text">抓包观察</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

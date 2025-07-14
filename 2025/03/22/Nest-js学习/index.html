@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Nest.js学习 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="依赖注入是 Nest.js 的核心，使得开发者可以轻松管理应用程序中的依赖关系，提高代码的可测试性和可维护性。DI 是一种设计模式，它可以用来实现控制反转（IoC）—— 对象的创建和依赖关系的管理交给框架来处理而不是在代码中硬编码。 它的依赖注入主要有 3 个核心概念：  Provider: 用于创建和管理的服务、仓库、工厂等的类，使用 @Injectable 装饰器进行标记，并可以在模块中注册。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nest.js学习">
+<meta property="og:url" content="https://consoles.fun/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="依赖注入是 Nest.js 的核心，使得开发者可以轻松管理应用程序中的依赖关系，提高代码的可测试性和可维护性。DI 是一种设计模式，它可以用来实现控制反转（IoC）—— 对象的创建和依赖关系的管理交给框架来处理而不是在代码中硬编码。 它的依赖注入主要有 3 个核心概念：  Provider: 用于创建和管理的服务、仓库、工厂等的类，使用 @Injectable 装饰器进行标记，并可以在模块中注册。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-03-22T13:55:44.000Z">
+<meta property="article:modified_time" content="2025-03-22T13:55:44.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Nest.js学习",
+  "url": "https://consoles.fun/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2025-03-22T13:55:44.000Z",
+  "dateModified": "2025-03-22T13:55:44.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nest.js学习',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">Nest.js学习</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Nest.js学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-22T13:55:44.000Z" title="发表于 2025-03-22 13:55:44">2025-03-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-22T13:55:44.000Z" title="更新于 2025-03-22 13:55:44">2025-03-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><p>依赖注入是 Nest.js 的核心，使得开发者可以轻松管理应用程序中的依赖关系，提高代码的可测试性和可维护性。DI 是一种设计模式，它可以用来实现控制反转（IoC）—— 对象的创建和依赖关系的管理交给框架来处理而不是在代码中硬编码。</p>
+<p>它的依赖注入主要有 3 个核心概念：</p>
+<ol>
+<li>Provider: 用于创建和管理的服务、仓库、工厂等的类，使用 <code>@Injectable</code> 装饰器进行标记，并可以在模块中注册。</li>
+<li>Injection: 将提供者的实例自动传递给需要它们的类（如控制器、服务等）,通过构造函数注入来实现这一点。</li>
+<li>Module: NestJS 应用程序的基本组织单元，每个模块可以包含多个提供者，并且可以在其他模块中导入和使用这些提供者。</li>
+</ol>
+<p>依赖注入的优势：</p>
+<ol>
+<li>解耦：类之间的依赖关系更加松散，减少了代码的耦合度，提高了代码的可维护性</li>
+<li>可测试性：通过依赖注入，可以轻松在测试中替换依赖项，使用模拟对象进行单元测试</li>
+<li>可拓展性：新功能可以通过添加新的提供者来实现，而不需要修改现有代码</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/">https://consoles.fun/2025/03/22/Nest-js%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Node-js/">Node.js</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/06/20/D2-frontend/" title="D2前端"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-06-20</div><div class="info-item-2">D2前端</div></div><div class="info-2"><div class="info-item-1">使用node构建海量页面渲染服务手机天猫的所有页面都是,大约在3年前天猫的大量页面是基于php渲染的，数据模板打包后推送到CDN，每次请求都渲染页面。用户请求CDN上的资源。但是这样的方式存在以下的弊端：  大量文件在网络情况不一的CDN节点上同步非常困难 每次请求渲染导致大量的机器资源浪费 php太灵活，多业务共享难以升级，性能低  node.js具有以下的优势：  js模板可以前后端共享 轻量级、高性能  2014年的天猫双十一从php迁移到了node koajs中的基于装饰器的中间件 123456789function* responseTime(next)&#123;    // 所有后续中间件之前执行    const start = Date.now()    yield next;    // 所有后续中间件之后执行    const used = Date.now() - start    // 将响应时间设置到http header    this.set(&#x27;X-Response-Time&#x27;,`$&#123;used&#125; ms`) ...</div></div></div></a><a class="pagination-related" href="/2019/09/05/Koa%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="Koa 源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2019-09-05</div><div class="info-item-2">Koa 源码解析</div></div><div class="info-2"><div class="info-item-1">Context 上下文对象ctx -&gt; Koa Contextctx.req -&gt; req -&gt; IncommingMessagectx.res -&gt; res -&gt; ServerResponse  ctx.req 是 node 原生的，ctx.request 是 koa 封装的请求对象，提供了更高级的 API 和更友好的方法（内部实现是 ctx.req） 在 lib&#x2F;context.js 中: 12345678910111213141516171819202122232425262728293031323334/** * Request delegation. */delegate(proto, &#x27;request&#x27;)  .method(&#x27;acceptsLanguages&#x27;)  .method(&#x27;acceptsEncodings&#x27;)  .method(&#x27;acceptsCharsets&#x27;)  .method(&#x27;accepts&#x27;) ...</div></div></div></a><a class="pagination-related" href="/2021/03/31/design-pattern-in-js/" title="javascript 设计模式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-31</div><div class="info-item-2">javascript 设计模式</div></div><div class="info-2"><div class="info-item-1"> 心游于艺，道不远人  变继承关系为组合关系State 模式继承描述了 is-a 的关系，子类可以继承父类的成员变量和函数，也可以修改父类的成员变量和函数。使用设计模式来实现代码复用，而不是使用继承实现代码复用。  它的核心思想是通过改变对象的内部状态来改变对象的行为，而无需修改对象本身的类结构。 1234567891011121314151617181920212223242526272829// 状态接口interface Role &#123;    void doWork();&#125;// 具体状态class Engineer implements Role &#123;    public void doWork() &#123; System.out.println(&quot;写代码&quot;); &#125;&#125;class Manager implements Role &#123;    public void doWork() &#123; System.out.println(&quot;开会&quot;); &#125;&#125;//...</div></div></div></a><a class="pagination-related" href="/2016/03/19/event/" title="DOM 与事件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-03-19</div><div class="info-item-2">DOM 与事件</div></div><div class="info-2"><div class="info-item-1"> js 和 html 之间的交互是通事件实现的。事件就是文档或者浏览器窗口中发生的一些特定的瞬间。我们可以使用侦听器来预定事件，以便事件发生时执行相应的代码。传统的软件工程中称为观察者模式，使得行为(js)和外观(html 和 css)松散耦合。  DOM 事件流注意：没有 DOM1 事件流的概念。 “DOM2级事件”规定事件流包括 3 个阶段:  事件捕获(默认不启用, 需要显式设置 capture: true) 处于目标 事件冒泡  以下面的 DOM 结构为例:  单击 div 元素事件是先是从 Document -&gt; Div 的捕获阶段，然后是 Div -&gt; Document 的冒泡阶段。 事件处理程序1&lt;button onclick=&quot;show();&quot;&gt;  Q:上述的时间处理程序有什么缺点?A:缺点有2个。①可能存在时差问题：考虑这样一种情形，show函数定义在按钮的后面,当DOM还没有加载到script标签的时候将会发生错误,此种情形可以通过内部添加try-catch来解决:&lt;button...</div></div></div></a><a class="pagination-related" href="/2016/03/25/high-level-js/" title="javascript 高级技巧"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-03-25</div><div class="info-item-2">javascript 高级技巧</div></div><div class="info-2"><div class="info-item-1">高级函数作用域安全的构造函数例如以下的构造函数: 123function Person(name)&#123;  this.name = name&#125;  如果我们不是 new 出来的,而是直接将构造函数当做一个普通的函数调用就会将name属性绑定到 window 上面(this 指向 window): 12Person(123)window.name // 123  以上的操作为 window 添加了新的属性,导致 window 的属性意外增加或者覆盖!解决方案是创建一个作用域安全的构造函数: 123456function Person(name)&#123;  if(this instanceof Person)    this.name = name  else    return new Person(name)  &#125;  以上的函数要么使用现有的实例,要么创建新的实例,this 指向的始终是实例,避免了在全局对象上意外增加属性，这是最佳实践（直接使用 ES6 class 才是最佳实践！）。 js...</div></div></div></a><a class="pagination-related" href="/2016/10/05/js-regexp/" title="javascript正则表达式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-10-05</div><div class="info-item-2">javascript正则表达式</div></div><div class="info-2"><div class="info-item-1">使用场景：在当前目录下查找所有的TXT文件：find ./ -name *.txt。 一个比较好的在线正则表达式可视化网站可以将正则表达式图形化表示出来，我们也可以找到它在github上的地址将其安装到本地。还有一个比较酷的网站。 贪婪模式和非贪婪模式正则表达式默认是贪婪模式，也就是说：尽可能多地匹配。例如： 12var str = &#x27;123456789&#x27;str.replace(/\d&#123;3,6&#125;/,&#x27;X&#x27;) // &#x27;X789&#x27;  上面的正则可以匹配3，4，5，6个数字，但是会默认匹配6个数字。如果想要尽可能少匹配加上量词?即可： 1str.replace(/\d&#123;3,6&#125;?/,&#x27;X&#x27;) // &#x27;X456789&#x27;  分组匹配一个小写字母加上一个数字连续出现3次的场景： 12var str = &#x27;a1b2c3d4&#x27;str.replace(/(\w\d)&#123;3&#125;/,&#x27;X&#x27;) //...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

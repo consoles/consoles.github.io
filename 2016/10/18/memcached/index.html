@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>memcached 初窥 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="内存分配机制考虑这样一种情形：申请 20M 内存，释放 15M 内存，然后又需要申请 12M 内存，这样就产生了 3M 的内存碎片，随着程序的运行，碎片会越来越多。memcached 采用了 Slab Allocator 分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk 分成组(chunk 的集合)，尽可能（完全解决内存碎片是不可能的）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memcached 初窥">
+<meta property="og:url" content="https://consoles.fun/2016/10/18/memcached/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="内存分配机制考虑这样一种情形：申请 20M 内存，释放 15M 内存，然后又需要申请 12M 内存，这样就产生了 3M 的内存碎片，随着程序的运行，碎片会越来越多。memcached 采用了 Slab Allocator 分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk 分成组(chunk 的集合)，尽可能（完全解决内存碎片是不可能的）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-10-18T22:46:04.000Z">
+<meta property="article:modified_time" content="2025-07-02T11:15:01.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="memcached">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "memcached 初窥",
+  "url": "https://consoles.fun/2016/10/18/memcached/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-10-18T22:46:04.000Z",
+  "dateModified": "2025-07-02T11:15:01.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/10/18/memcached/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'memcached 初窥',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">memcached 初窥</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">memcached 初窥</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-10-18T22:46:04.000Z" title="发表于 2016-10-18 22:46:04">2016-10-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="内存分配机制"><a href="#内存分配机制" class="headerlink" title="内存分配机制"></a>内存分配机制</h1><p>考虑这样一种情形：申请 20M 内存，释放 15M 内存，然后又需要申请 12M 内存，这样就产生了 3M 的内存碎片，随着程序的运行，碎片会越来越多。memcached 采用了 Slab Allocator 分配机制:基本原理是按照预先规定的大小，将分配的内存分割成特定长度的块(chunk)，并将尺寸相同的chunk 分成组(chunk 的集合)，尽可能（完全解决内存碎片是不可能的）解决内存碎片问题。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/memcached-slab-allocator.png" alt="Slab Allocator"></p>
+<p>根据收到的数据大小自动选择最合适的 slab（具体实现是 memcached 中保存着 slab 空闲 chunk 的列表，根据这个列表选择空的 chunk 并将数据缓存其中），例如 100bytes 的 item 将会被存放在上图中的 Slab2，但是<em>剩下的12字节同样被浪费了，无法重新利用</em>，这种做法只是<strong>尽可能减少内存碎片</strong>。使用<code>memcached -vvv</code>启动服务的时候可以看到类似以下的输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">slab class   1: chunk size        96 perslab   10922</span><br><span class="line">slab class   2: chunk size       120 perslab    8738</span><br><span class="line">slab class   3: chunk size       152 perslab    6898</span><br><span class="line">slab class   4: chunk size       192 perslab    5461</span><br><span class="line">slab class   5: chunk size       240 perslab    4369</span><br><span class="line">slab class   6: chunk size       304 perslab    3449</span><br><span class="line">slab class   7: chunk size       384 perslab    2730</span><br><span class="line">slab class   8: chunk size       480 perslab    2184</span><br></pre></td></tr></table></figure>
+
+<p>仔细观察可以发现:120&#x2F;96 &#x3D; 152 &#x2F; 120 &#x3D; 1.25，这个 chunk 的增长比例就叫做增长因子(grow factor，默认 1.25,启动时可指定<code>-f</code>命令行参数) 。</p>
+<blockquote>
+<p>警告：如果我们要存 100bytes 数据，正常情况下应该保存在 chunk size 为 120bytes 的仓库（即 slab2），但是slab2已经满了，<em>并不会选择存到更大的 slab，例如 slab3，而是将老的数据挤出去，其策略是惰性过期机制和LRU删除机制！</em></p>
+</blockquote>
+<h1 id="过期和删除机制"><a href="#过期和删除机制" class="headerlink" title="过期和删除机制"></a>过期和删除机制</h1><ol>
+<li>当某个值过期时，并没有从内存中删除，因此 stats 命令统计的时候<code>curr_items</code>有其信息；</li>
+<li>取值的时候先判断是否过期，如果过期则返回空清空该 key 占用的 chunk，<code>curr_items</code>就减少了；</li>
+<li>如果之前没有 get 过，将不会自动删除，当某个新值占用其位置时，将会被当做空 chunk 来用。</li>
+</ol>
+<blockquote>
+<p>过期指的是让用户看不到数据，并不是在过期瞬间正真从内存中移除，被称为惰性失效(lazy expiration)。惰性的好处是节省了 CPU 时间和检测是否过期的成本。</p>
+</blockquote>
+<p>删除机制使用的 LRU，对 key 进行更新，查询将会刷新 key 为最新（被认为是新数据）。<em>即使某个 key 被设置为永久有效期也一样会被踢出</em>，这个就是大名鼎鼎的永久数据被踢的现象（看似违背直觉，但是确是内存管理机制的必然结果）。以 122bytes 大小的 chunk 为例，如果 122bytes 的 chunk 满了，又有新的值需要加入（长度为120bytes ），应该挤掉最近最久未使用的。</p>
+<h1 id="memcached中的一些参数限制"><a href="#memcached中的一些参数限制" class="headerlink" title="memcached中的一些参数限制"></a>memcached中的一些参数限制</h1><ul>
+<li>key 的长度限制为 250bytes,<a target="_blank" rel="noopener" href="https://github.com/memcached/memcached/releases/tag/1.3.2">二进制协议</a>支持 65535 字节。</li>
+<li>value 限制为 1M(100W 字符)。</li>
+</ul>
+<h1 id="分布式取模算法的缺陷"><a href="#分布式取模算法的缺陷" class="headerlink" title="分布式取模算法的缺陷"></a>分布式取模算法的缺陷</h1><p>所谓的分布式就是将不同的键存储到多态服务器，这样就引来一个问题？如何确定键和服务器的对应关系？最容易的算法是将 key 转化成数字（例如hash 签名算法或者 CRC32），然后将这个数字对服务器数量进行 MOD 运算。这种算法存在一个很大的弊端：原先有 3 个 server 分别按照 hash 取余，存储的数据对应关系为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server1 - key0,key3 <span class="comment"># mod = 0</span></span><br><span class="line">server2 - key1,key4 <span class="comment"># mod = 1</span></span><br><span class="line">server3 - key2 <span class="comment"># mod = 2</span></span><br></pre></td></tr></table></figure>
+
+<p>如果 server3 宕机，查询 key3 的时候，计算出来的是<code>3 mod 2 = 1</code>，即：我们应该到 server2 去取 key3，肯定是无法找到的！然而 key3 对应的数据依然好好滴在 server1 上存储着，一个严重的问题是：<em>缓存命中率大大降低</em>。</p>
+<blockquote>
+<p>从数学上讲，当服务器从 N 变成 N-1 之后，在<code>[0,N*N-1]</code>范围内只有<code>[0,N-1]</code>算出来的余数没有改变（一共N个数），即：每<code>N*N-1</code>个key只有N个key的模没有变，命中率为:<code>N/(N*N-1) = 1/N-1</code>。所以10台服务器变成9台服务器的时候11台变成10台服务器的时候命中率只有10%了，下降了90%!，并且服务器越多后果越严重，买的服务器越多结果性能越差，这不就亏大了？</p>
+</blockquote>
+<p>求余算法的另一个缺点是打乱了原有的数据存储，例如：原来有 3 台服务器，存储数据为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server1 - 0,3,6,9</span><br><span class="line">server2 - 1,4,7</span><br><span class="line">server3 - 2,5,8</span><br></pre></td></tr></table></figure>
+
+<p>当 server2 宕机时，按照求余算法，数据分布为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server1 - 0,2,4,6,8</span><br><span class="line">server3 - 1,3,5,7,9</span><br></pre></td></tr></table></figure>
+
+<p>可以发现原来的 3 和 9 在 server1 上好好滴放着被迁移到了 server3，原来的 2 和 8 在 server3 上放着被迁移到了 server1，我们理想的情况是将宕机的 server2 中的数据分配到 server1 和 server3 就行了。<em>数据迁移是很耗性能的</em>。</p>
+<p>鉴于分布式取余的以上缺点，我们使用一致性哈希。</p>
+<h1 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h1><blockquote>
+<p>把服务器各个节点映射放在钟表的各个时刻上，把 key 也映射到钟表的某个时刻上。该 key 沿着钟表顺时针走，碰到的第一个节点即为该 key 的存储节点。如图所示：</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/consistent-hash.png" alt="memcached一致性哈希"></p>
+<p>以上有 2 点疑问：</p>
+<ol>
+<li>时钟上的指针的最大才 11 点，如果有上百个 memcached 节点该怎么办？时钟只是为了便于理解做的比喻。在实际应用中我们可以在圆环上分布<code>[0,2^32-1]</code>个数字，这样全世界的服务器都可以装下了。</li>
+<li>如何将“节点名”和“键名”转化为整数。可以使用现成的函数，例如：crc32()。也可以自定义转化规则，但是要注意转化的<em>碰撞率</em>要低（碰撞值的是：不同的输入得到了相同的输出）。</li>
+</ol>
+<h2 id="一致性hash对其他节点的影响"><a href="#一致性hash对其他节点的影响" class="headerlink" title="一致性hash对其他节点的影响"></a>一致性hash对其他节点的影响</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/consistent-hash-range.png" alt="一致性哈希的影响范围"></p>
+<p>从上图可以看出：当某个节点宕机之后只影响该节点顺时针之后的一个节点，而其他节点不受此影响，<em>一致性哈希最大限度抑制了键的重新分布</em>。（re-hash）</p>
+<h2 id="一致性哈希-虚拟节点对缓存命中率的影响"><a href="#一致性哈希-虚拟节点对缓存命中率的影响" class="headerlink" title="一致性哈希 + 虚拟节点对缓存命中率的影响"></a>一致性哈希 + 虚拟节点对缓存命中率的影响</h2><p>由上图我们可以看出，在理想状态下：</p>
+<ol>
+<li>节点在圆环上分配均匀，因此承担的任务也是平均的，但事实上：一般的哈希函数对于节点在圆环上的映射并不均匀。</li>
+<li>当某个节点宕机之后直接冲击下一个节点，对下一个节点的冲击过大，所以能否把 down 掉的节点上的压力平均分配到其他所有存活着的节点上？</li>
+</ol>
+<p>我们可以通过引入虚拟节点完全解决上述问题。</p>
+<p>每个真实节点可以映射成 M 个虚拟节点，则 N 个真实节点就映射为 <code>M*N</code> 个虚拟节点散列在圆环上。各个真实节点对应的虚拟节点<em>交错分布</em>。这样，某个真实节点 down 掉之后，则把其影响分到到其他所有节点上。如图所示：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/consistent-hash-virtual-node.png" alt="memcached虚拟节点"></p>
+<p>即：N 台服务器变成 N-1 台服务器之后，剩下的 N-1 台服务器分担宕机的 1 台服务器的影响，从而<em>不命中率</em>为 1&#x2F;N-1，和分布式取模算法刚好相反！<a target="_blank" rel="noopener" href="https://gitee.com/gaopengfei/dsa4j/tree/master/src/main/java/io/github/consoles/distribution">java代码实现</a>，<a target="_blank" rel="noopener" href="https://gitee.com/gaopengfei/dsa4j/tree/master/src/main/webapp/memcached">这个实验</a>模拟了当 5 台服务器挂掉一台之后不同算法对缓存命中率的影响：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/distribution-mod.png" alt="分布式取模"><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/distribution-hash.png" alt="一致性hash"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/10/18/memcached/">https://consoles.fun/2016/10/18/memcached/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/memcached/">memcached</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/09/06/learn-redis/" title="Redis 学习笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-09-06</div><div class="info-item-2">Redis 学习笔记</div></div><div class="info-2"><div class="info-item-1"> Redis 序列化协议使用的是文本协议，客户端的开发非常简单，易于解析。  常见的一些数据库和缓存性能对比MYSQL QPS：8000 读，4000 写; redis 10W 读写。 memcached 的瓶颈在于libevent，而 redis 用了 epoll。 一些典型的使用场景 最新 N 个数据的操作。例如取网站的最新文章，我们可以将最新的5000条评论的id放入到 redis 的 list 中，并将超出链表的部分从 DB 获取（热数据缓存）。 构建队列系统。使用list可构建队列，使用sorted set可以构建优先级队列。 使用 setbit 记录连续登陆 7 天的用户（每天一个 key，用户登陆就把对应的位设置 1，最后将 7 天的 key 做按位 and），使用 DB 的话表大，并且要 sum，group 计算。和《编程珠玑》中的位图排序有异曲同工之妙。 使用 srandommember 做有放回的抽奖，spop 做不放回的抽奖。  数据结构String二进制安全，也就是说 redis 的 string 可以包含任何数据，例如 jpg...</div></div></div></a><a class="pagination-related" href="/2025/01/19/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/" title="布隆过滤器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-19</div><div class="info-item-2">布隆过滤器</div></div><div class="info-2"><div class="info-item-1">特点 精确判断不存在，但是可能会误判一个不在集合中的元素为存在（即：假阳） 不支持删除元素（几个 hash 函数计算出来的下标可能别的 key 也用到了）  总结来说就是：判断不存在的时候一定不存在，判断存在的时候大概率存在。 误判率可以通过调整参数来降低，但是无法完全消除。 数据结构的组成布隆过滤器由一个 bitSet 和一组 hash 函数组成，是一种空间效率非常高的概率算法和数据结构。在初始化的时候，bitSet 的每一位被初始化为 0，同时会定义一组 hash函数，例如有 3 组 hash 函数，hash1，hash2，hash3. 写入流程当我们要写入一个值时，过程如下，以“jionghui”为例：  首先将“jionghui”跟3组 Hash 函数分别计算，得到 bitSet 的下标为：1、7、10。 将 bitSet 的这3个下标标记为1。  假设我们还有另外两个值：java 和 diaosi，按上面的流程跟 3组 Hash 函数分别计算，结果如下：  java：Hash 函数计算 bitSet 下标为：1、7、11 diaosi：Hash 函数计算 bitSet...</div></div></div></a><a class="pagination-related" href="/2020/06/15/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-Redis/" title="面试套路 - Redis"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-06-15</div><div class="info-item-2">面试套路 - Redis</div></div><div class="info-2"><div class="info-item-1"> 注意：缓存穿透(Cache Penetration) 和缓存击穿(Cache Breakdown) 的区别。穿透强调大量恶意请求根本不存在的数据，因为这个时候就好像没有缓存层，流量全部到 DB,影响整个系统；击穿就表示有缓存，但是热点 key 失效了，主要是针对的热点数据。穿透-DB无数据，击穿-DB有数据。  缓存穿透访问一个 DB 和缓存中都不存在的 key 时，请求会直接打到 DB 上，并且因为查不到数据，没法建立缓存，下一次请求还会打到 DB 上。这个时候缓存就像被“穿透”了一样，起不到任何作用，每次请求都会打到 DB 就好像没有缓存一样，大量这样的请求可能导致 DB 挂掉。 对于系统，假设一秒 5000 个请求，结果其中 4000 个请求是黑客发出的恶意攻击。黑客发出的那 4000个攻击，缓存中查不到，每次你去数据库里查，也查不到，举个栗子。数据库 id 是从 1 开始的，结果黑客发过来的请求 id...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E6%9C%BA%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">内存分配机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%87%E6%9C%9F%E5%92%8C%E5%88%A0%E9%99%A4%E6%9C%BA%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">过期和删除机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#memcached%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="toc-number">3.</span> <span class="toc-text">memcached中的一些参数限制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%8F%96%E6%A8%A1%E7%AE%97%E6%B3%95%E7%9A%84%E7%BC%BA%E9%99%B7"><span class="toc-number">4.</span> <span class="toc-text">分布式取模算法的缺陷</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C"><span class="toc-number">5.</span> <span class="toc-text">一致性哈希</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7hash%E5%AF%B9%E5%85%B6%E4%BB%96%E8%8A%82%E7%82%B9%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-number">5.1.</span> <span class="toc-text">一致性hash对其他节点的影响</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C-%E8%99%9A%E6%8B%9F%E8%8A%82%E7%82%B9%E5%AF%B9%E7%BC%93%E5%AD%98%E5%91%BD%E4%B8%AD%E7%8E%87%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-number">5.2.</span> <span class="toc-text">一致性哈希 + 虚拟节点对缓存命中率的影响</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

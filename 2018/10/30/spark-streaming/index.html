@@ -1,0 +1,349 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>大数据基础之SparkStreaming | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 – 周星驰  流处理概述环境配置参考spark-sql中的环境配置，目录结构同上，jdk和spark版本升级如下： jdk:1.8spark:2.2 实时流处理框架和架构 Strom: 真实时，来一条处理一条 Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理 Kafka:国内使用较少 Flink：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据基础之SparkStreaming">
+<meta property="og:url" content="https://consoles.fun/2018/10/30/spark-streaming/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 – 周星驰  流处理概述环境配置参考spark-sql中的环境配置，目录结构同上，jdk和spark版本升级如下： jdk:1.8spark:2.2 实时流处理框架和架构 Strom: 真实时，来一条处理一条 Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理 Kafka:国内使用较少 Flink：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2018-10-30T12:39:55.000Z">
+<meta property="article:modified_time" content="2025-01-19T20:50:13.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="spark">
+<meta property="article:tag" content="流处理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "大数据基础之SparkStreaming",
+  "url": "https://consoles.fun/2018/10/30/spark-streaming/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2018-10-30T12:39:55.000Z",
+  "dateModified": "2025-01-19T20:50:13.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2018/10/30/spark-streaming/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大数据基础之SparkStreaming',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">大数据基础之SparkStreaming</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">大数据基础之SparkStreaming</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2018-10-30T12:39:55.000Z" title="发表于 2018-10-30 12:39:55">2018-10-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T20:50:13.000Z" title="更新于 2025-01-19 20:50:13">2025-01-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><blockquote>
+<p>我对你的敬仰犹如滔滔江水连绵不绝，又如黄河泛滥一发不可收拾。 – 周星驰</p>
+</blockquote>
+<h1 id="流处理概述"><a href="#流处理概述" class="headerlink" title="流处理概述"></a>流处理概述</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>参考<a target="_blank" rel="noopener" href="https://consoles.github.io/2018/10/15/spark-learning/#Hadoop%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA">spark-sql中的环境配置</a>，目录结构同上，jdk和spark版本升级如下：</p>
+<p>jdk:1.8<br>spark:2.2</p>
+<h2 id="实时流处理框架和架构"><a href="#实时流处理框架和架构" class="headerlink" title="实时流处理框架和架构"></a>实时流处理框架和架构</h2><ul>
+<li>Strom: 真实时，来一条处理一条</li>
+<li>Spark Streaming: 基于自定义时间间隔(2s,3s)的批量处理。微批处理</li>
+<li>Kafka:国内使用较少</li>
+<li>Flink：离线批处理 + 实时</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/spark-streaming-arch.png" alt="实时流处理架构"></p>
+<p>为什么要将Flume收集的日志放入Kafka而不是直接丢给实时处理系统？</p>
+<p>一般情况下业务有高峰期和低峰期，高峰期如果大量日志直接命中实时流处理系统，流处理系统可能扛不住压力，所以一般情况下会加一层MQ用来缓冲。</p>
+<h2 id="实时流处理的应用"><a href="#实时流处理的应用" class="headerlink" title="实时流处理的应用"></a>实时流处理的应用</h2><p>电信行业，如果用户流量快用完的时候发短信订购流量包<br>电商行业，双十一大屏；搜索A商品的时候可能会向你推荐B商品，因为A和B可能有关联关系</p>
+<p>大数据分析可以提高转化率。</p>
+<h1 id="分布式日志收集框架Flume"><a href="#分布式日志收集框架Flume" class="headerlink" title="分布式日志收集框架Flume"></a>分布式日志收集框架Flume</h1><h2 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h2><blockquote>
+<p>Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. </p>
+</blockquote>
+<p>有多台服务器上运行着我们的应用程序，各个机器上有os日志，web server日志，application的日志。假设我们需要将这些日志要收集到hadoop集群上就需要定时执行scp。实时性和容错性得不到保证，文本文件的格式一般需要压缩传输。这些问题flume都帮我们解决了。只需要配置文件就OK了。类似框架还可以使用LogStash。</p>
+<h2 id="架构和核心组件"><a href="#架构和核心组件" class="headerlink" title="架构和核心组件"></a>架构和核心组件</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://flume.apache.org/_images/DevGuide_image00.png" alt="架构和核心组件"></p>
+<p>source：采集<br>channel：聚集，类似于数据的缓存池，临时存放的地方<br>sink：输出</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://flume.apache.org/_images/UserGuide_image02.png" alt="常用架构"></p>
+<h2 id="环境部署"><a href="#环境部署" class="headerlink" title="环境部署"></a>环境部署</h2><p>下载解压，配置系统环境变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> FLUME_HOME=/home/hadoop/app/apache-flume-1.6.0-cdh5.7.6-bin</span><br><span class="line">PATH=<span class="variable">$FLUME_HOME</span>/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
+
+<p>配置文件在conf目录下，<code>cp flume-env.sh.template flume-env.sh</code>，导出<code>$JAVA_HOME</code>.</p>
+<h2 id="从指定端口收集数据到控制台"><a href="#从指定端口收集数据到控制台" class="headerlink" title="从指定端口收集数据到控制台"></a>从指定端口收集数据到控制台</h2><p><a target="_blank" rel="noopener" href="https://flume.apache.org/FlumeUserGuide.html#a-simple-example">一个简单的例子</a></p>
+<p>a1:agent的名称<br>r1:source的名称<br>k1:sink的名称<br>c1:channel的名称</p>
+<p>example.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># example.conf: A single-node Flume configuration</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line">a1.sources = r1</span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.type = netcat</span><br><span class="line">a1.sources.r1.bind = hadoop001</span><br><span class="line">a1.sources.r1.port = 44444</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line">a1.sinks.k1.type = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.type = memory</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent --conf <span class="variable">$FLUME_HOME</span>/conf --conf-file <span class="variable">$FLUME_HOME</span>/conf/example.conf --name a1 -Dflume.root.logger=INFO,console</span><br></pre></td></tr></table></figure>
+
+<p>使用telnet连接到<code>hadoop001 44444</code>并发送数据，可以看到agent输出。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(SinkRunner-PollingRunner-DefaultSinkProcessor) [INFO - org.apache.flume.sink.LoggerSink.process(LoggerSink.java:94)] Event: &#123; headers:&#123;&#125; body: 68 65 6C 6C 6F 0D                               hello. &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Event是Flume数据传输的基本单环，Event &#x3D; 可选的header + byte array</p>
+<h2 id="实时监控文件采集新增数据到控制台"><a href="#实时监控文件采集新增数据到控制台" class="headerlink" title="实时监控文件采集新增数据到控制台"></a>实时监控文件采集新增数据到控制台</h2><p>agent选型:exec source + memory channel + logger sink</p>
+<p>example.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># example.conf: A single-node Flume configuration</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line">a1.sources = r1</span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.type = <span class="built_in">exec</span></span><br><span class="line">a1.sources.r1.command = <span class="built_in">tail</span> -F /home/hadoop/data/data.log</span><br><span class="line">a1.sources.r1.shell = /bin/sh -c</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line">a1.sinks.k1.type = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.type = memory</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
+
+<h2 id="将A服务器上的日志实时采集到B服务器"><a href="#将A服务器上的日志实时采集到B服务器" class="headerlink" title="将A服务器上的日志实时采集到B服务器"></a>将A服务器上的日志实时采集到B服务器</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://flume.apache.org/_images/UserGuide_image03.png" alt="一个agent的输出作为另一个agent的输入"></p>
+<p>exec source + memory channel + avro sink<br>avro source + memory channel + logger sink</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># exec-memory-avro.conf</span></span><br><span class="line">exec-memory-avro.sources = exec-source</span><br><span class="line">exec-memory-avro.sinks = avro-sink</span><br><span class="line">exec-memory-avro.channels = memory-channel</span><br><span class="line"></span><br><span class="line">exec-memory-avro.sources.exec-source.type = <span class="built_in">exec</span></span><br><span class="line">exec-memory-avro.sources.exec-source.command = <span class="built_in">tail</span> -F /home/hadoop/data/data.log</span><br><span class="line">exec-memory-avro.sources.exec-source.shell = /bin/sh -c</span><br><span class="line"></span><br><span class="line">exec-memory-avro.sinks.avro-sink.type = avro</span><br><span class="line">exec-memory-avro.sinks.avro-sink.hostname = hadoop001</span><br><span class="line">exec-memory-avro.sinks.avro-sink.port = 44444</span><br><span class="line"></span><br><span class="line">exec-memory-avro.channels.memory-channel.type = memory</span><br><span class="line"></span><br><span class="line">exec-memory-avro.sources.exec-source.channels = memory-channel</span><br><span class="line">exec-memory-avro.sinks.avro-sink.channel = memory-channel</span><br><span class="line"></span><br><span class="line"><span class="comment"># avro-memory-logger.conf 这个要先启动</span></span><br><span class="line">avro-memory-logger.sources = avro-source</span><br><span class="line">avro-memory-logger.sinks = logger-sink</span><br><span class="line">avro-memory-logger.channels = memory-channel</span><br><span class="line"></span><br><span class="line">avro-memory-logger.sources.avro-source.type = avro</span><br><span class="line">avro-memory-logger.sources.avro-source.bind = hadoop001</span><br><span class="line">avro-memory-logger.sources.avro-source.port = 44444</span><br><span class="line"></span><br><span class="line">avro-memory-logger.sinks.logger-sink.type = logger</span><br><span class="line"></span><br><span class="line">avro-memory-logger.channels.memory-channel.type = memory</span><br><span class="line"></span><br><span class="line">avro-memory-logger.sources.avro-source.channels = memory-channel</span><br><span class="line">avro-memory-logger.sinks.logger-sink.channel = memory-channel</span><br></pre></td></tr></table></figure>
+
+<h1 id="消息队列Kafka"><a href="#消息队列Kafka" class="headerlink" title="消息队列Kafka"></a>消息队列Kafka</h1><h2 id="架构及核心概念"><a href="#架构及核心概念" class="headerlink" title="架构及核心概念"></a>架构及核心概念</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://kafka.apache.org/20/images/kafka-apis.png" alt="Kafka架构"></p>
+<p>每一条消息记录由key，value和timestamp组成。topic用于给消息记录打标签，消费者可以按照指定的标签进行消费。</p>
+<h2 id="部署和使用"><a href="#部署和使用" class="headerlink" title="部署和使用"></a>部署和使用</h2><p>先安装zookeeper，配置<code>$ZK_HOME</code>。<code>cp zoo_sample.cfg zoo.cfg</code>，配置<code>dataDir=/home/hadoop/app/tmp/zk</code>。</p>
+<p>使用<code>./zkServer.sh start</code>启动服务器之后就可以使用<code>./zkCli.sh</code>连接到服务器。zk-cli命令<code>ls /</code> ，<code>ls /zookeeper</code>。</p>
+<p>kafka版本kafka_2.11-0.9.0.0，下载解压并配置KAFKA_HOME。</p>
+<h3 id="单节点单broker"><a href="#单节点单broker" class="headerlink" title="单节点单broker"></a>单节点单broker</h3><p>config&#x2F;server.properties</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">broker.id=0</span><br><span class="line">listeners=PLAINTEXT://:9092</span><br><span class="line">log.dirs=/home/hadoop/app/tmp/kafka-logs</span><br><span class="line">zookeeper.connect=hadoop001:2181</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动kafka</span></span><br><span class="line">kafka-server-start.sh /home/hadoop/app/kafka_2.11-0.9.0.0/config/server.properties</span><br><span class="line"><span class="comment"># 创建topic</span></span><br><span class="line">kafka-topics.sh --create --zookeeper hadoop001:2181 --replication-factor 1 --partitions 1 --topic hello_topic</span><br><span class="line"><span class="comment"># 查看所有topic</span></span><br><span class="line">kafka-topics.sh --list --zookeeper hadoop001:2181</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产消息</span></span><br><span class="line">kafka-console-producer.sh --broker-list hadoop001:9092 --topic hello_topic</span><br><span class="line"><span class="comment"># 启动一个消费者消费消息(注意官方文档中的--bootstrap-server要换成--zookeeper)</span></span><br><span class="line">kafka-console-consumer.sh --zookeeper hadoop001:2181 --topic hello_topic --from-beginning</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看描述</span></span><br><span class="line">kafka-topics.sh --describe --zookeeper hadoop001:2181</span><br></pre></td></tr></table></figure>
+
+<p>启动生产者和消费者之后就可以在生产者所在tty发送消息了，从而消费者可以收到消息。上面的cmd中消费者加了参数<code>--from-beginning</code>，消费者重启之后以前的消息会再次收到。</p>
+<h3 id="单节点多broker"><a href="#单节点多broker" class="headerlink" title="单节点多broker"></a>单节点多broker</h3><p>在单台服务器上配置多台kafka。</p>
+<p>将server.properties复制为server-1.properties，server-2.properties，server-3.properties并修改对应的broker.id,listeners,log.dirs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kafka-server-start.sh -daemon <span class="variable">$KAFKA_HOME</span>/config/server-1.properties &amp;</span><br><span class="line">kafka-server-start.sh -daemon <span class="variable">$KAFKA_HOME</span>/config/server-2.properties &amp;</span><br><span class="line">kafka-server-start.sh -daemon <span class="variable">$KAFKA_HOME</span>/config/server-3.properties &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 因为此时启动了3个broker所以replication-factor为3</span></span><br><span class="line">kafka-topics.sh --create --zookeeper hadoop001:2181 --replication-factor 3 --partitions 1 --topic my-replicated-topic</span><br><span class="line">kafka-console-producer.sh --broker-list hadoop001:9093,hadoop001:9094,hadoop001:9095 --topic my-replicated-topic</span><br><span class="line">kafka-console-consumer.sh --zookeeper hadoop001:2181 --topic my-replicated-topic</span><br></pre></td></tr></table></figure>
+
+<h3 id="容错性测试"><a href="#容错性测试" class="headerlink" title="容错性测试"></a>容错性测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic</span><br><span class="line">Topic:my-replicated-topic      	PartitionCount:1       	ReplicationFactor:3    	Configs:</span><br><span class="line">Topic: my-replicated-topic     	Partition: 0   	Leader: 1      	Replicas: 1,2,3	Isr: 1,2,3</span><br></pre></td></tr></table></figure>
+
+<p>上面的描述信息显示1号broker是主，现在使用<code>kill -9</code>干掉2号（pid可以使用jps -m查看）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic</span><br><span class="line">Topic:my-replicated-topic      	PartitionCount:1       	ReplicationFactor:3    	Configs:</span><br><span class="line">Topic: my-replicated-topic     	Partition: 0   	Leader: 1      	Replicas: 1,2,3	Isr: 1,3</span><br></pre></td></tr></table></figure>
+
+<p>Isr中2不见了。接下来干掉1号broker。可以发现消费者终端中出现了warning，但是发的消息还是可以收到。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[hadoop@hadoop001 my-replicated-topic-0]$ kafka-topics.sh --describe --zookeeper hadoop001:2181 --topic my-replicated-topic</span><br><span class="line">Topic:my-replicated-topic      	PartitionCount:1       	ReplicationFactor:3    	Configs:</span><br><span class="line">Topic: my-replicated-topic     	Partition: 0   	Leader: 3      	Replicas: 1,2,3	Isr: 3</span><br></pre></td></tr></table></figure>
+
+<p>Leader由1变成了3，因此只要有一个broker正常就可以了。</p>
+<h3 id="Kafka高级特性"><a href="#Kafka高级特性" class="headerlink" title="Kafka高级特性"></a>Kafka高级特性</h3><h4 id="消息事务"><a href="#消息事务" class="headerlink" title="消息事务"></a>消息事务</h4><p>为什么要支持事务？满足：“读取-处理-写入”模式。</p>
+<p>数据传输的事务定义：</p>
+<p>最多一次：消息不会被重复发送，最多被传输一次（可能一次也不传输）<br>最少一次：消息不会被漏发送，最少被传输一次(可能被重复传输),目前多数消息系统采用<br>精确的一次：Exactly Once,不会被漏传输也不会重复传输，每个消息都被传输一次而且仅仅被传输一次，这是大家所期望的。</p>
+<p>Kafka保证事务的机制：</p>
+<ul>
+<li>内部重试：Producer幂等处理</li>
+<li>多分区原子写入</li>
+<li>避免僵尸实例</li>
+</ul>
+<h4 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h4><p>java nio中的<code>channel.transforTo()</code>方法，底层系统调用是<code>sendfile</code>。将磁盘上的一个文件块发送到网络上需要经过这样的几步：</p>
+<ol>
+<li>OS将数据从磁盘读入到内核空间的页缓存</li>
+<li>应用程序将数据从内核空间读入到用户空间的缓存中</li>
+<li>应用程序将数据写回到内核空间的socket缓存中</li>
+<li>OS将数据从socket缓冲区复制到网卡缓冲区，以便将数据发送出去</li>
+</ol>
+<p>以上数据经过了4次拷贝，如果采用零拷贝机制则只有以下几步：</p>
+<ol>
+<li>OS将数据从磁盘读入到内核空间的页缓存</li>
+<li>将数据的位置和长度信息的描述符增加内核空间(socket缓冲区)</li>
+<li>OS将数据从内核拷贝到网卡缓冲区，以便将数据经过网络发出</li>
+</ol>
+<p>数据只经过了2次拷贝！零拷贝指的是：内核空间和用户空间之间的拷贝次数是0。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/kafka-zero-copy.png" alt="Kafka零拷贝"></p>
+<h3 id="整合Flume完成数据采集"><a href="#整合Flume完成数据采集" class="headerlink" title="整合Flume完成数据采集"></a>整合Flume完成数据采集</h3><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="http://archive.cloudera.com/cdh5/cdh/5/flume-ng-1.6.0-cdh5.7.0/FlumeUserGuide.html" alt="Flume cdh版本的soure-sink配置"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># avro-memory-kafka.conf</span></span><br><span class="line">avro-memory-kafka.sources = avro-source</span><br><span class="line">avro-memory-kafka.sinks = kafka-sink</span><br><span class="line">avro-memory-kafka.channels = memory-channel</span><br><span class="line"></span><br><span class="line">avro-memory-kafka.sources.avro-source.type = avro</span><br><span class="line">avro-memory-kafka.sources.avro-source.bind = hadoop001</span><br><span class="line">avro-memory-kafka.sources.avro-source.port = 44444</span><br><span class="line"></span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.type = org.apache.flume.sink.kafka.KafkaSink</span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.brokerList = hadoop001:9092</span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.topic = hello_topic</span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.batchSize = 5</span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.requiredAcks = 1</span><br><span class="line"></span><br><span class="line">avro-memory-kafka.channels.memory-channel.type = memory</span><br><span class="line"></span><br><span class="line">avro-memory-kafka.sources.avro-source.channels = memory-channel</span><br><span class="line">avro-memory-kafka.sinks.kafka-sink.channel = memory-channel</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent --conf <span class="variable">$FLUME_HOME</span>/conf --conf-file <span class="variable">$FLUME_HOME</span>/conf/avro-memory-kafka.conf --name avro-memory-kafka -Dflume.root.logger=INFO,console</span><br><span class="line">flume-ng agent --conf <span class="variable">$FLUME_HOME</span>/conf --conf-file <span class="variable">$FLUME_HOME</span>/conf/exec-memory-avro.conf --name exec-memory-avro -Dflume.root.logger=INFO,console</span><br></pre></td></tr></table></figure>
+
+<h1 id="Spark-Streaming环境搭建"><a href="#Spark-Streaming环境搭建" class="headerlink" title="Spark-Streaming环境搭建"></a>Spark-Streaming环境搭建</h1><p>下载scala2.11.8配置<code>$SCALA_HOME</code>环境变量。</p>
+<h2 id="Hbase的配置"><a href="#Hbase的配置" class="headerlink" title="Hbase的配置"></a>Hbase的配置</h2><p>配置<code>$HBASE_HOME</code>系统变量。</p>
+<p>修改conf&#x2F;hbase-env.sh中的<code>JAVA_HOME</code>并设置<code>HBASE_MANAGES_ZK=false</code>。<br>修改conf&#x2F;hbase-site.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.rootdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://hadoop001:8020/hbase<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.cluster.distributed<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hadoop001:2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.property.dataDir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/app/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>修改conf&#x2F;regionservers为<code>hadoop001</code>。</p>
+<p>启动<code>bin/start-hbase.sh</code>，WebUI地址<code>http://hadoop001:60010</code>。</p>
+<p>启动hbase客户端</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">./bin/hbase shell</span><br><span class="line">version</span><br><span class="line">status</span><br><span class="line">create <span class="string">&#x27;member&#x27;</span>,<span class="string">&#x27;info&#x27;</span>,<span class="string">&#x27;address&#x27;</span></span><br><span class="line">list</span><br><span class="line">describe <span class="string">&#x27;member&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Spark-Streaming核心概念和编程"><a href="#Spark-Streaming核心概念和编程" class="headerlink" title="Spark-Streaming核心概念和编程"></a>Spark-Streaming核心概念和编程</h1><h2 id="入门"><a href="#入门" class="headerlink" title="入门"></a>入门</h2><p>one stack to rule them all.一栈式解决。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/streaming/NetworkWordCount.scala">官网的例子</a></p>
+<p>使用spark-submit提交（生产）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nc -lk 9999</span><br><span class="line">spark-submit --master <span class="built_in">local</span>[2] --class org.apache.spark.examples.streaming.NetworkWordCount --name NetworkWordCount /home/hadoop/app/spark-2.2.0-bin-2.6.0-cdh5.7.0/examples/jars/spark-examples_2.11-2.2.0.jar hadoop001 9999</span><br><span class="line"><span class="comment"># nc中输入的一行数据会实时在spark-shell中进行wordcount展示</span></span><br></pre></td></tr></table></figure>
+
+<p>使用spark-shell提交（开发）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-shell --master <span class="built_in">local</span>[2]</span><br></pre></td></tr></table></figure>
+
+<p>将下面的代码粘贴到spark-shell中即可：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.streaming.&#123;<span class="type">Seconds</span>, <span class="type">StreamingContext</span>&#125;</span><br><span class="line"><span class="keyword">val</span> ssc = <span class="keyword">new</span> <span class="type">StreamingContext</span>(sc, <span class="type">Seconds</span>(<span class="number">1</span>))</span><br><span class="line"><span class="keyword">val</span> lines = ssc.socketTextStream(<span class="string">&quot;hadoop001&quot;</span>, <span class="number">9999</span>)</span><br><span class="line"><span class="keyword">val</span> words = lines.flatMap(_.split(<span class="string">&quot; &quot;</span>))</span><br><span class="line"><span class="keyword">val</span> wordCounts = words.map(x =&gt; (x, <span class="number">1</span>)).reduceByKey(_ + _)</span><br><span class="line">wordCounts.print()</span><br><span class="line">ssc.start()</span><br><span class="line">ssc.awaitTermination()</span><br></pre></td></tr></table></figure>
+
+<p>Spark Streaming接收到实时数据流，把数据按照指定时间段切成一片片的小数据块，把小数据块交给SparkEngine处理。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://blog-cdn-bmnleumcou.cn-shenzhen.fcapp.run/?a=images/spark-streaming-process.png" alt="SparkStreaming工作原理"></p>
+<p>Spark应用程序运行在Driver端，Driver端会要求Executor启动一些接收器，Receiver启动之后会将InputStream拆分成小的Block存放在内存中（如果设置了多副本的话还会拷贝到其他机器），之后Receiver会将block信息高速StreamingContext，每隔指定的时间周期StreamingContext会通知SparkContext应该启动一些jobs了，接下来SparkContext将jobs分发到Executor执行。</p>
+<p>DStreams:</p>
+<p>Discretized Streams (DStreams)： a DStream is represented by a continuous series of RDDs,  a DStream is represented by a continuous series of RDDs, which is Spark’s abstraction of an immutable, distributed dataset.</p>
+<p>InputStreams &amp; Receivers:</p>
+<p>Every input DStream (except file stream, discussed later in this section) is associated with a Receiver (Scala doc, Java doc) object which receives the data from a source and stores it in Spark’s memory for processing.</p>
+<h2 id="处理Socket数据"><a href="#处理Socket数据" class="headerlink" title="处理Socket数据"></a>处理Socket数据</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * SparkStreaming处理Socket数据</span></span><br><span class="line"><span class="comment">  * 测试:nc -lk 6789 并输入数据</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">NetworkWordCount</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Exception in thread &quot;main&quot; java.lang.NoSuchMethodError: com.fasterxml.jackson.module.scala.deser.BigDecimalDeserializer$.handledType()Ljava/lang/Class;</span></span><br><span class="line">  <span class="comment">// 在pom中添加com.fasterxml.jackson依赖(jar包冲突)</span></span><br><span class="line">  <span class="comment">// java.lang.NoClassDefFoundError: net/jpountz/util/SafeUtils</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]) &#123;</span><br><span class="line">    <span class="comment">// 设置为local或者local[1]无法执行,因为只有一个线程获取不到资源(从socket接收数据需要启动一个Receiver)</span></span><br><span class="line">    <span class="keyword">val</span> sparkConf = <span class="keyword">new</span> <span class="type">SparkConf</span>().setMaster(<span class="string">&quot;local[2]&quot;</span>).setAppName(<span class="string">&quot;NetworkWordCount&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> ssc = <span class="keyword">new</span> <span class="type">StreamingContext</span>(sparkConf, <span class="type">Seconds</span>(<span class="number">5</span>))</span><br><span class="line">    <span class="keyword">val</span> lines = ssc.socketTextStream(<span class="string">&quot;localhost&quot;</span>, <span class="number">6789</span>)</span><br><span class="line">    <span class="keyword">val</span> result = lines.flatMap(_.split(<span class="string">&quot; &quot;</span>)).map((_, <span class="number">1</span>)).reduceByKey(_ + _)</span><br><span class="line">    result.print()</span><br><span class="line"></span><br><span class="line">    ssc.start()</span><br><span class="line">    ssc.awaitTermination()</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="处理文件数据"><a href="#处理文件数据" class="headerlink" title="处理文件数据"></a>处理文件数据</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">FileWordCount</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]) &#123;</span><br><span class="line">    <span class="comment">// 不需要Receiver,因此local没有问题</span></span><br><span class="line">    <span class="keyword">val</span> sparkConf = <span class="keyword">new</span> <span class="type">SparkConf</span>().setMaster(<span class="string">&quot;local&quot;</span>).setAppName(<span class="string">&quot;FileWordCount&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> ssc = <span class="keyword">new</span> <span class="type">StreamingContext</span>(sparkConf, <span class="type">Seconds</span>(<span class="number">5</span>))</span><br><span class="line">    <span class="comment">// tmp/ss目录中的文件一旦被生成,向文件中追加内容将不会被处理</span></span><br><span class="line">    <span class="keyword">val</span> lines = ssc.textFileStream(<span class="string">&quot;file:///tmp/ss&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> result = lines.flatMap(_.split(<span class="string">&quot; &quot;</span>)).map((_, <span class="number">1</span>)).reduceByKey(_ + _)</span><br><span class="line">    result.print()</span><br><span class="line">    ssc.start()</span><br><span class="line">    ssc.awaitTermination()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>window:定时进行一个时间段内的数据处理。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2018/10/30/spark-streaming/">https://consoles.fun/2018/10/30/spark-streaming/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/spark/">spark</a><a class="post-meta__tags" href="/tags/%E6%B5%81%E5%A4%84%E7%90%86/">流处理</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2018/10/15/spark-sql/" title="大数据基础之SparkSQL"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2018-10-15</div><div class="info-item-2">大数据基础之SparkSQL</div></div><div class="info-2"><div class="info-item-1"> 在对应用进行集群化的时候，对于应用如何规划所使用的cpu核心数量有一个不成文的规定：总核心数量-1。因为操作系统需要消耗一些cpu，如果我们的应用占用了全部的cpu，一旦os需要处理一些其他任务，就会因为没有空闲的核而强制进行上下文切换，会减慢应用的处理速度。   map操作中将每个单词设置为1shuffle过程中将key相同的分到同一个reduce上 HDFS架构NameNode和DataNodeNameNode和DataNode blocksize:128M130M会被拆分成2个block:128M+2M NameNode:  客户端请求 元数据管理（文件名称、副本系数、block存放的DataNode）  DataNode：  存储用户文件对应的数据块 定期向NameNode发送心跳信息，汇报自身及其所有的block信息，健康状况   SecondNameNode在2.x中已经不是必须的了。  副本机制hdfs-site.xml中的dfs.replication  replication...</div></div></div></a><a class="pagination-related" href="/2020/07/28/%E9%9D%A2%E8%AF%95%E5%A5%97%E8%B7%AF-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="面试套路 - 消息队列"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2020-07-28</div><div class="info-item-2">面试套路 - 消息队列</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%81%E5%A4%84%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">流处理概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E6%B5%81%E5%A4%84%E7%90%86%E6%A1%86%E6%9E%B6%E5%92%8C%E6%9E%B6%E6%9E%84"><span class="toc-number">1.2.</span> <span class="toc-text">实时流处理框架和架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E6%B5%81%E5%A4%84%E7%90%86%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">实时流处理的应用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E6%A1%86%E6%9E%B6Flume"><span class="toc-number">2.</span> <span class="toc-text">分布式日志收集框架Flume</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-number">2.1.</span> <span class="toc-text">解决什么问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E5%92%8C%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">架构和核心组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2"><span class="toc-number">2.3.</span> <span class="toc-text">环境部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E6%8C%87%E5%AE%9A%E7%AB%AF%E5%8F%A3%E6%94%B6%E9%9B%86%E6%95%B0%E6%8D%AE%E5%88%B0%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="toc-number">2.4.</span> <span class="toc-text">从指定端口收集数据到控制台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E7%9B%91%E6%8E%A7%E6%96%87%E4%BB%B6%E9%87%87%E9%9B%86%E6%96%B0%E5%A2%9E%E6%95%B0%E6%8D%AE%E5%88%B0%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="toc-number">2.5.</span> <span class="toc-text">实时监控文件采集新增数据到控制台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%86A%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84%E6%97%A5%E5%BF%97%E5%AE%9E%E6%97%B6%E9%87%87%E9%9B%86%E5%88%B0B%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">2.6.</span> <span class="toc-text">将A服务器上的日志实时采集到B服务器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97Kafka"><span class="toc-number">3.</span> <span class="toc-text">消息队列Kafka</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E5%8F%8A%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">架构及核心概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">部署和使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E8%8A%82%E7%82%B9%E5%8D%95broker"><span class="toc-number">3.2.1.</span> <span class="toc-text">单节点单broker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E8%8A%82%E7%82%B9%E5%A4%9Abroker"><span class="toc-number">3.2.2.</span> <span class="toc-text">单节点多broker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E9%94%99%E6%80%A7%E6%B5%8B%E8%AF%95"><span class="toc-number">3.2.3.</span> <span class="toc-text">容错性测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7"><span class="toc-number">3.2.4.</span> <span class="toc-text">Kafka高级特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E4%BA%8B%E5%8A%A1"><span class="toc-number">3.2.4.1.</span> <span class="toc-text">消息事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="toc-number">3.2.4.2.</span> <span class="toc-text">零拷贝</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B4%E5%90%88Flume%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86"><span class="toc-number">3.2.5.</span> <span class="toc-text">整合Flume完成数据采集</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-Streaming%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">4.</span> <span class="toc-text">Spark-Streaming环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hbase%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">4.1.</span> <span class="toc-text">Hbase的配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-Streaming%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%92%8C%E7%BC%96%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">Spark-Streaming核心概念和编程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8"><span class="toc-number">5.1.</span> <span class="toc-text">入门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%84%E7%90%86Socket%E6%95%B0%E6%8D%AE"><span class="toc-number">5.2.</span> <span class="toc-text">处理Socket数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE"><span class="toc-number">5.3.</span> <span class="toc-text">处理文件数据</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

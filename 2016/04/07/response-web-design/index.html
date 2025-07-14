@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>响应式web设计 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="固定宽度布局的缺点我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核">
+<meta property="og:type" content="article">
+<meta property="og:title" content="响应式web设计">
+<meta property="og:url" content="https://consoles.fun/2016/04/07/response-web-design/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="固定宽度布局的缺点我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-04-07T20:05:32.000Z">
+<meta property="article:modified_time" content="2025-05-16T22:43:12.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="html5">
+<meta property="article:tag" content="css">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "响应式web设计",
+  "url": "https://consoles.fun/2016/04/07/response-web-design/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-04-07T20:05:32.000Z",
+  "dateModified": "2025-05-16T22:43:12.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/04/07/response-web-design/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '响应式web设计',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">响应式web设计</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">响应式web设计</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-04-07T20:05:32.000Z" title="发表于 2016-04-07 20:05:32">2016-04-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-16T22:43:12.000Z" title="更新于 2025-05-16 22:43:12">2025-05-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="固定宽度布局的缺点"><a href="#固定宽度布局的缺点" class="headerlink" title="固定宽度布局的缺点"></a>固定宽度布局的缺点</h1><p>我们经常可以看到固定宽度的布局.例如960px的页面在笔记本上可能显示刚刚好,但是在高分辨率的显示器上两侧就会出现留白,可是我们现在有了智能手机.手机浏览器会将一个标准页面缩放到与视口(即:设备可视区域)恰好匹配.然后用户可以选择在自己感兴趣的内容上放大浏览,这样就导致了用户体验非常糟糕!(想象一下不停的点击放大滑动然后缩小,更可恶的是如果误点击了一个链接).响应式web设计的核心是<strong>移动优先</strong>.</p>
+<blockquote>
+<p>在使用CSS3属性的时候需要注意浏览器前缀,并且将不带有前缀的添加到最后,这样如果该属性可用就会覆盖之前的声明.</p>
+</blockquote>
+<h1 id="百分比宽度的计算"><a href="#百分比宽度的计算" class="headerlink" title="百分比宽度的计算"></a>百分比宽度的计算</h1><p>百分比宽度 &#x3D; 目标元素宽度 &#x2F; 上下文元素宽度,例如我们有以下的固定宽度的布局:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;wrapper&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">header</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link1<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link2<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">header</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">aside</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>this is aside<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">aside</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">article</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>this is content<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">article</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">footer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>this is footer<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">footer</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css"><span class="selector-id">#wrapper</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin-left</span>: auto;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin-right</span>: auto;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">width</span>: <span class="number">960px</span>;</span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"><span class="selector-tag">nav</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">width</span>: <span class="number">940px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin</span>: <span class="number">26px</span> <span class="number">0</span> <span class="number">0</span> -<span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">padding</span>: <span class="number">25px</span> <span class="number">10px</span> <span class="number">0</span> <span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"><span class="selector-tag">nav</span> <span class="selector-tag">ul</span> <span class="selector-tag">li</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">display</span>: inline-block;</span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"><span class="selector-tag">aside</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">border</span>: none;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">border-right</span>: <span class="number">#e8e8e8</span> solid <span class="number">2px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin</span>: <span class="number">58px</span> <span class="number">10px</span> <span class="number">0</span> <span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">padding-right</span>: <span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">float</span>: left;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">width</span>: <span class="number">220px</span>;</span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"><span class="selector-tag">article</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin</span>: <span class="number">58px</span> <span class="number">10px</span> <span class="number">0</span> <span class="number">0</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">float</span>: right;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">width</span>: <span class="number">698px</span>;    </span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"><span class="selector-tag">footer</span>&#123;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">float</span>: left;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">margin</span>: <span class="number">20px</span> <span class="number">10px</span> <span class="number">0</span> <span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">clear</span>: both;</span></span><br><span class="line"><span class="language-css">  <span class="attribute">width</span>: <span class="number">940px</span>;</span></span><br><span class="line"><span class="language-css">&#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>根据经验,我们将最外层的#wrapper的宽度设置为96%,那么nav的宽度应该设置多少?我们用940&#x2F;960 &#x3D; 97.91666666666666%,所谓的上下文元素就是被参照的元素,我们也可以简单理解为<strong>具有特定宽度</strong>的父元素或者祖宗元素.</p>
+<h1 id="使用em替代像素"><a href="#使用em替代像素" class="headerlink" title="使用em替代像素"></a>使用em替代像素</h1><p>几年前,使用em替代px主要是为了实现文字缩放.em的实际大小是相对于上下文字体而言的.如果给body的font-size设置为100%,其他文字单位都使用相对单位em,那些文字都将受到body上初始声明的影响.现代浏览器中默认文字大小是16px,因此在body中声明以下的3条css等效:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">body</span>&#123;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">16px</span>;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">1em</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="弹性图片"><a href="#弹性图片" class="headerlink" title="弹性图片"></a>弹性图片</h1><p>在IE7+实现图片随流式布局自动缩放非常简单:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">img</span>&#123;</span><br><span class="line">  <span class="attribute">max-width</span>: <span class="number">100%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同理,该css属性还可以拓展到<code>&lt;object&gt;</code>,<code>&lt;video&gt;</code>,<code>&lt;embed&gt;</code>等其他多媒体元素</p>
+<h1 id="CSS3实用技巧"><a href="#CSS3实用技巧" class="headerlink" title="CSS3实用技巧"></a>CSS3实用技巧</h1><ul>
+<li>类似报纸排版的多栏布局<code>column-count</code></li>
+<li>文字换行<code>word-wrap:break-word</code>,需要给外层容器添加此属性,中间内容将自动换行(不会生成水平滚动条)</li>
+</ul>
+<p>水平导航的最佳实践:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link 1<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link 2<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link 3<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link 4<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&quot;</span>&gt;</span>link 5<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">nav</span>&#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">display</span>: table;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">nav</span> <span class="selector-tag">ul</span>&#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">display</span>: table-row;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">nav</span> <span class="selector-tag">ul</span> <span class="selector-tag">li</span>&#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">display</span>: table-cell;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">nav</span> <span class="selector-tag">ul</span> <span class="selector-tag">li</span><span class="selector-pseudo">:first-child</span>&#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">text-align</span>: left;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">nav</span> <span class="selector-tag">ul</span> <span class="selector-tag">li</span><span class="selector-pseudo">:last-child</span>&#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">text-align</span>: right;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首字下沉效果.得益于伪元素选择器.<code>::first-letter</code>,同理<code>::first-line</code>用于选择首行。</li>
+</ul>
+<p>盒子模型可以分为 <code>inline</code> 和 <code>block</code> 两种类型。<code>display</code> 为 <code>inline</code> 的元素<strong>不能设置宽度和高度，只能被内容撑开</strong>。所以 <code>inline-block</code> 模型的出现是即希望盒子的显示可以是一排显示而又可以设置宽高。</p>
+<h1 id="元素的透明度"><a href="#元素的透明度" class="headerlink" title="元素的透明度"></a>元素的透明度</h1><p>说道透明度我们一般会想到<code>opacity</code>这个属性.但是给一个容器设置了透明度后,它的内容也就变得透明了,因此我们可以使用透明的背景色:<code>rgba</code>或者<code>hsla</code></p>
+<h1 id="使用CSS3创作绚丽的效果"><a href="#使用CSS3创作绚丽的效果" class="headerlink" title="使用CSS3创作绚丽的效果"></a>使用CSS3创作绚丽的效果</h1><h2 id="模拟书籍页边距的光晕效果"><a href="#模拟书籍页边距的光晕效果" class="headerlink" title="模拟书籍页边距的光晕效果"></a>模拟书籍页边距的光晕效果</h2><p>使用多重内阴影:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">box-shadow</span>:inset <span class="number">0</span> <span class="number">0</span> <span class="number">30px</span> <span class="built_in">hsl</span>(<span class="number">0</span>,<span class="number">0%</span>,<span class="number">0%</span>),</span><br><span class="line">          inset <span class="number">0</span> <span class="number">0</span> <span class="number">70px</span> <span class="built_in">hsla</span>(<span class="number">0</span>,<span class="number">97%</span>,<span class="number">53%</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="文字浮雕"><a href="#文字浮雕" class="headerlink" title="文字浮雕"></a>文字浮雕</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">text-shadow</span>:<span class="number">0px</span> <span class="number">1px</span> <span class="number">#fff</span>,</span><br><span class="line">            <span class="number">4px</span> <span class="number">4px</span> <span class="number">0px</span> <span class="number">#dad7d7</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="过渡动画"><a href="#过渡动画" class="headerlink" title="过渡动画"></a>过渡动画</h2><p>除了常见的<code>transition:all 1s ease 0s</code>外我们也可以为不同的属性指定不同的过渡(也就是说步调可以任意),例如:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">button</span>&#123;</span><br><span class="line">  <span class="attribute">transition-property</span>: border,color,text-shadow;</span><br><span class="line">  <span class="attribute">transition-duration</span>: <span class="number">2s</span>,<span class="number">3s</span>,<span class="number">8s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上的效果是2s完成border,3s完成color,8s完成text-shadow.</p>
+<h2 id="CSS3针对表单的伪类选择器"><a href="#CSS3针对表单的伪类选择器" class="headerlink" title="CSS3针对表单的伪类选择器"></a>CSS3针对表单的伪类选择器</h2><ul>
+<li><code>input:required</code>,必填表单域</li>
+<li><code>input:focus:invalid</code>,处于焦点并输入了非法值的表单域,同理,有<code>input:focus:valid</code></li>
+</ul>
+<p>使用上面的3个选择器可以制作响应式的表单:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">input</span><span class="selector-pseudo">:required</span>&#123;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="built_in">rgba</span>(<span class="number">253</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">0.3</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-tag">input</span><span class="selector-pseudo">:focus</span><span class="selector-pseudo">:invalid</span>&#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="built_in">url</span>(<span class="string">&#x27;error.png&#x27;</span>) no-repeat right;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-tag">input</span><span class="selector-pseudo">:focus</span><span class="selector-pseudo">:valid</span>&#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="built_in">url</span>(<span class="string">&#x27;ok.png&#x27;</span>) no-repeat right;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="html5新特性"><a href="#html5新特性" class="headerlink" title="html5新特性"></a>html5新特性</h1><h2 id="自动联想词"><a href="#自动联想词" class="headerlink" title="自动联想词"></a>自动联想词</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">&quot;username&quot;</span>&gt;</span>用户名<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">id</span>=<span class="string">&quot;username&quot;</span> <span class="attr">list</span>=<span class="string">&quot;usernames&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">datalist</span> <span class="attr">id</span>=<span class="string">&quot;usernames&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;a&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;aa&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;abc&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;bb&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">datalist</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上的代码当我们输入字符的时候会自动从下面的<code>datalist</code>标签中进行筛选.</p>
+<h2 id="不支持html的浏览器的渐进增强"><a href="#不支持html的浏览器的渐进增强" class="headerlink" title="不支持html的浏览器的渐进增强"></a>不支持html的浏览器的渐进增强</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;js/jquery-1.7.1.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;js-webshim/minified/extras/modernizr-custom.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;js-webshim/minified/polyfiller.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="comment">//加载补丁</span></span></span><br><span class="line"><span class="language-javascript">$.webshims.<span class="title function_">polyfill</span>();</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="一些常见的DOM方法"><a href="#一些常见的DOM方法" class="headerlink" title="一些常见的DOM方法"></a>一些常见的DOM方法</h2><ul>
+<li>document.images: 页面上所有的图片元素</li>
+<li>document.links : 所有a标签元素</li>
+<li>document.forms : 所有表单</li>
+<li>document.forms[0].elements : 页面上第一个表单中的所有域</li>
+</ul>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="http://www.andthewinnerisnt.com/">响应式web设计</a><br><a target="_blank" rel="noopener" href="http://webdesignerwall.com/trends/47-amazing-css3-animation-demos">47个迷人的CSS3动画</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/04/07/response-web-design/">https://consoles.fun/2016/04/07/response-web-design/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/html5/">html5</a><a class="post-meta__tags" href="/tags/css/">css</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/03/22/canvas/" title="html5 canvas的基本操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-03-22</div><div class="info-item-2">html5 canvas的基本操作</div></div><div class="info-2"><div class="info-item-1">导出在canvas元素上绘制的图像12345678910var drawing = document.getElementById(&#x27;drawing&#x27;)// 是否支持canvasif(drawing.getContext)&#123;  // 取得图像数据URI  var imgURI = drawing.toDataURL(&#x27;image/png&#x27;)  // 显示图像  var image = document.createElement(&#x27;img&#x27;)  img.src = imgURI  document.body.appendChild(image)&#125;  文本的度量由于绘制文本比较复杂,特别是需要把文本控制在某一区域内部的时候,canvas提供了measureText(),该方法接收一个参数,即:需要绘制的文本,返回一个TextMetrics对象,该对象有一个width属性.假设我们想要在140像素宽的矩形区域中绘制文本”hello...</div></div></div></a><a class="pagination-related" href="/2016/03/19/elements-size/" title="javascript 中的元素大小"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-03-19</div><div class="info-item-2">javascript 中的元素大小</div></div><div class="info-2"><div class="info-item-1">偏移量offset dimension包括元素在屏幕上占用的所见空间的大小．元素的可见大小由宽高，内边距，滚动条和边框确定，注意：不包含外边距． 如图所示：  offsetLeft和offsetTop属性与包含元素有关,包含元素的引用保存在offsetParent属性中。offsetParent属性不一定与parentNode的值相等。例如,&lt;td&gt;元素的offsetParent是作为其祖先元素的&lt;table&gt;元素,因为&lt;table&gt;是在DOM层次中距&lt;td&gt;最近的一个具有大小的元素。 要想取得某个元素在页面上的偏移量，就可以将这个元素的offsetLeft和offsetParent.offsetLeft相加，如此循环直到根元素就可以得到一个基本准确的值： 123456789function getElementLeft(element) &#123;  var actualLeft = element.offsetLeft;  var current = element.offsetParent;  while (current...</div></div></div></a><a class="pagination-related" href="/2016/06/18/sass-compass/" title="sass与compass实战"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-06-18</div><div class="info-item-2">sass与compass实战</div></div><div class="info-2"><div class="info-item-1">Sass，Compass与CSS3者的关系 曾经有一位古人说过：“如果你有一把锤子，那么所有的东西都会看起来像钉子。”；还有一位今人说过：“如果你有一颗钉子，那么你就会满大街找锤子。”。无论锤子亦或是钉子都是工具，而Compass和SASS恰恰扮演的就是锤子和钉子的角色，CSS则对应使用锤子和钉子最后完成的作品。——慕课网讲师·刘炬光   人们走进喧闹中去，是为了忘记孤寂。   人生不止眼前的苟且，还有诗和远方。——高晓松  compass初窥安装好sass和compass后创建compass项目compass create compass-in-action(更多命令可以使用compass --help查看) 接下来我们在项目根目录下可以使用compass watch命令监听sass文件的变化 compass核心模块概述我们只要执行了@import...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%BA%E5%AE%9A%E5%AE%BD%E5%BA%A6%E5%B8%83%E5%B1%80%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">固定宽度布局的缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%99%BE%E5%88%86%E6%AF%94%E5%AE%BD%E5%BA%A6%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="toc-number">2.</span> <span class="toc-text">百分比宽度的计算</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8em%E6%9B%BF%E4%BB%A3%E5%83%8F%E7%B4%A0"><span class="toc-number">3.</span> <span class="toc-text">使用em替代像素</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%B9%E6%80%A7%E5%9B%BE%E7%89%87"><span class="toc-number">4.</span> <span class="toc-text">弹性图片</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CSS3%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">5.</span> <span class="toc-text">CSS3实用技巧</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%83%E7%B4%A0%E7%9A%84%E9%80%8F%E6%98%8E%E5%BA%A6"><span class="toc-number">6.</span> <span class="toc-text">元素的透明度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8CSS3%E5%88%9B%E4%BD%9C%E7%BB%9A%E4%B8%BD%E7%9A%84%E6%95%88%E6%9E%9C"><span class="toc-number">7.</span> <span class="toc-text">使用CSS3创作绚丽的效果</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%8B%9F%E4%B9%A6%E7%B1%8D%E9%A1%B5%E8%BE%B9%E8%B7%9D%E7%9A%84%E5%85%89%E6%99%95%E6%95%88%E6%9E%9C"><span class="toc-number">7.1.</span> <span class="toc-text">模拟书籍页边距的光晕效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E5%AD%97%E6%B5%AE%E9%9B%95"><span class="toc-number">7.2.</span> <span class="toc-text">文字浮雕</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E6%B8%A1%E5%8A%A8%E7%94%BB"><span class="toc-number">7.3.</span> <span class="toc-text">过渡动画</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS3%E9%92%88%E5%AF%B9%E8%A1%A8%E5%8D%95%E7%9A%84%E4%BC%AA%E7%B1%BB%E9%80%89%E6%8B%A9%E5%99%A8"><span class="toc-number">7.4.</span> <span class="toc-text">CSS3针对表单的伪类选择器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#html5%E6%96%B0%E7%89%B9%E6%80%A7"><span class="toc-number">8.</span> <span class="toc-text">html5新特性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E8%81%94%E6%83%B3%E8%AF%8D"><span class="toc-number">8.1.</span> <span class="toc-text">自动联想词</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E6%94%AF%E6%8C%81html%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84%E6%B8%90%E8%BF%9B%E5%A2%9E%E5%BC%BA"><span class="toc-number">8.2.</span> <span class="toc-text">不支持html的浏览器的渐进增强</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84DOM%E6%96%B9%E6%B3%95"><span class="toc-number">8.3.</span> <span class="toc-text">一些常见的DOM方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">9.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

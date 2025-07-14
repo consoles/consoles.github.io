@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Shell 基础 —— 正则表达式 | 雨碎江南</title><meta name="author" content="consoles"><meta name="copyright" content="consoles"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="常用正则123$ grep -n &quot;^$&quot; test.txt # 空白行[0-9]\&#123;4\&#125;-[0-9]\&#123;2\&#125;-[0-9]\&#123;2\&#125; # yyyy-mm-dd[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell 基础 —— 正则表达式">
+<meta property="og:url" content="https://consoles.fun/2016/04/16/linux-regexp/index.html">
+<meta property="og:site_name" content="雨碎江南">
+<meta property="og:description" content="常用正则123$ grep -n &quot;^$&quot; test.txt # 空白行[0-9]\&#123;4\&#125;-[0-9]\&#123;2\&#125;-[0-9]\&#123;2\&#125; # yyyy-mm-dd[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://consoles.fun/img/butterfly-icon.png">
+<meta property="article:published_time" content="2016-04-16T10:23:12.000Z">
+<meta property="article:modified_time" content="2025-01-19T20:50:13.000Z">
+<meta property="article:author" content="consoles">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Shell">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://consoles.fun/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Shell 基础 —— 正则表达式",
+  "url": "https://consoles.fun/2016/04/16/linux-regexp/",
+  "image": "https://consoles.fun/img/butterfly-icon.png",
+  "datePublished": "2016-04-16T10:23:12.000Z",
+  "dateModified": "2025-01-19T20:50:13.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "consoles",
+      "url": "https://consoles.fun/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://consoles.fun/2016/04/16/linux-regexp/index.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Shell 基础 —— 正则表达式',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">雨碎江南</span></a><a class="nav-page-title" href="/"><span class="site-name">Shell 基础 —— 正则表达式</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Shell 基础 —— 正则表达式</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-04-16T10:23:12.000Z" title="发表于 2016-04-16 10:23:12">2016-04-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-19T20:50:13.000Z" title="更新于 2025-01-19 20:50:13">2025-01-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="常用正则"><a href="#常用正则" class="headerlink" title="常用正则"></a>常用正则</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ grep -n <span class="string">&quot;^$&quot;</span> test.txt <span class="comment"># 空白行</span></span><br><span class="line">[0-9]\&#123;4\&#125;-[0-9]\&#123;2\&#125;-[0-9]\&#123;2\&#125; <span class="comment"># yyyy-mm-dd</span></span><br><span class="line">[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125;\.[0-9]\&#123;1,3\&#125; <span class="comment"># ip</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在vi中按Esc键后d G可以清空光标起的所有内容。</p>
+</blockquote>
+<h1 id="字符截取命令"><a href="#字符截取命令" class="headerlink" title="字符截取命令"></a>字符截取命令</h1><h2 id="cut命令"><a href="#cut命令" class="headerlink" title="cut命令"></a>cut命令</h2><p>例如我们有用户信息文件<code>/etc/passwd</code>,</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ useradd user1</span><br><span class="line">$ useradd user2</span><br></pre></td></tr></table></figure>
+
+<p>假设我们要删除上面创建的用户user1和user2,当然我们可以使用<code>userdel</code>命令,但是有的时候是程序执行的,所以我们需要在<code>/etc/passwd</code>中提取出新创建的2个普通用户,使用<code>grep</code>进行行提取</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ grep <span class="string">&quot;user&quot;</span> /etc/passwd | grep -v <span class="string">&quot;system&quot;</span> <span class="comment"># -v表示取反</span></span><br><span class="line">user1:x:1001:1001::/home/user1:</span><br><span class="line">user2:x:1002:1002::/home/user2:</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们看下<code>cut</code>命令进行列提取,假设有以下的csv文件(注意:分隔符号是制表符):</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">id</span>      name    gender  mark</span><br><span class="line">1       furong  f       85</span><br><span class="line">2       fengj   f       60</span><br><span class="line">3       cang    f       70</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cut</span> -f 2 students.csv <span class="comment"># 截取第二列(name)</span></span><br><span class="line">$ <span class="built_in">cut</span> -f 2,4 students.csv <span class="comment"># 截取name和mark</span></span><br></pre></td></tr></table></figure>
+
+<p>再回到上一个从<code>/etc/passwd</code>中截取用户名的程序中,我们只需要这样:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ grep <span class="string">&quot;user&quot;</span> /etc/passwd | grep -v <span class="string">&quot;system&quot;</span> | <span class="built_in">cut</span> -f 1 -d <span class="string">&quot;:&quot;</span> <span class="comment"># -d指明分隔符</span></span><br></pre></td></tr></table></figure>
+
+<p>提取用户名和uid</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cut</span> -d <span class="string">&quot;:&quot;</span> -f 1,3 /etc/passwd</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">printf</span> <span class="string">&#x27;%s\t%s\t%s\t%s\n&#x27;</span>  $(<span class="built_in">cat</span> student.csv) <span class="comment"># 使用printf输出student.csv中的内容</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="awk命令"><a href="#awk命令" class="headerlink" title="awk命令"></a>awk命令</h2><p><code>awk &#39;条件1&#123;动作1&#125;条件2&#123;动作2&#125;...&#39; 文件名</code></p>
+<ul>
+<li>条件(Pattern):一般使用关系表达式,例如:x&gt;10,x&gt;&#x3D;10</li>
+<li>动作(Action):格式化输出或者流程控制语句</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">$ awk <span class="string">&#x27;&#123;printf $2 &quot;\t&quot; $4 &quot;\n&quot;&#125;&#x27;</span> student.csv <span class="comment"># 输出第2和4列</span></span><br><span class="line">name	mark</span><br><span class="line">furong	85</span><br><span class="line">fengj	60</span><br><span class="line">cang	70</span><br><span class="line">$ <span class="built_in">df</span> -h | awk <span class="string">&#x27;&#123;print $1 &quot;\t&quot; $3&#125;&#x27;</span> <span class="comment"># 输出df -h命令的第一列和第三列</span></span><br><span class="line">文件系统	已用</span><br><span class="line">/dev/sda8	20G</span><br><span class="line">none	0</span><br><span class="line">udev	4.0K</span><br><span class="line">tmpfs	1.2M</span><br><span class="line">none	0</span><br><span class="line">none	40M</span><br><span class="line">none	56K</span><br><span class="line">$ <span class="built_in">df</span> -h | grep <span class="string">&quot;/dev/sda8&quot;</span> | awk <span class="string">&#x27;&#123;print $1 &quot;\t&quot; $5&#125;&#x27;</span></span><br><span class="line">/dev/sda8	21%</span><br><span class="line">$ <span class="built_in">df</span> -h | grep <span class="string">&quot;/dev/sda8&quot;</span> | awk <span class="string">&#x27;&#123;print $5&#125;&#x27;</span> | <span class="built_in">cut</span> -f 1 -d <span class="string">&quot;%&quot;</span></span><br><span class="line">21</span><br><span class="line"></span><br><span class="line"><span class="comment"># BEGIN和END用于在整个文件的前面或者后面输出某个内容</span></span><br><span class="line">$ awk <span class="string">&#x27;BEGIN&#123;print &quot;---the begin---&quot;&#125;END&#123;print &quot;---the end---&quot;&#125;&#123;printf $2 &quot;\t&quot; $4 &quot;\n&quot;&#125;&#x27;</span> student.csv</span><br><span class="line">---the begin---</span><br><span class="line">name	mark</span><br><span class="line">furong	85</span><br><span class="line">fengj	60</span><br><span class="line">cang	70</span><br><span class="line">---the end---</span><br><span class="line"><span class="comment"># 使用awk命令输出用户名和uid</span></span><br><span class="line">$ <span class="built_in">cat</span> /etc/passwd | awk <span class="string">&#x27;&#123;FS=&quot;:&quot;&#125;&#123;print $1 &quot;\t&quot; $3&#125;&#x27;</span></span><br><span class="line"><span class="comment"># 输出student.csv中成绩大于70的学生姓名(中间的grep -v表示去掉表头表示的行)</span></span><br><span class="line">$ <span class="built_in">cat</span> student.csv | grep -v <span class="built_in">id</span> | awk <span class="string">&#x27;$4 &gt;= 70 &#123;printf $2 &quot;\n&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>awk中<code>$0</code>表示的是文件名,awk的执行是按照<em>行</em>进行提取,把每一个数据变换成<code>$1,$2,$3</code>等字段,然后判断Pattern,条件满足则执行Action接下来是第二行,以此类推.</p>
+<h2 id="sed命令"><a href="#sed命令" class="headerlink" title="sed命令"></a>sed命令</h2><p>文本替换和过滤的流式编辑器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sed中-n选项的作用,不加-n则不仅打印匹配的行而且打印整篇文档</span></span><br><span class="line">consoles@linux:~$ sed <span class="string">&#x27;2p&#x27;</span> student.csv</span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">1	furong	f	85</span><br><span class="line">1	furong	f	85</span><br><span class="line">2	fengj	f	60</span><br><span class="line">3	cang	f	70</span><br><span class="line">consoles@linux:~$ sed -n <span class="string">&#x27;2p&#x27;</span> student.csv</span><br><span class="line">1	furong	f	85</span><br><span class="line">$ sed  <span class="string">&#x27;2d&#x27;</span> student.csv <span class="comment"># 从原始数据中过滤掉第2行</span></span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">2	fengj	f	60</span><br><span class="line">3	cang	f	70</span><br><span class="line">$ sed  <span class="string">&#x27;2,4d&#x27;</span> student.csv <span class="comment"># 从原始数据中过滤掉第2到4行</span></span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">$ sed  <span class="string">&#x27;2a 漂亮就是任性&#x27;</span> student.csv <span class="comment"># 在第二行后面追加(如果选项是i则表示在前面插入)</span></span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">1	furong	f	85</span><br><span class="line">漂亮就是任性</span><br><span class="line">2	fengj	f	60</span><br><span class="line">3	cang	f	70</span><br><span class="line">$ sed <span class="string">&#x27;4c 苍老师成绩不及格&#x27;</span> student.csv  <span class="comment"># 替换第四行</span></span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">1	furong	f	85</span><br><span class="line">2	fengj	f	60</span><br><span class="line">3	cang	f	70</span><br><span class="line">$ sed <span class="string">&#x27;4s/70/100/g&#x27;</span> student.csv <span class="comment"># 将苍老师的成绩改为满分,我们可以使用`sed -i`将操作保存到硬盘</span></span><br><span class="line"><span class="built_in">id</span>	name	gender	mark</span><br><span class="line">1	furong	f	85</span><br><span class="line">2	fengj	f	60</span><br><span class="line">3	cang	f	100</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/guxch/article/details/7041052">Unix Domain Socket</a>用于IPC（同一台主机间的进程通信），不需要经过网络协议栈，不需要打包拆包、计算校验和、维护序号和应答等，只是将应用层数据从一个进程拷贝到另一个进程。UNIX Domain Socket有SOCK_DGRAM或SOCK_STREAM两种工作模式，类似于UDP和TCP，但是面向消息的UNIX Domain Socket也是可靠的，消息既不会丢失也不会顺序错乱。</p>
+<p>UNIX Domain Socket可用于两个没有亲缘关系的进程，是全双工的，是目前使用最广泛的IPC机制，比如X Window服务器和GUI程序之间就是通过UNIX Domain Socket通讯的。使用node可以创建<a target="_blank" rel="noopener" href="https://nodejs.org/dist/latest-v4.x/docs/api/net.html#net_net_createserver_options_connectionlistener">Unix Domain Server</a></p>
+<h2 id="文件查找"><a href="#文件查找" class="headerlink" title="文件查找"></a>文件查找</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find /usr -name <span class="string">&quot;redis.conf&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="buffer和cache"><a href="#buffer和cache" class="headerlink" title="buffer和cache"></a>buffer和cache</h3><p>这两个术语经常被混用，原因在于他们都在内存中可以提高IO性能。但是严格来说buffer是用于存放要输出到disk（块设备）的数据的，而cache是存放从disk上读出的数据。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://consoles.fun">consoles</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://consoles.fun/2016/04/16/linux-regexp/">https://consoles.fun/2016/04/16/linux-regexp/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://consoles.fun" target="_blank">雨碎江南</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/Shell/">Shell</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2016/04/29/linux-shell-flow-control/" title="Shell 基础 —— 流程控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-29</div><div class="info-item-2">Shell 基础 —— 流程控制</div></div><div class="info-2"><div class="info-item-1">条件判断假设/tmp/test.js存在,而/tmp/test.jsx文件不存在,则执行以下命令(注意中括号两端的空格): 123456789101112131415161718192021222324252627282930$ [ -e /tmp/test.js ]$ echo $? # 0,表示上一条命令执行成功,即文件存在$ [ -e /tmp/test.jsx ]$ echo $? # 1,非零值,上一条命令执行失败# 我们可以执行下面的命令从而得到更加语义化的结果$ [ -e /tmp/test.js ] &amp;&amp; echo &#x27;exists &#x27; || echo &#x27;not exists&#x27;# 判断文件权限$ [ -w /tmp/test.js ] &amp;&amp; echo &#x27;can write&#x27; || echo &#x27;can not write&#x27;文件1 -ef 文件2 # 判断两个文件的Inode是否一致,可理解为判断2个文件是否是同一个文件,用于判断硬链接是很好的方法$...</div></div></div></a><a class="pagination-related" href="/2016/04/04/linux-shell-operator/" title="Shell 基础 —— 运算符"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-04</div><div class="info-item-2">Shell 基础 —— 运算符</div></div><div class="info-2"><div class="info-item-1"> Linux查看在线用户使用w命令。  declare命令在上一篇文章Shell基础-变量中我们说道Linux中默认的变量类型是字符串. 我们使用该命令结合+或者-设定或者取消变量类型: 1$ declare [+|-] [options] 变量名  其中-是设置类型,+是取消设置类型. 常见的数据类型:  -a:数组型 -i:整型 -x:环境变量(其实export命令就是调用的declare -x命令) -r:只读变量(不能改变,不能修改,不能删除,甚至不能取消只读属性) -p:显式声明变量被声明的类型  请看下面的例子: 12345678910111213141516$ a=1$ b=2$ c=$a+$b$ echo $c # &#x27;1+2&#x27;,because default is string$$ declare -i c=$a+$b$ echo $c # 3# 定义数组$ sutdents[0] = &#x27;Kissy&#x27;$ sutdents[1] = &#x27;Tom&#x27;$ declare -a sutdents[2] =...</div></div></div></a><a class="pagination-related" href="/2016/10/09/vim-skill/" title="vim技巧"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-10-09</div><div class="info-item-2">vim技巧</div></div><div class="info-2"><div class="info-item-1">一些小技巧 =：一个常用的场景就是粘贴代码后格式乱了，使用v命令进入多选模式，选中几行，然后=。 vi abc.txt +:打开文件abc.txt并定位到最后一行。 vi abc.txt +3:打开abc.txt并定位到第3行(如果行号过大就会定位到最后一行和直接使用+一样)。 vi message-center/chatServer.js +/data，找出chatServer.js中所有的data，我们可以使用n（下一个）或者N（上一个）进行切换。 vi a.txt b.txt...</div></div></div></a><a class="pagination-related" href="/2016/12/27/dns-bind/" title="使用Bind搭建智能DNS"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-27</div><div class="info-item-2">使用Bind搭建智能DNS</div></div><div class="info-2"><div class="info-item-1"> Bind是加州大学伯克利分校开发维护的开源、稳定的DNS服务。  www.baidu.com = www.baidu.com.最后的一个.表示根域，.com是一级域,baidu.com是二级域。 DNS解析记录分类常见的有A记录，CNAME，MX和NS，参见鸟哥的Linux私房菜。 Bind安装和配置A记录 下面的例子中，DNS服务器为192.168.1.128。  12345$ yum install -y bind bind-chroot bind-utils$ rpm -qa | grep bind$ rpm -ql bind | more # 查看具体安装了哪些内容$ service named start # 启动DNS$ cp /etc/named.conf /etc/named.conf.default # 备份配置文件  配置/etc/named.conf为如下： 12345678options &#123;       	directory &quot;/var/named&quot;;&#125;;zone &quot;baidu.com&quot;...</div></div></div></a><a class="pagination-related" href="/2018/04/14/linux-basic/" title="Linux 基础"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2018-04-14</div><div class="info-item-2">Linux 基础</div></div><div class="info-2"><div class="info-item-1">硬盘分区、格式化和挂载MBR分区模式 主分区不能超过4个，拓展分区最多只能有1个，单个分区最大容量为2TB。  服务器添加硬盘后会显示在/dev目录下，但是我们此时还不能使用这个硬盘，必须对其进行分区格式化和挂载，硬盘分区使用fdisk（MBR分区工具）。我们为虚拟机添加了1个8G的硬盘,使用fdisk -l看到/dev/sdb上并没有可用的分区表，使用fdisk...</div></div></div></a><a class="pagination-related" href="/2016/12/04/linux-network/" title="Linux网络管理和权限配置"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2016-12-04</div><div class="info-item-2">Linux网络管理和权限配置</div></div><div class="info-2"><div class="info-item-1">arp协议是网络层的协议，但是具体工作在数据链路层，将ip地址和mac地址对应，我们可以使用arp...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">consoles</div><div class="author-info-description">野马也，尘埃也，生物之以息相吹也</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">101</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">77</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/consoles"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/consoles" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:consoles.me@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%AD%A3%E5%88%99"><span class="toc-number">1.</span> <span class="toc-text">常用正则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%88%AA%E5%8F%96%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">字符截取命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cut%E5%91%BD%E4%BB%A4"><span class="toc-number">2.1.</span> <span class="toc-text">cut命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#awk%E5%91%BD%E4%BB%A4"><span class="toc-number">2.2.</span> <span class="toc-text">awk命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sed%E5%91%BD%E4%BB%A4"><span class="toc-number">2.3.</span> <span class="toc-text">sed命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.</span> <span class="toc-text">文件查找</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#buffer%E5%92%8Ccache"><span class="toc-number">2.4.1.</span> <span class="toc-text">buffer和cache</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/30/%E7%AE%A1%E7%90%86%E5%AD%A6/" title="管理学">管理学</a><time datetime="2025-07-09T23:24:02.000Z" title="更新于 2025-07-09 23:24:02">2025-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/11/05/%E7%A0%81%E5%86%9C%E7%BF%BB%E8%BA%AB%E6%9C%89%E6%84%9F/" title="码农翻身有感">码农翻身有感</a><time datetime="2025-07-04T23:02:12.000Z" title="更新于 2025-07-04 23:02:12">2025-07-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2019/08/22/%E9%9D%A2%E8%AF%95%E5%B8%B8%E7%94%A8%E5%A5%97%E8%B7%AF/" title="面试常用套路">面试常用套路</a><time datetime="2025-07-02T18:34:21.000Z" title="更新于 2025-07-02 18:34:21">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2016/10/18/memcached/" title="memcached 初窥">memcached 初窥</a><time datetime="2025-07-02T11:15:01.000Z" title="更新于 2025-07-02 11:15:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/05/09/%E4%B8%80%E4%BA%9B%E6%83%B3%E8%AF%BB%E7%9A%84%E4%B9%A6/" title="一些想读的书">一些想读的书</a><time datetime="2025-06-28T22:18:10.000Z" title="更新于 2025-06-28 22:18:10">2025-06-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2016 - 2025 By consoles</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">日拱一卒，功不唐捐</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="true"></script><script id="click-heart" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
